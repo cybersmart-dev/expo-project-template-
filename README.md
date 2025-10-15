@@ -1,5 +1,5 @@
 
-## React native email applicatio ui
+## React native project template 
 
 ### complate setup
 - Installation
@@ -11,11 +11,11 @@
 clone git repo
 
 ```shell
-git clone https://github.com/cybersmart-dev/React-native-email-application-ui.git
+git clone https://github.com/cybersmart-dev/expo-project-template-.git
 ```
 
 ```shell
-cd React-native-email-application-ui
+cd expo-project-template-
 ```
 
 ```shell
