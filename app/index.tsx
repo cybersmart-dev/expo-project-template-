@@ -1,74 +1,103 @@
-import React from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
-import { Text, useTheme, ProgressBar } from "react-native-paper";
-import { useFonts } from "expo-font";
-import { useSharedValue } from "react-native-reanimated";
-import { useNavigation } from "expo-router";
+import React, { useState } from "react";
+import { View, StyleSheet, Image, Modal } from "react-native";
+import { Text, useTheme, Button, Appbar, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import PhoneLoginComponent from "@/components/login/PhoneLoginComponent"
+import EmailLoginComponent from "@/components/login/EmailLoginComponent"
 
-const { width, height } = Dimensions.get("screen");
 const Index = () => {
     const theme = useTheme();
-    const navigation = useNavigation();
-    const progressBar = useSharedValue(0);
+    const [loginOption, setLoginOption] = useState("");
 
-    const [progress, setProgress] = React.useState(0.0);
-    const updateProgress = () => {
-        const loop = () => {
-            progressBar.value += 0.01;
-
-            if (progressBar.value >= 1) {
-                navigation.navigate("(tabs)");
-                setProgress(0);
-            }
-            setProgress(progressBar.value);
-            requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
-    };
-    React.useEffect(() => {
-        updateProgress();
-        return () => {};
-    }, []);
     return (
-        <View style={styles.container}>
-            <Text
-                style={{
-                    color: theme.colors.background,
-                    fontSize: 30,
-                    marginBottom: 30
-                }}
-            >
-                Custom FlashScreen
-            </Text>
+        <SafeAreaView
+            className="flex-1"
+            style={{ backgroundColor: theme.colors.background }}
+        >
+            <Appbar>
+                <Button mode="">Help</Button>
+            </Appbar>
+            
+            <View className="absolute top-[120px] space-y-5 w-full items-center justify-center">
+                <Image
+                    className="h-14 w-14  rounded-full"
+                    source={require("../assets/images/profile_avatar.png")}
+                />
+                <View className="items-center">
+                    <Text
+                        style={{
+                            color: theme.colors.onBackground,
+                            fontSize: 20
+                        }}
+                    >
+                        Welcome To AppName
+                    </Text>
+                    <Text
+                        style={{
+                            color: theme.colors.onBackground,
+                            fontSize: 13,
+                            marginBottom: 30,
+                            opacity: 0.5
+                        }}
+                    >
+                        App description here
+                    </Text>
+                </View>
+            </View>
             <View
+                className="h-[50%] w-screen justify-center rounded-t-[40px]"
                 style={{
                     position: "absolute",
                     bottom: 0,
                     marginTop: 10,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginBottom: 30
+                    paddingBottom: 30,
+                    backgroundColor: theme.colors.surfaceVariant
                 }}
             >
-                <ProgressBar
-                    visible={true}
-                    progress={progress}
-                    style={{ height: 7, width: width / 1.5, borderRadius: 10 }}
-                />
-                <Text style={{ color: "black", marginTop: 10 }}>
-                    Please Wait
-                </Text>
+                <View className="space-y-5 px-7 shadow-2xl">
+                    <Button
+                        onPress={() => setLoginOption("Email")}
+                        icon="account"
+                        mode="outlined"
+                    >
+                        Login With Email
+                    </Button>
+                    <Button
+                        onPress={() => setLoginOption("Phone")}
+                        className=""
+                        buttonColor="gray"
+                        textColor="white"
+                        icon="phone"
+                        mode="contained"
+                    >
+                        Login with phone
+                    </Button>
+                    <Button
+                        onPress={() => alert('Social login not avilable. login with email instead')}
+                        textColor="#ff6868"
+                        icon="google"
+                        mode="outlined"
+                    >
+                        Login With Google
+                    </Button>
+                    <View className="flex-row items-center justify-center">
+                        <Text>I Don't have an account</Text>
+                        <Button onPress={() => router.push("singup")}>Sing up</Button>
+                    </View>
+                </View>
             </View>
-        </View>
+
+            <Modal
+                animationType="slide"
+                onRequestClose={() => setLoginOption("")}
+                visible={loginOption ? true : false}
+            >
+                {loginOption == "Email" && <EmailLoginComponent />}
+                {loginOption == "Phone" && <PhoneLoginComponent />}
+            </Modal>
+        </SafeAreaView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-    }
-});
 
 export default Index;

@@ -23,6 +23,13 @@ export default function TabLayout() {
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: theme.colors.primary,
+                tabBarStyle: {
+                    paddingBottom: 0,
+                    height: 60,
+                    borderTopWidth: 0,
+                    borderRadius: 50,
+                    elevation: 10 // Android shadow
+                },
                 tabBarBackground: () => (
                     <View
                         style={{
@@ -43,11 +50,7 @@ export default function TabLayout() {
                 options={{
                     title: "TabOne",
                     tabBarIcon: ({ color, size }) => (
-                        <IconButton
-                            size={size}
-                            iconColor={color}
-                            icon="home"
-                        />
+                        <IconButton size={size} iconColor={color} icon="home" />
                     )
                 }}
             />
@@ -57,11 +60,7 @@ export default function TabLayout() {
                 options={{
                     title: "TabTwo",
                     tabBarIcon: ({ color, size }) => (
-                        <IconButton
-                            size={size}
-                            iconColor={color}
-                            icon="cog"
-                        />
+                        <IconButton size={size} iconColor={color} icon="cog" />
                     )
                 }}
             />

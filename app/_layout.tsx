@@ -65,24 +65,20 @@ function RootLayoutNav() {
         <SafeAreaProvider>
             <PaperProvider theme={theme}>
                 <Stack>
-                    {/* <Stack.Screen
-                        name="index"
-                        options={{ headerShown: false }}
-                    />*/}
                     <Stack.Screen
                         name="index"
                         options={{ headerShown: false }}
                     />
                     <Stack.Screen
-                        name="modal"
-                        options={{ presentation: "modal" }}
+                        name="(tabs)"
+                        options={{ presentation: "modal" , headerShown:false}}
                     />
                     <Stack.Screen
                         name="view/[id]"
                         options={{ presentation: "modal", title: "Mail", headerShown:false }}
                     />
                     <Stack.Screen
-                        name="test"
+                        name="singup"
                         options={{ presentation: "modal", title: "Mail", headerShown:false }}
                     />
                 </Stack>
