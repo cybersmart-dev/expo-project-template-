@@ -1,20 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
+import { Avatar, Text } from "react-native-paper";
+import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 
-const ActionButton = () => {
+export interface ActionButtonProps {
+  icon: IconSource
+  label?: string,
+  onPress?: () => void
+}
+const ActionButton = ({icon, label, onPress}: ActionButtonProps) => {
   return (
-    <View style={styles.container}>
-      <Text>ActionButton</Text>
+    <View className="space-y-1 justify-center items-center w-auto">
+      <TouchableOpacity onPress={onPress}>
+        <Avatar.Icon size={45} icon={icon} />
+      </TouchableOpacity>
+      <Text numberOfLines={1}>{ label }</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default ActionButton;

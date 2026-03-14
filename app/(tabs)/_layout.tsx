@@ -1,20 +1,14 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Tabs } from "expo-router";
-import { Pressable, View } from "react-native";
-import { PaperProvider } from "react-native-paper";
-import Colors from "@/constants/Colors";
+import { Tabs } from "expo-router";
+import { StatusBar, View } from "react-native";
 import { useColorScheme } from "@/components/useColorScheme";
-import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { IconButton, useTheme } from "react-native-paper";
+import Feather from '@expo/vector-icons/Feather';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-    name: React.ComponentProps<typeof FontAwesome>["name"];
-    color: string;
-    size: number;
-}) {
-    return <FontAwesome size={size} style={{ marginBottom: -3 }} {...props} />;
-}
+
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
@@ -28,14 +22,15 @@ export default function TabLayout() {
                     height: 60,
                     borderTopWidth: 0,
                     borderRadius: 50,
-                    elevation: 10 // Android shadow
+                    //elevation: 10,
+                    //marginBottom:StatusBar.currentHeight
                 },
                 tabBarBackground: () => (
                     <View
                         style={{
                             backgroundColor: theme.colors.background,
                             padding: 5,
-                            height: 50
+                            height: 60
                         }}
                         className="flex-1 h-fit bg-transparent"
                     ></View>
@@ -48,9 +43,18 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "TabOne",
+                    title: "Home",
                     tabBarIcon: ({ color, size }) => (
-                        <IconButton size={size} iconColor={color} icon="home" />
+                        <Feather name="home" size={size} color={color} />
+                    )
+                }}
+            />
+             <Tabs.Screen
+                name="transactions"
+                options={{
+                    title: "Transactions",
+                    tabBarIcon: ({ color, size }) => (
+                       <MaterialCommunityIcons name="history" size={size} color={color} />
                     )
                 }}
             />
@@ -58,9 +62,9 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="me"
                 options={{
-                    title: "TabTwo",
+                    title: "Profile",
                     tabBarIcon: ({ color, size }) => (
-                        <IconButton size={size} iconColor={color} icon="cog" />
+                       <MaterialCommunityIcons name="account-outline" size={size} color={color} />
                     )
                 }}
             />
