@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, TouchableOpacity, Text, TextInput } from "react-native";
+import { View, TouchableOpacity, Text, TextInput, DimensionValue } from "react-native";
 //import * as Clipboard from "expo-clipboard";
 import { useTheme } from "react-native-paper";
 /**
@@ -21,8 +21,13 @@ interface OtpInputProps {
   containerClassName?: string | undefined;
   inputClassName?: string | undefined;
   value?: string | undefined;
+  height?: DimensionValue | undefined
+  width?: DimensionValue | undefined
+  
 }
 export default function OtpInput({
+  height = 40,
+  width = 40,
   length = 6,
   onComplete = () => {},
   onChange = () => {},
@@ -147,7 +152,7 @@ export default function OtpInput({
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: "center",
-        width: "100%",
+        width: "auto",
       }}
       className=""
     >
@@ -164,11 +169,14 @@ export default function OtpInput({
           style={{
             borderColor: error ? theme.colors.error : "gray",
             borderWidth: 1,
+            width: width,
+            height: height,
             color: theme.colors.onBackground,
           }}
           returnKeyType="done"
+         
           textContentType="oneTimeCode" // helps iOS auto-fill
-          className="w-12 text-white text-center h-12 mx-1 bg-transparent rounded-lg  text-lg"
+          className="text-white text-center mx-1 bg-transparent rounded-lg  "
           mode="outlined"
           onFocus={() => {
             // select content on focus for easier replace

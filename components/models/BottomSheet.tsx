@@ -1,80 +1,134 @@
 import {
   View,
-  Text,
   Modal,
   DimensionValue,
   Pressable,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  ViewStyle,
+  StatusBar as RNStatusBar,
+  ColorValue,
 } from "react-native";
-import React from "react";
+import React, { SetStateAction } from "react";
+import { useTheme } from "react-native-paper";
+import {
+  createAnimatedComponent,
+  FadingTransition,
+  LinearTransition,
+  ReduceMotion,
+} from "react-native-reanimated";
+import { EaseView } from "react-native-ease";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { IconButton, useTheme } from "react-native-paper";
+
+const AnimatedKeyboardAvoidingView =
+  createAnimatedComponent(KeyboardAvoidingView);
 
 interface BottomSheetProps {
   visible?: boolean;
   children: React.ReactNode;
   height?: DimensionValue | undefined;
-  onDismiss?: () => void;
+  onDismiss?: (value: SetStateAction<boolean>) => void;
   dismissable?: boolean;
-  mode?: "center" | "full-width";
+  mode?: "center" | "full-width" | "dailog";
+  style?: ViewStyle;
+  animationType?: "fade" | "none" | "slide" | undefined;
+  backgroundColor?: ColorValue;
 }
 
 const BottomSheet = ({
   children,
-  onDismiss = () => {},
+  style,
+  onDismiss = (value = false) => {},
   dismissable = true,
   visible = true,
   height = "auto",
   mode = "center",
+  animationType = "fade",
+  backgroundColor,
 }: BottomSheetProps) => {
   const theme = useTheme();
 
   const dismiss = () => {
     Keyboard.dismiss();
     if (dismissable) {
-      onDismiss();
+      onDismiss(false);
     }
+  };
+  const getModeStyle = (): { main: string; shape: string } => {
+    if (mode == "center") {
+      return {
+        main: "absolute bottom-0 w-full pb-4 px-4",
+        shape: "h-full w-full rounded-2xl",
+      };
+    }
+    if (mode == "full-width") {
+      return {
+        main: "absolute bottom-0 w-full",
+        shape: "h-full w-full rounded-t-2xl",
+      };
+    }
+    if (mode == "dailog") {
+      return {
+        main: "absolute bottom-[50%] w-full  px-4 ",
+        shape: "h-full w-full rounded-2xl",
+      };
+    }
+    return {
+      main: "",
+      shape: "",
+    };
   };
   return (
     <Modal
-      animationType="fade"
+      animationType={animationType}
       onRequestClose={dismiss}
       visible={visible}
+      style={style}
       transparent
     >
-      <Pressable onPress={dismiss} className="bg-[#1818189a] flex-1 ">
-        <View
-          style={{ height: height }}
-          className={
-            mode == "center"
-              ? "absolute bottom-0 w-full pb-4 px-4 "
-              : "absolute bottom-0 w-full"
-          }
+      <SafeAreaView edges={['bottom', 'left', 'right']} className="flex-1">
+        <AnimatedKeyboardAvoidingView
+          className="bg-[#1818189a] flex-1 "
+          behavior={Platform.OS == "android" ? "padding" : "height"}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          <Pressable
+            style={{
+              marginTop: mode == "dailog" ? RNStatusBar.currentHeight : 0,
+            }}
+            onPress={dismiss}
+            className="flex-1 "
           >
-            <Pressable
-              onPress={() => Keyboard.dismiss()}
-              className={
-                mode == "center"
-                  ? "h-full w-full bg-white rounded-2xl"
-                  : "h-full w-full bg-white rounded-t-2xl"
-              }
+            <EaseView
+              animate={{ opacity: visible ? 1 : 0 }}
+              transition={{ duration: 4000, type: "timing" }}
+              style={{ height: height }}
+              className={getModeStyle().main}
             >
-              <View className="w-full items-center pt-1">
-                <View
-                  style={{ backgroundColor: theme.colors.primary }}
-                  className="h-[5px] w-[70px] rounded-full"
-                ></View>
-              </View>
-              {children}
-            </Pressable>
-          </KeyboardAvoidingView>
-        </View>
-      </Pressable>
+              <Pressable
+                onPress={() => Keyboard.dismiss()}
+                style={{
+                  backgroundColor:
+                    backgroundColor != undefined
+                      ? backgroundColor
+                      : theme.colors.background,
+                }}
+                className={getModeStyle().shape}
+              >
+                <View className="w-full items-center pt-1">
+                  {mode != "dailog" && (
+                    <View
+                      style={{ backgroundColor: theme.colors.primary }}
+                      className="h-[5px] w-[70px] rounded-full"
+                    ></View>
+                  )}
+                </View>
+                {children}
+              </Pressable>
+            </EaseView>
+          </Pressable>
+        </AnimatedKeyboardAvoidingView>
+      </SafeAreaView>
     </Modal>
   );
 };

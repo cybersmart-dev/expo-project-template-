@@ -10,6 +10,7 @@ interface CreatePinContainerProps {
 const CreatePinContainer = ({ onSkip, onCreate }: CreatePinContainerProps) => {
   const [pin, setPin] = useState("");
   const [pin2, setPin2] = useState("");
+  
 
   const create = () => {
     if (pin.trim().length < 4 || pin2.trim().length < 4) {
@@ -49,6 +50,7 @@ const CreatePinContainer = ({ onSkip, onCreate }: CreatePinContainerProps) => {
           Skip
         </Button>
       </View>
+      
     </View>
   );
 };

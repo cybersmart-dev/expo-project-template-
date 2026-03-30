@@ -1,34 +1,82 @@
 import BalanceContainer from "@/components/Containers/BalanceContainer";
-import React, { useEffect, useState } from "react";
-import { RefreshControl, ScrollView, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  RefreshControl,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  Image,
+  StatusBar as RNStatusBar,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme, Text, Appbar } from "react-native-paper";
-import { Image } from "react-native";
+import { useTheme, Text, Appbar, Button } from "react-native-paper";
 import { HomeQuickActionsContainer } from "@/components/Containers/HomeQuickActionsContainer";
 import ServicesContainer from "@/components/Containers/ServicesContainer";
 import HomeSliderContainer from "@/components/Containers/HomeSliderContainer";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
 import CreatePinContainer from "@/components/Containers/CreatePinContainer";
 import { StatusBar } from "expo-status-bar";
+import {} from "expo-image";
+import { EaseView } from "react-native-ease";
+
+const blurhash =
+  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{olj[ayj[j[cbj[ayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
 export default function Index() {
   const theme = useTheme();
   const [hideBalance, setHideBalance] = useState(false);
   const [showPinSheet, setShowPinSheet] = useState(false);
+  const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
+    useState(false);
+
+  const [loaded, setLoaded] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoaded(true);
+
+      return () => {
+        setLoaded(false);
+      };
+    }, []),
+  );
 
   useEffect(() => {
-    if (true) {
+    if (!true) {
       setShowPinSheet(true);
     }
+    fetchData();
   }, []);
 
+  const fetchData = async () => {
+    fetch("https://example.org", {})
+      .then((response) => {
+        return response.text();
+      })
+      .then((data) => {
+        console.log(`Response: ${data}`);
+      })
+      .catch((error) => {
+        //setNetworkErrorSheetVisible(true);
+      });
+  };
+
   return (
-    <SafeAreaView
+    <EaseView
+      animate={{
+        scale: loaded ? 1 : 1.2,
+      }}
+      transition={{ type: "timing", duration: 500, easing: "linear" }}
       style={{ backgroundColor: theme.colors.background }}
       className="flex flex-1"
     >
-      <Appbar style={{ backgroundColor: theme.colors.primary }}>
+      <Appbar
+        style={{
+          backgroundColor: theme.colors.primary,
+          paddingTop: RNStatusBar.currentHeight,
+        }}
+      >
         <Appbar.Content
           title={
             <TouchableOpacity
@@ -39,15 +87,31 @@ export default function Index() {
                 className="h-7 w-7 rounded-full"
                 source={require("@/assets/images/profile_avatar.png")}
               />
-              <Text className="text-white">Mustapha Aminu</Text>
+              <Text className="text-white">
+                Hi <Text className="font-bold text-white">Mustapha!</Text>
+              </Text>
             </TouchableOpacity>
           }
         />
-        <Appbar.Action color="white" icon={"bell-outline"} />
-        <Appbar.Action color="white" icon={"face-agent"} />
+        <Appbar.Action
+          onPress={() => router.push("/notifications")}
+          color="white"
+          icon={"bell-outline"}
+        />
+        <Appbar.Action
+          onPress={() => router.push("/contactus")}
+          color="white"
+          icon={"face-agent"}
+        />
       </Appbar>
 
-      <ScrollView  refreshControl={<RefreshControl refreshing={false} />} className="pb-5 flex-1">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={fetchData} />
+        }
+        className="pb-5 flex-1"
+      >
         <View className="">
           <BalanceContainer
             theme={theme}
@@ -63,7 +127,7 @@ export default function Index() {
         <View className="p-3">
           <HomeSliderContainer />
         </View>
-        <View className="p-3">
+        <View className="px-3 mb-3">
           <Text className="mb-3 ml-2 font-bold">Services</Text>
           <ServicesContainer />
         </View>
@@ -80,7 +144,31 @@ export default function Index() {
         />
       </BottomSheet>
 
-      <StatusBar backgroundColor={theme.colors.primary} style="light" />
-    </SafeAreaView>
+      <BottomSheet
+        visible={networkErrorSheetVisible}
+        onDismiss={setNetworkErrorSheetVisible}
+        mode={"center"}
+        backgroundColor={"#ffc7c7"}
+      >
+        <View className="items-center p-5 px-5 bg-[]">
+          <Image
+            className="h-32 w-32"
+            source={require("@/assets/images/gif/no_connection_anim.gif")}
+          />
+          <Text className="font-bold mt-2 text-red-800">
+            Please check your network and try again
+          </Text>
+        </View>
+        <View className="p-3">
+          <Button
+            onPress={() => setNetworkErrorSheetVisible(false)}
+            mode="outlined"
+          >
+            Ok
+          </Button>
+        </View>
+      </BottomSheet>
+      <StatusBar key={1} style="light" />
+    </EaseView>
   );
 }

@@ -1,5 +1,5 @@
 import Processing from "../models/Processing";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Image,
@@ -7,11 +7,23 @@ import {
   Platform,
   Keyboard,
 } from "react-native";
-import { Text, useTheme, Button, Appbar, TextInput } from "react-native-paper";
+import {
+  Text,
+  useTheme,
+  Button,
+  TextInput,
+  Appbar,
+  MD3Colors,
+  ActivityIndicator,
+} from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { PaperSafeView } from "../PaperView";
+import { EaseView } from "react-native-ease";
+import { Timer } from "@/constants/Utils";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { StatusBar } from "expo-status-bar";
 
 const EmailLoginComponent = () => {
   const theme = useTheme();
@@ -22,6 +34,17 @@ const EmailLoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
   const processingRef = useRef<number>(null);
+
+  const [loaded, setLoaded] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoaded(true);
+      return () => {
+        setLoaded(false);
+      };
+    }, []),
+  );
 
   const validateInput = () => {
     if (!email) {
@@ -44,104 +67,193 @@ const EmailLoginComponent = () => {
     login();
   };
 
-  const login = () => {
+  const login = async () => {
     setShowProcessing(true);
-    processingRef.current = setInterval(() => {
-      setShowProcessing(false);
+    Keyboard.dismiss()
+    await new Timer().postDelayedAsync({ sec: 3000 });
 
-      if (processingRef.current) {
-        clearInterval(processingRef.current);
-        processingRef.current = null;
-        showMessage({
-          message: "Login",
-          description: "Login successfuly",
-          type: "success",
-        });
-        router.push("/(tabs)");
-      }
-    }, 3000);
+    processingRef.current = null;
+    showMessage({
+      message: "Login",
+      description: "Login successfuly",
+      type: "success",
+    });
+    setShowProcessing(false);
+    router.push("/(tabs)");
   };
   return (
     <PaperSafeView
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
+      <Appbar>
+        <EaseView
+          animate={{ translateX: loaded ? 0 : -200 }}
+          transition={{ type: "timing", duration: 1000 }}
+        >
+          <Appbar.Action
+            icon={({ color, size }) => (
+              <MaterialIcons
+                name="keyboard-arrow-left"
+                size={size}
+                color={color}
+              />
+            )}
+            onPress={() => router.push("/")}
+          />
+        </EaseView>
+        <Appbar.Content title />
+        <EaseView
+          animate={{ translateX: loaded ? 0 : 200 }}
+          transition={{ type: "timing", duration: 1000 }}
+        >
+          <Button mode={"contained-tonal"} className="mr-2">
+            Help
+          </Button>
+        </EaseView>
+      </Appbar>
       <View className="absolute top-[120px] space-y-5 w-full items-center justify-center">
-        <Image
-          className="h-14 w-14  rounded-full"
-          source={require("@/assets/images/profile_avatar.png")}
-        />
+        <EaseView
+          animate={{
+            opacity: loaded ? 1 : 0,
+            translateY: loaded ? 0 : -20,
+          }}
+          transition={{ duration: 1000, type: "timing" }}
+        >
+          <Image
+            className="h-14 w-14  rounded-full"
+            source={require("@/assets/images/profile_avatar.png")}
+          />
+        </EaseView>
         <View className="items-center">
-          <Text
-            style={{
-              color: theme.colors.onBackground,
-              fontSize: 20,
+          <EaseView
+            animate={{
+              opacity: loaded ? 1 : 0,
+              translateY: loaded ? 0 : -20,
             }}
+            transition={{ duration: 1000, type: "timing", delay: 200 }}
           >
-            Login With Email Address
-          </Text>
-          <Text
-            style={{
-              color: theme.colors.onBackground,
-              fontSize: 13,
-              marginBottom: 30,
-              opacity: 0.5,
+            <Text
+              style={{
+                color: theme.colors.onBackground,
+                fontSize: 20,
+              }}
+            >
+              Login With Email Address
+            </Text>
+          </EaseView>
+          <EaseView
+            animate={{
+              opacity: loaded ? 1 : 0,
+              translateY: loaded ? 0 : -20,
             }}
+            transition={{ duration: 1000, type: "timing", delay: 400 }}
           >
-            some description here
-          </Text>
+            <Text
+              style={{
+                color: theme.colors.onBackground,
+                fontSize: 13,
+                marginBottom: 30,
+                opacity: 0.5,
+              }}
+            >
+              some description here
+            </Text>
+          </EaseView>
         </View>
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto pt-10 w-screen justify-center rounded-t-[30px]"
+        className="h-auto min-h-[55%] w-screen "
         style={{
           position: "absolute",
           bottom: 0,
-          marginTop: 10,
-
-          paddingBottom: 30,
-          backgroundColor: theme.colors.surfaceVariant,
         }}
       >
-        <View className="space-y-5 px-7 shadow-2xl">
-          <TextInput
-            label="Email Address"
-            keyboardType={"email-address"}
-            className="bg-transparent"
-            onChangeText={setEmail}
-            left={<TextInput.Icon size={20} icon="email" />}
-          />
-          <TextInput
-            label="Password"
-            onChangeText={setPassword}
-            secureTextEntry={showPassword ? false : true}
-            left={<TextInput.Icon size={20} icon="lock" />}
-            className="bg-transparent"
-            right={
-              <TextInput.Icon
-                size={20}
-                onPress={() => setShowPassword(!showPassword)}
-                icon={showPassword ? "eye-off" : "eye"}
+        <EaseView
+          style={{
+            backgroundColor: theme.colors.surfaceVariant,
+            marginTop: 50,
+            paddingBottom: 30,
+          }}
+          className="rounded-t-[30px] h-full justify-center "
+          animate={{ translateY: loaded ? 0 : 100 }}
+          transition={{ type: "timing", duration: 500, easing: "linear" }}
+        >
+          <View className="space-y-5 px-7 shadow-2xl">
+            <TextInput
+              placeholder="Email Address"
+              keyboardType={"email-address"}
+              className="bg-transparent"
+              mode="outlined"
+              outlineStyle={{ borderRadius: 15 }}
+              onChangeText={setEmail}
+              left={<TextInput.Icon size={20} icon="email" />}
+            />
+
+            <View>
+              <TextInput
+                placeholder="Password"
+                onChangeText={setPassword}
+                secureTextEntry={showPassword ? false : true}
+                left={<TextInput.Icon size={20} icon="lock" />}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+                className="bg-transparent"
+                right={
+                  <TextInput.Icon
+                    size={20}
+                    onPress={() => setShowPassword(!showPassword)}
+                    icon={showPassword ? "eye-off" : "eye"}
+                  />
+                }
               />
-            }
-          />
-          <View className="pt-5">
-            <Button
-              onPress={() => validateInput()}
-              className=""
-              mode="contained"
-            >
-              Login
-            </Button>
+              <View className="w-full items-end">
+                <Button mode="text" className="">
+                  Forgot Password?
+                </Button>
+              </View>
+            </View>
+
+            <View className="">
+              {showProcessing && (
+                <Button
+                  disabled
+                  onPress={() => validateInput()}
+                  className="text-lg p-1"
+                  style={{ borderRadius: 15 }}
+                  labelStyle={{ fontSize: 16 }}
+                  mode="contained"
+                >
+                  <View className="flex-row">
+                    <Text> </Text>
+                    <ActivityIndicator size={25} />
+                  </View>
+                </Button>
+              )}
+
+              {!showProcessing && (
+                <Button
+                  onPress={() => validateInput()}
+                  className="text-lg p-1"
+                  style={{ borderRadius: 15 }}
+                  labelStyle={{ fontSize: 16 }}
+                  mode="contained"
+                >
+                  Login
+                </Button>
+              )}
+
+              <View className="flex-row items-center justify-center pt-0 pb-3">
+                <Text>I Don't have an account</Text>
+                <Button onPress={() => router.push("/singup")}>Sing up</Button>
+              </View>
+            </View>
           </View>
-          <View className="flex-row items-center justify-center pt-5 pb-7">
-            <Text>I Don't have an account</Text>
-            <Button onPress={() => router.push("/singup")}>Sing up</Button>
-          </View>
-        </View>
+        </EaseView>
       </KeyboardAvoidingView>
-      <Processing visible={showProcessing} />
+      
+      <StatusBar style="dark" />
     </PaperSafeView>
   );
 };

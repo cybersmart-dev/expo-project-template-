@@ -1,9 +1,8 @@
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Chip, useTheme } from "react-native-paper";
+import { Chip, useTheme, Text } from "react-native-paper";
 import { DataPackType } from "@/constants/Types";
-
-
+import { formatNumber } from "@/constants/Formats";
 
 const BundlesList = {
   mtn: {
@@ -128,20 +127,39 @@ const BundlesList = {
 
 interface DataPackComponentProps {
   item: DataPackType;
+  selected: boolean;
   onPress: () => void;
 }
-const DataPackComponent = ({ item, onPress }: DataPackComponentProps) => {
+const DataPackComponent = ({
+  item,
+  onPress,
+  selected,
+}: DataPackComponentProps) => {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{ backgroundColor: theme.colors.surfaceVariant }}
-      className="h-auto min-w-[95px] w-auto p-4 items-center space-y-2 rounded-lg"
-    >
-      <Text className="text-lg font-bold">{item.benefits}</Text>
-      <Text>{item.validity}</Text>
-      <Text className="font-bold">₦{item.price}</Text>
-    </TouchableOpacity>
+    <View className="p-1 mt-2">
+      <TouchableOpacity
+        onPress={onPress}
+        style={{
+          backgroundColor: theme.colors.surfaceVariant,
+          borderColor: selected ? theme.colors.primary : "transparent",
+          borderWidth: 2,
+          borderStyle:'dotted'
+        }}
+        className="h-[120px] py-5 w-[100px]  rounded-lg items-center justify-center"
+      >
+        <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
+          <Text numberOfLines={1} className="text-[10px]">
+            <Text className="text-black">+ ₦ {formatNumber(0.4)}</Text>
+          </Text>
+        </View>
+        <Text className="text-lg font-bold mt-3">{item.benefits}</Text>
+        <Text>{item.validity}</Text>
+        <Text className="text-[12px] mt-2">
+          <Text className="font-bold">₦{formatNumber(item.price)}</Text>
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -163,6 +181,7 @@ const DataListContainer = ({
       packs: Array<DataPackType>;
     }>;
   }>();
+  const [selectedPack, setSelectedPack] = useState<DataPackType>();
 
   useEffect(() => {
     handleNetworkSelect();
@@ -200,18 +219,23 @@ const DataListContainer = ({
           )}
         />
       </View>
-      <View className="">
+      <View className="px-3 space-x-1 mt-1 h-[290px]">
         <FlatList
           keyExtractor={(item) => `${item.id}`}
           numColumns={3}
           data={selectedBundlePacks}
           renderItem={({ item }) => (
-            <View className="p-3">
-              <DataPackComponent
-                onPress={() => onPackSelect(item)}
-                item={item}
-              />
-            </View>
+            <DataPackComponent
+              selected={
+                `${item.id}|${item.benefits}` ==
+                `${selectedPack?.id}|${selectedPack?.benefits}`
+              }
+              onPress={() => {
+                setSelectedPack(item)
+                onPackSelect(item)
+              }}
+              item={item}
+            />
           )}
         />
       </View>

@@ -50,7 +50,7 @@ const HomeSliderContainer = () => {
         <Image
           key={`dot-${refreshKey}`}
           source={{uri: item.image}}
-          className="w-full h-[120px] rounded-lg"
+          className="w-full h-[110px] rounded-lg"
           resizeMode="stretch"
         />
       </View>

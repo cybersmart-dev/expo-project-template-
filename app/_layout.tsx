@@ -1,16 +1,20 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DarkScheme, LightScheme } from "../Themes/ThemeSchemes";
 import "react-native-reanimated";
-
-import { useColorScheme, StatusBar as RNStatusBar } from "react-native";
+import * as Device from "expo-device";
+import {
+  useColorScheme,
+  StatusBar as RNStatusBar,
+  Platform,
+} from "react-native";
 import FlashMessage from "react-native-flash-message";
 
 const DarkTheme = {
@@ -61,7 +65,13 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const theme = colorScheme == "dark" ? DarkTheme : LightTheme;
+  const theme = LightTheme; //colorScheme == "dark" ? DarkTheme : LightTheme;
+
+  const isSupportFormSheet = () => {
+    
+    return false;
+  };
+
   return (
     <SafeAreaProvider>
       <PaperProvider theme={theme}>
@@ -82,7 +92,9 @@ function RootLayoutNav() {
           <Stack.Screen
             name="singup"
             options={{
-              presentation: "formSheet",
+              presentation: isSupportFormSheet()
+                ? "formSheet"
+                : "containedModal",
               title: "Singup",
               headerShown: false,
             }}
@@ -92,7 +104,9 @@ function RootLayoutNav() {
           <Stack.Screen
             name="logins/emailLogin"
             options={{
-              presentation: "formSheet",
+              presentation: isSupportFormSheet()
+                ? "formSheet"
+                : "containedModal",
               title: "Singup",
               headerShown: false,
             }}
@@ -100,7 +114,9 @@ function RootLayoutNav() {
           <Stack.Screen
             name="logins/phoneLogin"
             options={{
-              presentation: "formSheet",
+              presentation: isSupportFormSheet()
+                ? "formSheet"
+                : "containedModal",
               title: "Phone Login",
               headerShown: false,
             }}
@@ -108,7 +124,9 @@ function RootLayoutNav() {
           <Stack.Screen
             name="logins/setupPassword"
             options={{
-              presentation: "formSheet",
+              presentation: isSupportFormSheet()
+                ? "formSheet"
+                : "containedModal",
 
               title: "Phone Login",
               headerShown: false,
@@ -135,7 +153,7 @@ function RootLayoutNav() {
             }}
           />
 
-           <Stack.Screen
+          <Stack.Screen
             name="buy-data"
             options={{
               presentation: "containedModal",
@@ -144,11 +162,107 @@ function RootLayoutNav() {
             }}
           />
 
-           <Stack.Screen
+          <Stack.Screen
             name="buy-airtime"
             options={{
               presentation: "containedModal",
               title: "Buy Airtime",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="airtime2cash/airtime2cash"
+            options={{
+              presentation: "containedModal",
+              title: "Airtime2Cash",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="airtime2cash/transfer"
+            options={{
+              presentation: "containedModal",
+              title: "Airtime2Cash",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="add_money"
+            options={{
+              presentation: "containedModal",
+              title: "Add Money",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="notifications"
+            options={{
+              presentation: "containedModal",
+              title: "Notifications",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="betting"
+            options={{
+              presentation: 'containedModal',
+              title: "Betting",
+              headerShown: false,
+            }}
+          />
+          
+          <Stack.Screen
+            name="electricity"
+            options={{
+              presentation: 'containedModal',
+              title: "Electricity",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="cabletv"
+            options={{
+              presentation: 'containedModal',
+              title: "Cable Tv",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="result-chacker"
+            options={{
+              presentation: 'containedModal',
+              title: "Result Chacker",
+              headerShown: false,
+            }}
+          />
+
+           <Stack.Screen
+            name="earning"
+            options={{
+              presentation: 'containedModal',
+              title: "earning",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="widthdraw"
+            options={{
+              presentation: 'containedModal',
+              title: "earning",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="contactus"
+            options={{
+              presentation: 'containedModal',
+              title: "earning",
               headerShown: false,
             }}
           />
@@ -163,15 +277,29 @@ function RootLayoutNav() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="modals/transfer_response"
+            options={{
+              presentation: "fullScreenModal",
+              title: "Transfer Response",
+              headerShown: false,
+            }}
+          />
+
+          {/** end modal */}
+
+          <Stack.Screen
+            name="TransactionDetails/[id]"
+            options={{
+              presentation: "fullScreenModal",
+              title: "TransactionDetails",
+              headerShown: false,
+            }}
+          />
         </Stack>
-
-        <StatusBar backgroundColor={theme.colors.primary} style="light" />
-
-        <FlashMessage
-          style={{ marginTop: RNStatusBar.currentHeight }}
-          position={"top"}
-        />
       </PaperProvider>
+      <StatusBar style="dark" />
+      <FlashMessage style={{}} position={"top"} />
     </SafeAreaProvider>
   );
 }

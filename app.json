@@ -17,12 +17,19 @@
       "supportsTablet": true
     },
     "android": {
+      "appVersion": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.cybersmart83.expoprojecttemplate"
+      "package": "com.expoproject.template.prod",
+      "permissions": [
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -30,6 +37,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        }
+      ],
       [
         "expo-dev-client",
         {
@@ -47,6 +60,16 @@
           }
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#000000",
+          "defaultChannel": "default",
+          "sounds": ["./assets/audio/mixkit_melodic_gold_price.wav"],
+          "enableBackgroundRemoteNotifications": false
+        }
+      ],
       "expo-router",
       "expo-font",
       "expo-web-browser"
@@ -59,6 +82,12 @@
       "eas": {
         "projectId": "64ae5a67-e9e8-4a2b-9829-35fb6564d861"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/64ae5a67-e9e8-4a2b-9829-35fb6564d861"
     }
   }
 }

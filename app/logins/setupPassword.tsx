@@ -4,6 +4,7 @@ import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import FlashMessage, { showMessage } from "react-native-flash-message";
 import { router, useLocalSearchParams } from "expo-router";
 import Processing from "@/components/models/Processing";
+import { Timer } from "@/constants/Utils";
 
 const setupPassword = () => {
   const { fullName, email, phoneNumber, state } = useLocalSearchParams();
@@ -11,7 +12,6 @@ const setupPassword = () => {
   const processingRef = useRef<number>(null);
 
   const handleConfirm = (data: { pass1: string; pass2: string }) => {
-    
     const { pass1, pass2 } = data;
     if (pass1 != pass2) {
       showMessage({
@@ -25,16 +25,12 @@ const setupPassword = () => {
     singup();
   };
 
-  const singup = () => {
+  const singup = async () => {
     setProcessing(true);
-    processingRef.current = setInterval(() => {
-        router.push("/(tabs)");
-        if (processingRef.current) {
-            clearInterval(processingRef.current)
-            processingRef.current = null
-            setProcessing(false)
-        }
-    }, 3000);
+
+    await new Timer().postDelayedAsync({ sec: 3000 });
+    router.push("/(tabs)");
+    setProcessing(false);
   };
   return (
     <View className="flex-1">
