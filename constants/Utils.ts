@@ -42,7 +42,38 @@ export class Timer {
   }
 
   clearTimer() {
-    clearTimeout(this.time)
-    this.time = 0
+    clearTimeout(this.time);
+    this.time = 0;
+  }
+}
+
+export class Interval {
+  count;
+  interval;
+  constructor(count: number) {
+    this.count = count;
+    this.interval = 0;
+  }
+
+  async listinerAsync(setCounterState: React.Dispatch<React.SetStateAction<number>>) {
+    const promise = new Promise((resolve, reject) => {
+      this.interval = setInterval(() => {
+        this.count -= 1;
+        setCounterState(this.count)
+        if (this.count <= 0) {
+          resolve(this.count);
+          this.clear()
+        }
+        
+      }, 1000);
+    });
+    return await promise;
+  }
+
+  clear() {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = 0;
+    }
   }
 }

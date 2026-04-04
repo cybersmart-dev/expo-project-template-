@@ -29,8 +29,16 @@ const setupPassword = () => {
     setProcessing(true);
 
     await new Timer().postDelayedAsync({ sec: 3000 });
-    router.push("/(tabs)");
+
+    router.push("/");
     setProcessing(false);
+    showMessage({
+      message: "Registered",
+      description: "Account registered successfuly",
+      type: "success",
+      icon: "success",
+      duration: 5000,
+    });
   };
   return (
     <View className="flex-1">

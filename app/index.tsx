@@ -1,31 +1,43 @@
 import React, { useCallback, useState } from "react";
 import {
   View,
-  StyleSheet,
   Image,
-  Modal,
-  ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  BackHandler,
 } from "react-native";
-import { Text, useTheme, Button, Appbar, TextInput } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Text,
+  useTheme,
+  Button,
+  Appbar,
+  Dialog,
+  Portal,
+} from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
-import PhoneLoginComponent from "@/components/login/PhoneLoginComponent";
-import EmailLoginComponent from "@/components/login/EmailLoginComponent";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import { PaperSafeView } from "@/components/PaperView";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { CustomLightTheme } from "@/Themes/ThemeSchemes";
+import { Timer } from "@/constants/Utils";
+import Fontisto from "@expo/vector-icons/Fontisto";
+
+import { LinearGradient } from "expo-linear-gradient";
+import MaskedView from "@react-native-masked-view/masked-view";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Index = () => {
   const theme = useTheme();
   const [loginOption, setLoginOption] = useState("");
-
+  const [bounceState, setBounceState] = useState(0);
+  const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
+      checkLoginState();
       setLoaded(true);
       return () => {
         setLoaded(false);
@@ -33,14 +45,61 @@ const Index = () => {
     }, []),
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        setExitDialogVisible(true);
+        return true;
+      });
+      return () => {
+        back.remove();
+      };
+    }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      updateBounce();
+      return () => {};
+    }, [bounceState]),
+  );
+
+  const updateBounce = async () => {
+    await new Timer().postDelayedAsync({ sec: 1000 });
+    setBounceState(bounceState == 1 ? 0 : 1);
+  };
+
+  const checkLoginState = async () => {
+    try {
+      const state = await AsyncStorage.getItem("loginState");
+      console.log(state);
+
+      if (state != null && state == "1") {
+        router.push("/logins/singin");
+        return;
+      }
+    } catch (error) {}
+  };
+
   return (
     <PaperSafeView>
       <Appbar style={{ backgroundColor: "transparent" }}>
         <Appbar.Content
           title={
-            <View>
-              <Text className="text-lg font-thin text-white">Singin</Text>
-            </View>
+            <MaskedView
+              maskElement={<Text className="text-3xl font-bold">T-Pay</Text>}
+            >
+              <LinearGradient
+                colors={[
+                  theme.colors.onPrimaryContainer,
+                  theme.colors.surfaceVariant,
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text className="text-3xl font-bold opacity-0">T-Pay</Text>
+              </LinearGradient>
+            </MaskedView>
           }
           mode="small"
           style={{ alignItems: "flex-start" }}
@@ -54,21 +113,32 @@ const Index = () => {
           </Button>
         </EaseView>
       </Appbar>
-      <View className="absolute top-[120px] space-y-5 w-full items-center justify-center">
+      <View className="absolute top-[80px] space-y-1 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
-            translateY: loaded ? 0 : -20,
+            translateY: bounceState == 0 ? 0 : -10,
           }}
-          transition={{ duration: 1000, type: "timing" }}
+          transition={{ duration: 1000, type: "timing", easing: "easeInOut" }}
         >
           <Image
-            className="h-14 w-14  rounded-full"
-            source={require("../assets/images/profile_avatar.png")}
+            className="h-[250px] w-[280px]  rounded-full"
+            source={require("@/assets/images/women_home.png")}
           />
         </EaseView>
+        <EaseView
+          animate={{
+            opacity: bounceState == 1 ? 0.3 : 0.7,
+          }}
+          transition={{ duration: 1000, type: "timing", easing: "easeInOut" }}
+          style={{
+            backgroundColor: theme.colors.elevation.level0,
+            boxShadow: "0 0px 10px 10px rgba(0, 0, 0, 0.20)",
+          }}
+          className="bg-transparent rounded-full h-0 w-[200px]"
+        ></EaseView>
 
-        <View className="items-center">
+        <View className="items-center pt-3">
           <EaseView
             animate={{
               opacity: loaded ? 1 : 0,
@@ -81,7 +151,7 @@ const Index = () => {
                 fontSize: 20,
               }}
             >
-              Welcome To AppName
+              Welcome To <Text className="font-bold">T-Pay</Text>
             </Text>
           </EaseView>
 
@@ -117,6 +187,7 @@ const Index = () => {
             backgroundColor: theme.colors.surfaceVariant,
             marginTop: 50,
             paddingBottom: 30,
+            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
           }}
           className="rounded-t-[30px] h-full justify-center "
           animate={{ translateY: loaded ? 0 : 100 }}
@@ -129,7 +200,9 @@ const Index = () => {
             >
               <Button
                 onPress={() => router.push("/logins/emailLogin")}
-                icon="email"
+                icon={({ color }) => (
+                  <Fontisto name="email" size={24} color={color} />
+                )}
                 className="p-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
@@ -144,7 +217,9 @@ const Index = () => {
             >
               <Button
                 onPress={() => router.push("/logins/phoneLogin")}
-                icon="phone"
+                icon={({ color }) => (
+                  <AntDesign name="mobile" size={24} color={color} />
+                )}
                 mode="contained"
                 className="p-1"
                 style={{ borderRadius: 15 }}
@@ -169,7 +244,9 @@ const Index = () => {
                   })
                 }
                 mode="contained"
-                icon="google"
+                icon={({ color }) => (
+                  <AntDesign name="google" size={24} color={color} />
+                )}
                 className="p-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
@@ -185,7 +262,42 @@ const Index = () => {
         </EaseView>
       </KeyboardAvoidingView>
 
-      <StatusBar style="dark" />
+      <Portal>
+        <Dialog
+          visible={exitDialogVisible}
+          onDismiss={() => setExitDialogVisible(false)}
+        >
+          <Dialog.Title>Exit</Dialog.Title>
+          <Dialog.Content>
+            <Text>Are you sure do you want exit</Text>
+          </Dialog.Content>
+          <Dialog.Actions className="">
+            <Button
+              buttonColor="#f41c1c6b"
+              textColor={theme.colors.onBackground}
+              className="w-20"
+              onPress={() => {
+                setExitDialogVisible(false);
+                BackHandler.exitApp();
+              }}
+              mode={"contained-tonal"}
+            >
+              Yes
+            </Button>
+            <Button
+              textColor="black"
+              buttonColor="lightgreen"
+              className="w-20"
+              onPress={() => setExitDialogVisible(false)}
+              mode={"contained-tonal"}
+            >
+              No
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

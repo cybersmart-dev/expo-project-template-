@@ -1,8 +1,8 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React, { useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import { StatusBar } from "expo-status-bar";
-import { Appbar, Button, useTheme } from "react-native-paper";
+import { Appbar, Button, useTheme, Text } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { EaseView } from "react-native-ease";
@@ -14,7 +14,7 @@ const notifications = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -112,7 +112,7 @@ const notifications = () => {
           </View>
         </EaseView>
       </View>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

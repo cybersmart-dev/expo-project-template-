@@ -23,6 +23,8 @@ import { EaseView } from "react-native-ease";
 import { Timer } from "@/constants/Utils";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
+import { CustomLightTheme } from "@/Themes/ThemeSchemes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -67,7 +69,7 @@ const PhoneLoginComponent = () => {
 
   const login = async () => {
     setShowProcessing(true);
-    Keyboard.dismiss()
+    Keyboard.dismiss();
 
     await new Timer().postDelayedAsync({ sec: 3000 });
 
@@ -77,14 +79,21 @@ const PhoneLoginComponent = () => {
       description: "Login successfuly",
       type: "success",
     });
+    await saveLoginState();
     router.push("/(tabs)");
+  };
+
+  const saveLoginState = async () => {
+    try {
+      await AsyncStorage.setItem("loginState", "1");
+    } catch (error) {}
   };
   return (
     <PaperSafeView
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
-      <Appbar>
+      <Appbar className="bg-transparent">
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -111,7 +120,7 @@ const PhoneLoginComponent = () => {
         </EaseView>
       </Appbar>
 
-      <View className="absolute top-[120px] space-y-5 w-full items-center justify-center">
+      <View className="absolute top-[70px] space-y-0 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -120,8 +129,8 @@ const PhoneLoginComponent = () => {
           transition={{ duration: 1000, type: "timing" }}
         >
           <Image
-            className="h-14 w-14  rounded-full"
-            source={require("@/assets/images/profile_avatar.png")}
+            className="h-[150px] w-[200px]  rounded-full"
+            source={require("@/assets/images/man_working.png")}
           />
         </EaseView>
         <View className="items-center">
@@ -175,6 +184,7 @@ const PhoneLoginComponent = () => {
             backgroundColor: theme.colors.surfaceVariant,
             marginTop: 50,
             paddingBottom: 30,
+            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
           }}
           className="rounded-t-[30px] h-full justify-center "
           animate={{ translateY: loaded ? 0 : 100 }}
@@ -251,7 +261,7 @@ const PhoneLoginComponent = () => {
         </EaseView>
       </KeyboardAvoidingView>
       <Processing visible={false} />
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

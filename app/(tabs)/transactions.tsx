@@ -1,7 +1,7 @@
-import { View, Text, FlatList } from "react-native";
+import { View, FlatList } from "react-native";
 import React from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { Appbar, List, useTheme } from "react-native-paper";
+import { Appbar, List, useTheme, Text } from "react-native-paper";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Transactions } from "@/constants/DemoList";
@@ -62,7 +62,7 @@ const transactions = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar>
+        <Appbar className="bg-transparent">
           <Appbar.Content title="Transactions" />
           <Appbar.Action icon={"filter"} onPress={() => null} />
         </Appbar>
@@ -89,7 +89,7 @@ const transactions = () => {
           )}
         />
       </View>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

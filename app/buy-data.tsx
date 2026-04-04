@@ -106,7 +106,7 @@ const buydata = () => {
   return (
     <PaperSafeView className="flex-1">
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -146,6 +146,7 @@ const buydata = () => {
             onSelectNetwork={(data) => {
               setSelectedNetworkName(data.name);
               setselectedNetworkData(data);
+              setSelectedBundlePacks(undefined)
             }}
           />
         </View>
@@ -217,7 +218,7 @@ const buydata = () => {
           </View>
         </View>
       </BottomSheet>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

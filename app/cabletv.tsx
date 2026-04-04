@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   TextInput as RNTextInput,
   Image,
   Pressable,
@@ -13,36 +12,26 @@ import { PaperSafeView } from "@/components/PaperView";
 import {
   ActivityIndicator,
   Appbar,
+  Avatar,
   Button,
+  DataTable,
+  Divider,
   Icon,
   List,
   TextInput,
   useTheme,
+  Text,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { BettingProviders } from "@/constants/DemoList";
+import { BettingProviders, CableTVSubscription } from "@/constants/DemoList";
 import { NetworkImages } from "@/constants/Images";
 import BottomSheet from "@/components/models/BottomSheet";
-
-const CableTVSubscription = [
-  {
-    id: 1,
-    name: "GOTV",
-    icon: "",
-  },
-  {
-    id: 2,
-    name: "DSTV",
-    icon: "",
-  },
-  {
-    id: 3,
-    name: "StartTime",
-    icon: "",
-  },
-];
+import { showMessage } from "react-native-flash-message";
+import { Timer } from "@/constants/Utils";
+import CableTvPreview from "@/components/Previews/CableTvPreview";
+import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 
 interface CableSelectInputProps {
   onSelect: (data: (typeof CableTVSubscription)[0]) => void;
@@ -59,17 +48,21 @@ const CableSelectInput = ({
   const [selectedCableProvider, setSelectedCableProvider] =
     useState<(typeof CableTVSubscription)[0]>();
   return (
-    <View className="border h-[55px] rounded-lg flex-row">
+    <View
+      style={{ borderColor: theme.colors.onBackground }}
+      className="border h-[55px] rounded-lg flex-row"
+    >
       <Pressable
         onPress={() => setProviderSelectSheetVisible(true)}
         className="h-full w-auto items-center flex-row p-2 "
       >
-        <Image
-          className="h-8 w-8 rounded-full"
-          source={{
-            uri: NetworkImages.MtnImageLogo,
-          }}
-        />
+        <View>
+          <Image
+            resizeMode={"stretch"}
+            className="h-10 w-10 rounded-full"
+            source={{ uri: selectedCableProvider?.icon }}
+          />
+        </View>
         <MaterialIcons
           name="keyboard-arrow-down"
           color={theme.colors.onBackground}
@@ -78,13 +71,14 @@ const CableSelectInput = ({
       </Pressable>
       <RNTextInput
         onChangeText={onChangeText}
+        style={{ color: theme.colors.onBackground }}
         placeholder="Enter IUD"
         placeholderTextColor={theme.colors.outline}
-        className="text-black flex-1 h-full text-[15px]"
+        className="flex-1 h-full text-[15px]"
         keyboardType={"numeric"}
       />
       <BottomSheet
-        height={"50%"}
+        height={"auto"}
         visible={providerSelectSheetVisible}
         onDismiss={setProviderSelectSheetVisible}
       >
@@ -93,19 +87,31 @@ const CableSelectInput = ({
             <Text className="text-lg text-center"> Select Provider</Text>
           </View>
 
-          <View className="mt-5">
+          <View className="mt-5 mb-5">
             <FlatList
               data={CableTVSubscription}
               renderItem={({ item }) => (
                 <View className="px-5 mt-2">
                   <List.Item
                     onPress={() => {
-                      onSelect(item)
-                      setProviderSelectSheetVisible(false)
+                      onSelect(item);
+                      setSelectedCableProvider(item);
+                      setProviderSelectSheetVisible(false);
                     }}
-                    left={() => <List.Icon icon={"television"} />}
+                    left={() => (
+                      <List.Icon
+                        icon={() => (
+                          <Image
+                            resizeMode={"stretch"}
+                            className="h-10 w-10 rounded-full"
+                            source={{ uri: item.icon }}
+                          />
+                        )}
+                      />
+                    )}
                     title={item.name}
                   />
+                  <Divider />
                 </View>
               )}
             />
@@ -119,20 +125,109 @@ const CableSelectInput = ({
 const cabletv = () => {
   const theme = useTheme();
   const [selectedProvider, setSelectedProvider] =
-    useState<(typeof BettingProviders)[0]>();
-  const [verifyingID, setVerifyingID] = useState(false);
+    useState<(typeof CableTVSubscription)[0]>();
+  const [verifyingIUC, setVerifyingIUC] = useState(false);
+  const [iuc, setIuc] = useState("");
 
-  const [idVerified, setIdVerified] = useState(false);
-  function handleShowProviders(event: GestureResponderEvent): void {}
+  const [IUCVerified, setIUCVerified] = useState(false);
+  const [plansSheetVisible, setPlansSheetVisible] = useState(false);
+  const [selectedPlan, setSelectedPlan] =
+    useState<(typeof CableTVSubscription)[0]["plans"][0]>();
+  const [transactionProcessing, setTransactionProcessing] = useState(false);
+  const [previewSheetVisible, setPreviewSheetVisible] = useState(false);
+  const [transactionPinSheetVisible, setTransactionPinSheetVisible] =
+    useState(false);
 
-  function handleVerifyID(e: GestureResponderEvent): void {}
+  const handleShowProviders = (event: GestureResponderEvent): void => {
+    //
+  };
 
-  function handleNext(e: GestureResponderEvent): void {}
+  const handleVerifyIUC = async (e: GestureResponderEvent) => {
+    if (!selectedProvider) {
+      showMessage({
+        message: "Please Select Cable Provider",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+    if (!iuc) {
+      showMessage({
+        message: "Please Enter IUC",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    setVerifyingIUC(true);
+    await new Timer().postDelayedAsync({ sec: 3000 });
+    setVerifyingIUC(false);
+    setIUCVerified(true);
+  };
+
+  const handlePinComplate = async (pin: string) => {
+    setTransactionProcessing(true);
+    const finished = await new Timer().postDelayedAsync({ sec: 3000 });
+    setTransactionPinSheetVisible(false);
+    setTransactionProcessing(false);
+
+    router.push({
+      pathname: "/modals/transfer_response",
+      params: {
+        status: "Success",
+        type: "Betting",
+        amount: 100,
+        data: JSON.stringify({
+          statusCode: 1,
+          type: "betting",
+          id: 1,
+          charge: 0.0,
+          cashback: 0.4,
+          message: `You have successfuly send ${100} to id ${iuc}`,
+        }),
+      },
+    });
+  };
+
+  const handleNext = async (e: GestureResponderEvent) => {
+    if (!selectedProvider) {
+      showMessage({
+        message: "Please Select Cable Provider",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+    if (!iuc) {
+      showMessage({
+        message: "Please Enter IUC",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    if (iuc && !IUCVerified) {
+      setVerifyingIUC(true);
+      await new Timer().postDelayedAsync({ sec: 3000 });
+      setVerifyingIUC(false);
+      setIUCVerified(true);
+    }
+    await new Timer().postDelayedAsync({sec:500})
+    setPreviewSheetVisible(true);
+  };
+
+  const getPlans = () => {
+    const cable = selectedProvider?.name ?? "";
+    const plan = CableTVSubscription.find((item) => item.name == cable)?.plans;
+    return plan;
+  };
 
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -157,35 +252,29 @@ const cabletv = () => {
             <Text className="text-[130x] font-bold">Enter IUC</Text>
             <View className="mt-2">
               <CableSelectInput
-                onSelect={(data) => {
-                  
-                  
-                }}
-                onChangeText={(text) => {
-                  console.log(text);
-                  
-                }}
+                onSelect={setSelectedProvider}
+                onChangeText={setIuc}
               />
             </View>
             <View className="flex-row items-center justify-between">
               <View>
-                {idVerified && (
+                {IUCVerified && (
                   <View className="items-center flex-row space-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
-                    <Text>{}</Text>
+                    <Text>{iuc}</Text>
                   </View>
                 )}
               </View>
               <View className="self-end">
-                {!verifyingID && (
-                  <Button onPress={handleVerifyID} mode="contained-tonal">
+                {!verifyingIUC && (
+                  <Button onPress={handleVerifyIUC} mode="contained-tonal">
                     Validate IUC
                   </Button>
                 )}
-                {verifyingID && (
+                {verifyingIUC && (
                   <Button
                     disabled
-                    onPress={handleVerifyID}
+                    onPress={handleVerifyIUC}
                     mode="contained-tonal"
                   >
                     <ActivityIndicator />
@@ -197,18 +286,32 @@ const cabletv = () => {
 
           <View className="px-5 space-y-2">
             <Text className="text-[130x] font-bold">Plan</Text>
-            <Pressable onPress={handleShowProviders}>
+            <Pressable
+              onPress={() => {
+                if (!selectedProvider) {
+                  alert("Plaese Select Provider first");
+                  return;
+                }
+                setPlansSheetVisible(true);
+              }}
+            >
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
-                value={selectedProvider ? selectedProvider.name : ""}
+                className="rounded-lg bg-transparent"
+                value={selectedPlan ? selectedPlan?.name : ""}
                 placeholder="Select Plan"
                 outlineStyle={{ borderRadius: 15 }}
                 editable={false}
                 right={
                   <TextInput.Icon
                     size={24}
-                    onPress={handleShowProviders}
+                    onPress={() => {
+                      if (!selectedProvider) {
+                        alert("Plaese Select Provider first");
+                        return;
+                      }
+                      setPlansSheetVisible(true);
+                    }}
                     icon={({ color, size }) => (
                       <MaterialIcons
                         name="keyboard-arrow-down"
@@ -224,6 +327,7 @@ const cabletv = () => {
           <View className="px-5 pt-5">
             <Button
               onPress={handleNext}
+              disabled={verifyingIUC}
               className="text-lg p-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
@@ -234,7 +338,72 @@ const cabletv = () => {
           </View>
         </View>
       </View>
-      <StatusBar style="dark" />
+
+      <BottomSheet
+        visible={plansSheetVisible}
+        onDismiss={setPlansSheetVisible}
+        height={"50%"}
+      >
+        <View>
+          <View className="mt-2">
+            <Text className="text-lg text-center"> Select Plan</Text>
+          </View>
+
+          <View className="mt-5 mb-5">
+            <FlatList
+              data={getPlans()}
+              renderItem={({ item }) => (
+                <View className="px-5 mt-2">
+                  <List.Item
+                    onPress={() => {
+                      setSelectedPlan(item);
+                      setPlansSheetVisible(false);
+                    }}
+                    left={() => (
+                      <List.Icon
+                        icon={() => (
+                          <Image
+                            resizeMode={"stretch"}
+                            className="h-10 w-10 rounded-full"
+                            source={{ uri: selectedProvider?.icon }}
+                          />
+                        )}
+                      />
+                    )}
+                    title={item.name}
+                  />
+                  <Divider />
+                </View>
+              )}
+            />
+          </View>
+        </View>
+      </BottomSheet>
+
+      <BottomSheet
+        visible={previewSheetVisible}
+        onDismiss={setPreviewSheetVisible}
+      >
+        <CableTvPreview
+          onConfirm={async () => {
+            setPreviewSheetVisible(false);
+            await new Timer().postDelayedAsync({ sec: 500 });
+            setTransactionPinSheetVisible(true);
+          }}
+          selectedProvider={selectedProvider}
+          selectedPlan={selectedPlan}
+          iuc={iuc}
+        />
+      </BottomSheet>
+
+      <TransactionPinSheet
+        visible={transactionPinSheetVisible}
+        onCancel={() => setTransactionPinSheetVisible(false)}
+        onComplate={handlePinComplate}
+        processingTransaction={transactionProcessing}
+      />
+
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

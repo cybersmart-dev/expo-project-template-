@@ -1,7 +1,7 @@
-import { View, Text, Keyboard } from "react-native";
+import { View, Keyboard } from "react-native";
 import React, { useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { Appbar, Button, TextInput, useTheme } from "react-native-paper";
+import { Appbar, Button, TextInput, useTheme, Text } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useLocalSearchParams } from "expo-router";
 import { formatNumber } from "@/constants/Formats";
@@ -16,11 +16,20 @@ const transfer = () => {
   const [amount, setAmount] = useState("");
   const { number, token } = useLocalSearchParams();
   const [showPassword, setShowPassword] = useState(false);
+  const [sharePin, setSharePin] = useState('')
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
       showMessage({
         message: "Minimum Amount is 100",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+    if (!sharePin) {
+      showMessage({
+        message: "Please Enter Your share pin",
         type: "danger",
         icon: "danger",
       });
@@ -52,7 +61,7 @@ const transfer = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -87,15 +96,17 @@ const transfer = () => {
                 onChangeText={setAmount}
                 keyboardType={"number-pad"}
                 mode="outlined"
+                value={amount}
                 outlineStyle={{ borderRadius: 15 }}
                 placeholder={"Amount"}
-                right={<TextInput.Icon icon={() => <Button>ALL</Button>} />}
+                right={<TextInput.Icon icon={() => <Button onPress={() => setAmount('15000')}>ALL</Button>} />}
               />
             </View>
             <View className="space-y-2">
               <Text>Amount To Receive</Text>
               <TextInput
                 editable={false}
+                value={`${(toNumber(amount) - 50) >= 0 ? formatNumber(toNumber(amount) - 50) : formatNumber(0)}`}
                 placeholder={`${formatNumber(0)}`}
                 mode="outlined"
                 outlineStyle={{ borderRadius: 15 }}
@@ -109,6 +120,7 @@ const transfer = () => {
                 mode="outlined"
                 secureTextEntry={showPassword ? false : true}
                 keyboardType="numeric"
+                onChangeText={setSharePin}
                 outlineStyle={{ borderRadius: 15 }}
                 right={
                   <TextInput.Icon
@@ -149,7 +161,7 @@ const transfer = () => {
         onCancel={() => setTransferSheetVisible(false)}
         onComplate={handleConvert}
       />
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

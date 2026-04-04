@@ -3,6 +3,9 @@ import React, { useEffect, useState } from "react";
 import { Chip, useTheme, Text } from "react-native-paper";
 import { DataPackType } from "@/constants/Types";
 import { formatNumber } from "@/constants/Formats";
+import { CustomLightTheme } from "@/Themes/ThemeSchemes";
+import { EaseView } from "react-native-ease";
+import { Timer } from "@/constants/Utils";
 
 const BundlesList = {
   mtn: {
@@ -136,29 +139,44 @@ const DataPackComponent = ({
   selected,
 }: DataPackComponentProps) => {
   const theme = useTheme();
+  const [clied, setClied] = useState(false)
+
+  const handlePress = async () => {
+    onPress()
+    setClied(true)
+    await new Timer().postDelayedAsync({sec: 300})
+    setClied(false)
+
+  }
   return (
     <View className="p-1 mt-2">
-      <TouchableOpacity
-        onPress={onPress}
-        style={{
-          backgroundColor: theme.colors.surfaceVariant,
-          borderColor: selected ? theme.colors.primary : "transparent",
-          borderWidth: 2,
-          borderStyle:'dotted'
-        }}
-        className="h-[120px] py-5 w-[100px]  rounded-lg items-center justify-center"
+      <EaseView
+        animate={{ scale: clied ? 0.5 : 1 }}
+        transition={{type:'timing', duration: 700}}
       >
-        <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
-          <Text numberOfLines={1} className="text-[10px]">
-            <Text className="text-black">+ ₦ {formatNumber(0.4)}</Text>
+        <TouchableOpacity
+          onPress={handlePress}
+          style={{
+            backgroundColor: theme.colors.surfaceVariant,
+            borderColor: selected ? theme.colors.primary : "transparent",
+            borderWidth: 1.5,
+            borderStyle: "dotted",
+            boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.13)",
+          }}
+          className="h-[120px] py-5 w-[100px]  rounded-lg items-center justify-center"
+        >
+          <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
+            <Text numberOfLines={1} className="text-[10px]">
+              <Text className="text-black">+ ₦ {formatNumber(0.4)}</Text>
+            </Text>
+          </View>
+          <Text className="text-lg font-bold mt-3">{item.benefits}</Text>
+          <Text>{item.validity}</Text>
+          <Text className="text-[12px] mt-2">
+            <Text className="font-bold">₦{formatNumber(item.price)}</Text>
           </Text>
-        </View>
-        <Text className="text-lg font-bold mt-3">{item.benefits}</Text>
-        <Text>{item.validity}</Text>
-        <Text className="text-[12px] mt-2">
-          <Text className="font-bold">₦{formatNumber(item.price)}</Text>
-        </Text>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </EaseView>
     </View>
   );
 };
@@ -231,8 +249,8 @@ const DataListContainer = ({
                 `${selectedPack?.id}|${selectedPack?.benefits}`
               }
               onPress={() => {
-                setSelectedPack(item)
-                onPackSelect(item)
+                setSelectedPack(item);
+                onPackSelect(item);
               }}
               item={item}
             />

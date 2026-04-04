@@ -171,6 +171,7 @@ const SelectNetworkComponent = ({
           className="h-full flex-1"
           keyboardType="numeric"
           placeholder="Mobile Number"
+          placeholderTextColor={theme.colors.onBackground}
           maxLength={11}
         />
         <View className="flex-row">

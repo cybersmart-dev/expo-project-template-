@@ -41,7 +41,7 @@ export const DarkScheme = {
   backdrop: "rgba(45, 49, 56, 0.4)",
 };
 export const LightScheme = {
-  primary: 'rgb(10,57,134)',//"rgb(71, 84, 185)",
+  primary: "rgb(10,57,134)", //"rgb(71, 84, 185)",
   onPrimary: "rgb(255, 255, 255)",
   primaryContainer: "rgb(223, 224, 255)",
   onPrimaryContainer: "rgb(0, 11, 98)",
@@ -81,4 +81,8 @@ export const LightScheme = {
   surfaceDisabled: "rgba(27, 27, 31, 0.12)",
   onSurfaceDisabled: "rgba(27, 27, 31, 0.38)",
   backdrop: "rgba(47, 48, 56, 0.4)",
+};
+
+export const CustomLightTheme = {
+  boxShadow: "0 0px 20px 5px rgba(0, 0, 0, 0.20)",
 };

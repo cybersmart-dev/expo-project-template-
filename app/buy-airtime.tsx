@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import SelectNetworkComponent from "@/components/Selection/SelectNetworkComponent";
 import { Keyboard } from "react-native";
-import { isValidMobileNumber, toNumber } from "@/constants/Utils";
+import { isValidMobileNumber, Timer, toNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { formatNumber } from "@/constants/Formats";
 import BottomSheet from "@/components/models/BottomSheet";
@@ -24,6 +24,7 @@ import { NetworksType } from "@/constants/Types";
 import { Networks } from "@/constants/DemoList";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { StatusBar } from "expo-status-bar";
+import { EaseView } from "react-native-ease";
 
 const SuggestAmounts = [
   {
@@ -69,21 +70,37 @@ const BuyAirtimeSuggestAmountCard = ({
   onPress,
 }: BuyAirtimeSuggestAmountCardProps) => {
   const theme = useTheme();
+  const [clied, setClied] = useState(false);
+
+  const handlePress = async (amount: number) => {
+    onPress(amount);
+    setClied(true);
+    await new Timer().postDelayedAsync({ sec: 300 });
+    setClied(false);
+  };
   return (
     <View className="p-1">
-      <TouchableOpacity
-        onPress={() => onPress(amount)}
-        style={{ backgroundColor: theme.colors.surfaceVariant }}
-        className="h-[70px] px-3 w-[100px] rounded-lg items-center justify-center"
+      <EaseView
+        animate={{ scale: clied ? 0.5 : 1 }}
+        transition={{ type: "timing", duration: 700 }}
       >
-        <Text numberOfLines={1} className="text-[15px] font-bold">
-          ₦ {formatNumber(amount)}
-        </Text>
-        <Text numberOfLines={1} className="text-[10px] hidden mt-2">
-          CashBack{" "}
-          <Text className="text-green-700">+ ₦ {formatNumber(cashback)}</Text>
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handlePress(amount)}
+          style={{
+            backgroundColor: theme.colors.surfaceVariant,
+            boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.10)",
+          }}
+          className="h-[70px] px-3 w-[100px] rounded-lg items-center justify-center"
+        >
+          <Text numberOfLines={1} className="text-[15px] font-bold">
+            ₦ {formatNumber(amount)}
+          </Text>
+          <Text numberOfLines={1} className="text-[10px] hidden mt-2">
+            CashBack{" "}
+            <Text className="text-green-700">+ ₦ {formatNumber(cashback)}</Text>
+          </Text>
+        </TouchableOpacity>
+      </EaseView>
     </View>
   );
 };
@@ -187,7 +204,7 @@ const buyairtime = () => {
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()} className="flex-1 ">
-      <Appbar>
+      <Appbar className="bg-transparent">
         <Appbar.Action
           isLeading
           icon={() => (
@@ -317,7 +334,7 @@ const buyairtime = () => {
           </View>
         </View>
       </BottomSheet>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

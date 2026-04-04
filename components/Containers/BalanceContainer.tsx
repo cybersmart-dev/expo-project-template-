@@ -1,22 +1,24 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
-import { Pressable, View } from "react-native";
+import { ColorValue, Pressable, useColorScheme, View } from "react-native";
 import { EaseView } from "react-native-ease";
-import { Button, Icon, IconButton, Text } from "react-native-paper";
+import { Button, Icon, IconButton, Text, useTheme } from "react-native-paper";
 
 interface BalanceContainerProps {
   user?: Object;
-  theme: any;
+  theme?: any;
   hideBalance?: boolean;
   onHideBalanceToggle?: () => void;
 }
 const BalanceContainer = ({
   user,
-  theme,
   hideBalance,
   onHideBalanceToggle,
 }: BalanceContainerProps) => {
   const timerRef = useRef(0);
+  const colorScheme = useColorScheme();
+  const theme = useTheme()
   const [refreshingBalance, setRefreshingBalance] = useState(false);
 
   const handleRefresh = () => {
@@ -29,9 +31,22 @@ const BalanceContainer = ({
       }
     }, 2000);
   };
+  const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
+    if (theme.dark) {
+      return [theme.colors.primaryContainer, theme.colors.secondaryContainer]
+    }
+    return [theme.colors.primary, theme.colors.secondary]
+  }
+
   return (
-    <View
-      style={{ backgroundColor: theme.colors.primary }}
+    <LinearGradient
+      colors={getColors()}
+      style={{
+        backgroundColor:
+          theme.dark
+            ? theme.colors.primaryContainer
+            : theme.colors.primary,
+      }}
       className="relative h-[190px] w-full rounded-b-lg mt-0  p-4"
     >
       <View>
@@ -76,7 +91,7 @@ const BalanceContainer = ({
       <View className="absolute p-3 bottom-0 right-0 space-y-3 items-center">
         <EaseView
           animate={{ rotate: refreshingBalance ? 360 : 0 }}
-          transition={{ duration: 2000, type: "timing",  }}
+          transition={{ duration: 2000, type: "timing" }}
           className="self-end mr-3"
         >
           <Pressable onPress={handleRefresh}>
@@ -93,7 +108,7 @@ const BalanceContainer = ({
           Add Money
         </Button>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 

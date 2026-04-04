@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable, Keyboard } from "react-native";
 import React, { useState } from "react";
 import {
   Appbar,
@@ -9,6 +9,7 @@ import {
   PaperProvider,
   TextInput,
   useTheme,
+  Text
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -36,9 +37,9 @@ const add_money = () => {
     });
   };
   return (
-    <PaperSafeView>
+    <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -198,6 +199,7 @@ const add_money = () => {
               <TextInput
                 mode={"outlined"}
                 placeholder={"Amount"}
+                className="bg-transparent"
                 outlineStyle={{ borderRadius: 15 }}
                 keyboardType={'number-pad'}
               />
@@ -216,7 +218,7 @@ const add_money = () => {
         </EaseView>
       </View>
 
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

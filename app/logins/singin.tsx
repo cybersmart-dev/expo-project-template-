@@ -1,42 +1,45 @@
-import Processing from "../models/Processing";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import {
   View,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
+  TouchableOpacity,
+  BackHandler,
 } from "react-native";
 import {
   Text,
   useTheme,
   Button,
-  TextInput,
   Appbar,
-  MD3Colors,
+  TextInput,
   ActivityIndicator,
+  Dialog,
+  Portal,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import { PaperSafeView } from "../PaperView";
 import { EaseView } from "react-native-ease";
 import { Timer } from "@/constants/Utils";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { PaperSafeView } from "@/components/PaperView";
+import Entypo from "@expo/vector-icons/Entypo";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { LinearGradient } from "expo-linear-gradient";
 
-const EmailLoginComponent = () => {
+const PhoneLoginComponent = () => {
   const theme = useTheme();
 
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
-  const processingRef = useRef<number>(null);
-
+  const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useFocusEffect(
@@ -48,15 +51,18 @@ const EmailLoginComponent = () => {
     }, []),
   );
 
-  const validateInput = () => {
-    if (!email) {
-      showMessage({
-        message: "Email Error",
-        description: "Please Enter valid email Address",
-        type: "danger",
+  useFocusEffect(
+    useCallback(() => {
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        setExitDialogVisible(true);
+        return true;
       });
-      return;
-    }
+      return () => {
+        back.remove();
+      };
+    }, []),
+  );
+  const validateInput = () => {
     if (!password) {
       showMessage({
         message: "Password Error",
@@ -65,23 +71,22 @@ const EmailLoginComponent = () => {
       });
       return;
     }
-
     login();
   };
 
   const login = async () => {
     setShowProcessing(true);
     Keyboard.dismiss();
+
     await new Timer().postDelayedAsync({ sec: 3000 });
 
-    processingRef.current = null;
+    setShowProcessing(false);
     showMessage({
       message: "Login",
       description: "Login successfuly",
       type: "success",
     });
-    setShowProcessing(false);
-    await saveLoginState()
+    await saveLoginState();
     router.push("/(tabs)");
   };
 
@@ -90,38 +95,42 @@ const EmailLoginComponent = () => {
       await AsyncStorage.setItem("loginState", "1");
     } catch (error) {}
   };
+
+  const removeAccount = async () => {
+    try {
+      await AsyncStorage.removeItem("loginState");
+      router.push("/");
+    } catch (error) {}
+  };
   return (
     <PaperSafeView
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
       <Appbar className="bg-transparent">
-        <EaseView
-          animate={{ translateX: loaded ? 0 : -200 }}
-          transition={{ type: "timing", duration: 1000 }}
-        >
-          <Appbar.Action
-            icon={({ color, size }) => (
-              <MaterialIcons
-                name="keyboard-arrow-left"
-                size={size}
-                color={color}
-              />
-            )}
-            onPress={() => router.push("/")}
-          />
-        </EaseView>
-        <Appbar.Content title />
-        <EaseView
-          animate={{ translateX: loaded ? 0 : 200 }}
-          transition={{ type: "timing", duration: 1000 }}
-        >
-          <Button mode={"contained-tonal"} className="mr-2">
-            Help
-          </Button>
-        </EaseView>
+        <Appbar.Content
+          title={
+            <MaskedView
+              maskElement={<Text className="text-3xl font-bold">T-Pay</Text>}
+            >
+              <LinearGradient
+                colors={[
+                  theme.colors.onBackground,
+                  theme.colors.inversePrimary,
+                ]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text className="text-3xl font-bold opacity-0">T-Pay</Text>
+              </LinearGradient>
+            </MaskedView>
+          }
+          mode="small"
+          style={{ alignItems: "flex-start" }}
+        />
       </Appbar>
-      <View className="absolute top-[70px] space-y-0 w-full items-center justify-center">
+
+      <View className="absolute top-[120px] space-y-0 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -130,11 +139,11 @@ const EmailLoginComponent = () => {
           transition={{ duration: 1000, type: "timing" }}
         >
           <Image
-            className="h-[150px] w-[200px]  rounded-full"
-            source={require("@/assets/images/man_working.png")}
+            className="h-[60px] w-[60px]  rounded-full"
+            source={require("@/assets/images/profile_avatar.png")}
           />
         </EaseView>
-        <View className="items-center">
+        <View className="items-center pt-3">
           <EaseView
             animate={{
               opacity: loaded ? 1 : 0,
@@ -143,14 +152,16 @@ const EmailLoginComponent = () => {
             transition={{ duration: 1000, type: "timing", delay: 200 }}
           >
             <Text
+              className="flex-col"
               style={{
                 color: theme.colors.onBackground,
                 fontSize: 20,
               }}
             >
-              Login With Email Address
+              Welcome Back
             </Text>
           </EaseView>
+
           <EaseView
             animate={{
               opacity: loaded ? 1 : 0,
@@ -164,16 +175,17 @@ const EmailLoginComponent = () => {
                 fontSize: 13,
                 marginBottom: 30,
                 opacity: 0.5,
+                fontWeight: "bold",
               }}
             >
-              some description here
+              Mustapha!
             </Text>
           </EaseView>
         </View>
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto min-h-[55%] w-screen "
+        className="h-auto  w-screen"
         style={{
           position: "absolute",
           bottom: 0,
@@ -190,40 +202,36 @@ const EmailLoginComponent = () => {
           animate={{ translateY: loaded ? 0 : 100 }}
           transition={{ type: "timing", duration: 500, easing: "linear" }}
         >
-          <View className="space-y-5 px-7 shadow-2xl">
+          <View className="space-y-7 px-7 shadow-2xl">
+            <View className="items-center">
+              <TouchableOpacity
+                style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
+                className="p-4 rounded-full"
+              >
+                <Entypo
+                  name="fingerprint"
+                  size={40}
+                  color={theme.colors.onBackground}
+                />
+              </TouchableOpacity>
+              <Text className="font-bold  mt-2">Use FingerPrint</Text>
+            </View>
             <TextInput
-              placeholder="Email Address"
-              keyboardType={"email-address"}
+              placeholder="Password"
               className="bg-transparent"
+              secureTextEntry={showPassword ? false : true}
+              left={<TextInput.Icon size={20} icon="key" />}
+              onChangeText={setPassword}
+              right={
+                <TextInput.Icon
+                  size={20}
+                  onPress={() => setShowPassword(!showPassword)}
+                  icon={showPassword ? "eye-off" : "eye"}
+                />
+              }
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
-              onChangeText={setEmail}
-              left={<TextInput.Icon size={20} icon="email" />}
             />
-
-            <View>
-              <TextInput
-                placeholder="Password"
-                onChangeText={setPassword}
-                secureTextEntry={showPassword ? false : true}
-                left={<TextInput.Icon size={20} icon="lock" />}
-                mode="outlined"
-                outlineStyle={{ borderRadius: 15 }}
-                className="bg-transparent"
-                right={
-                  <TextInput.Icon
-                    size={20}
-                    onPress={() => setShowPassword(!showPassword)}
-                    icon={showPassword ? "eye-off" : "eye"}
-                  />
-                }
-              />
-              <View className="w-full items-end">
-                <Button mode="text" className="">
-                  Forgot Password?
-                </Button>
-              </View>
-            </View>
 
             <View className="">
               {showProcessing && (
@@ -254,18 +262,53 @@ const EmailLoginComponent = () => {
                 </Button>
               )}
 
-              <View className="flex-row items-center justify-center pt-0 pb-3">
-                <Text>I Don't have an account</Text>
-                <Button onPress={() => router.push("/singup")}>Sing up</Button>
+              <View className="flex-row items-center justify-center pt-0 pb-2">
+                <Text>Not my account?</Text>
+                <Button onPress={() => removeAccount()}>Logout</Button>
               </View>
             </View>
           </View>
         </EaseView>
       </KeyboardAvoidingView>
 
+      <Portal>
+        <Dialog
+          visible={exitDialogVisible}
+          onDismiss={() => setExitDialogVisible(false)}
+        >
+          <Dialog.Title>Exit</Dialog.Title>
+          <Dialog.Content>
+            <Text>Are you sure do you want exit</Text>
+          </Dialog.Content>
+          <Dialog.Actions className="">
+            <Button
+              buttonColor="#f41c1c6b"
+              textColor={theme.colors.onBackground}
+              className="w-20"
+              onPress={() => {
+                setExitDialogVisible(false);
+                BackHandler.exitApp();
+              }}
+              mode={"contained-tonal"}
+            >
+              Yes
+            </Button>
+            <Button
+              textColor="black"
+              buttonColor="lightgreen"
+              className="w-20"
+              onPress={() => setExitDialogVisible(false)}
+              mode={"contained-tonal"}
+            >
+              No
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };
 
-export default EmailLoginComponent;
+export default PhoneLoginComponent;

@@ -1,5 +1,6 @@
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import { PaperSafeView, PaperView } from "@/components/PaperView";
+import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -67,7 +68,7 @@ const Singup = () => {
 
   return (
     <PaperSafeView>
-      <Appbar>
+      <Appbar className="bg-transparent">
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -100,7 +101,7 @@ const Singup = () => {
       </Appbar>
       <View
         style={{ bottom: 0, marginBottom: formHeight }}
-        className="absolute space-y-5 w-full items-center justify-center"
+        className="absolute space-y-1 w-full items-center justify-center"
       >
         <EaseView
           animate={{
@@ -110,8 +111,8 @@ const Singup = () => {
           transition={{ duration: 1000, type: "timing" }}
         >
           <Image
-            className="h-14 w-14  rounded-full"
-            source={require("@/assets/images/profile_avatar.png")}
+            className="h-[100px] w-[150px]  rounded-full"
+            source={require("@/assets/images/man_working.png")}
           />
         </EaseView>
         <View className="items-center">
@@ -165,6 +166,7 @@ const Singup = () => {
             backgroundColor: theme.colors.surfaceVariant,
             marginTop: 50,
             paddingBottom: 30,
+            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow
           }}
           className="rounded-t-[30px] h-full justify-center "
           animate={{ translateY: loaded ? 0 : 100 }}
@@ -230,7 +232,7 @@ const Singup = () => {
         </EaseView>
       </KeyboardAvoidingView>
 
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

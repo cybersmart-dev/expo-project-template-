@@ -25,7 +25,7 @@ export const HomeQuickActionsContainer = () => {
       <View className="flex-row items-center justify-around p-2">
         <EaseView
           animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 800 }}
+          transition={{ type: "timing", duration: 500 }}
         >
           <ActionButton
             label="  Data  "
@@ -37,7 +37,7 @@ export const HomeQuickActionsContainer = () => {
         </EaseView>
         <EaseView
           animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 800, delay: 200 }}
+          transition={{ type: "timing", duration: 500, delay: 200 }}
         >
           <ActionButton
             label="Airtime"
@@ -50,7 +50,7 @@ export const HomeQuickActionsContainer = () => {
 
         <EaseView
           animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 800, delay: 400 }}
+          transition={{ type: "timing", duration: 500, delay: 400 }}
         >
           <ActionButton
             icon={({ color }) => (

@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import { router, useLocalSearchParams } from "expo-router";
@@ -11,6 +11,7 @@ import {
   List,
   Switch,
   useTheme,
+  Text
 } from "react-native-paper";
 import BottomSheet from "@/components/models/BottomSheet";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -64,7 +65,7 @@ const transfer_response = () => {
 
   return (
     <PaperSafeView className="flex-1">
-      <Appbar>
+      <Appbar className="bg-transparent">
         <Appbar.Content title="" />
         <Button onPress={() => router.back()}>Done</Button>
       </Appbar>
@@ -100,7 +101,7 @@ const transfer_response = () => {
       </View>
 
       {transferData?.statusCode == 1 && (
-        <View className="absolute top-[50%] w-full px-2">
+        <View className="absolute top-[50%] w-full px-10">
           <View className="">
             <Pressable
               onPress={() => {
@@ -110,7 +111,7 @@ const transfer_response = () => {
                 });
               }}
               style={{ backgroundColor: theme.colors.primary }}
-              className="flex-row items-center justify-between px-3 rounded-t-lg"
+              className="flex-row items-center justify-between px-3 rounded-lg"
             >
               <Text style={{ color: theme.colors.background }}>
                 View Transaction Details
@@ -122,15 +123,7 @@ const transfer_response = () => {
               />
             </Pressable>
           </View>
-          <View
-            style={{ backgroundColor: theme.colors.primaryContainer }}
-            className=" rounded-b-lg h-auto py-2"
-          >
-            <View className=" items-center flex-row space-x-5 pl-2">
-              <Text className="">Save Beneficiary</Text>
-              <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
-            </View>
-          </View>
+         
         </View>
       )}
 

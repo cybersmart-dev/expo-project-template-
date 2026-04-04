@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   Pressable,
   Keyboard,
   GestureResponderEvent,
@@ -19,6 +18,8 @@ import {
   List,
   Searchbar,
   TextInput,
+  useTheme,
+  Text
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -31,6 +32,7 @@ import { Timer } from "@/constants/Utils";
 import { StatusBar } from "expo-status-bar";
 
 const electricity = () => {
+  const theme = useTheme()
   const [selectedMeterType, setSelectedMeterType] = useState("postpaid");
   const [transactionPinSheetVisible, setTransactionPinSheetVisible] =
     useState(false);
@@ -78,6 +80,7 @@ const electricity = () => {
 
     if (meterNumber && !idVerified) {
       await handleVerifyID();
+      await new Timer().postDelayedAsync({sec:500})
       setPreviewSheetVisible(true);
     } else {
       setPreviewSheetVisible(true);
@@ -141,7 +144,7 @@ const electricity = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -169,16 +172,17 @@ const electricity = () => {
                 <TextInput
                   mode="outlined"
                   editable={false}
-                  className="rounded-lg"
+                  className="rounded-lg bg-transparent"
                   placeholder="Select Provider"
                   outlineStyle={{ borderRadius: 15 }}
                   
                   value={selectedProvider ? selectedProvider.name : ""}
                   left={
                     <TextInput.Icon
+                      onPress={() => setProviderSelectSheetVisible(true)}
                       icon={() => (
                         <Image
-                          resizeMode="contain"
+                          resizeMode={"stretch"}
                           className="h-10 w-10 rounded-full"
                           source={{
                             uri: selectedProvider ? selectedProvider.icon : "",
@@ -221,7 +225,7 @@ const electricity = () => {
               <Text>Meter Number</Text>
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
+                className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 placeholder="Enter Meter Numer"
                 onChangeText={setMeterNumber}
@@ -259,7 +263,7 @@ const electricity = () => {
               <Text>Amount</Text>
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
+                className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 onChangeText={setAmount}
                 placeholder="Enter Meter Amount"
@@ -311,7 +315,7 @@ const electricity = () => {
                       <List.Icon
                         icon={() => (
                           <Image
-                            resizeMode="contain"
+                            resizeMode={"stretch"}
                             className="h-10 w-10 rounded-full"
                             source={{ uri: item.icon }}
                           />
@@ -376,7 +380,7 @@ const electricity = () => {
           </View>
         </View>
       </BottomSheet>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

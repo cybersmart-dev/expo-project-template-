@@ -65,7 +65,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const theme = LightTheme; //colorScheme == "dark" ? DarkTheme : LightTheme;
+  const theme = colorScheme == "dark" ? DarkTheme : LightTheme;
 
   const isSupportFormSheet = () => {
     
@@ -134,6 +134,15 @@ function RootLayoutNav() {
           />
           <Stack.Screen
             name="modals/processing"
+            options={{
+              presentation: "containedTransparentModal",
+              title: "Phone Login",
+              headerShown: false,
+            }}
+          />
+
+           <Stack.Screen
+            name="logins/singin"
             options={{
               presentation: "containedTransparentModal",
               title: "Phone Login",
@@ -298,7 +307,7 @@ function RootLayoutNav() {
           />
         </Stack>
       </PaperProvider>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
       <FlashMessage style={{}} position={"top"} />
     </SafeAreaProvider>
   );

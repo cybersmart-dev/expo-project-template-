@@ -7,11 +7,16 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  StatusBar as RNStatusBar,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  SafeAreaViewProps,
+} from "react-native-safe-area-context";
 import { useTheme } from "react-native-paper";
 import { useFocusEffect } from "expo-router";
 import { EaseView } from "react-native-ease";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface PaperViewProps {
   children: React.ReactNode;
@@ -28,7 +33,7 @@ const styles = StyleSheet.create({
   },
 });
 
-interface PaperSafeViewProps {
+interface PaperSafeViewProps extends SafeAreaViewProps {
   children: React.ReactNode;
   className?: string;
   style?: ViewStyle;
@@ -56,6 +61,7 @@ export const PaperSafeView: React.FC<PaperSafeViewProps> = ({
   return (
     <SafeAreaView
       className="flex-1"
+      edges={["bottom"]}
       style={[{ backgroundColor: theme.colors.background }, style]}
     >
       <EaseView
@@ -67,14 +73,15 @@ export const PaperSafeView: React.FC<PaperSafeViewProps> = ({
         transition={{ type: "timing", duration: 700, easing: "linear" }}
         className="flex-1"
       >
-        <KeyboardAvoidingView
+        <LinearGradient
           className="flex-1"
-          behavior={Platform.OS == "android" ? "padding" : "height"}
+          style={{paddingTop: RNStatusBar.currentHeight}}
+          colors={[theme.colors.secondaryContainer, theme.colors.background ]}
         >
           <Pressable onPress={onPress} className={className || "flex-1"}>
             {children}
           </Pressable>
-        </KeyboardAvoidingView>
+        </LinearGradient>
       </EaseView>
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { View, Text, Pressable, Keyboard, FlatList, Image } from "react-native";
+import { View, Pressable, Keyboard, FlatList, Image } from "react-native";
 import { PaperSafeView } from "@/components/PaperView";
 import { StatusBar } from "expo-status-bar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Icon,
   DataTable,
+  Text,
 } from "react-native-paper";
 import { router } from "expo-router";
 import { formatNumber } from "@/constants/Formats";
@@ -97,6 +98,7 @@ const betting = () => {
     }
     if (customerId.length >= 10 && !idVerified) {
       await handleVerifyID();
+      await new Timer().postDelayedAsync({sec:500})
       setPreviewSheetVisible(true);
     } else {
       setPreviewSheetVisible(true);
@@ -133,7 +135,7 @@ const betting = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar>
+        <Appbar className="bg-transparent">
           <Appbar.Action
             onPress={() => router.back()}
             icon={() => (
@@ -154,7 +156,7 @@ const betting = () => {
             <Pressable onPress={handleShowProviders}>
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
+                className="rounded-lg bg-transparent"
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -193,7 +195,7 @@ const betting = () => {
             <Pressable>
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
+                className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 editable={!idVerified}
                 placeholder={"Customer ID"}
@@ -248,7 +250,7 @@ const betting = () => {
             <Pressable>
               <TextInput
                 mode="outlined"
-                className="rounded-lg"
+                className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 placeholder="Amount"
                 value={amount}
@@ -305,7 +307,6 @@ const betting = () => {
                         )}
                       />
                     )}
-                    
                   />
                 </View>
               )}
@@ -359,7 +360,7 @@ const betting = () => {
         onComplate={handlePinComplate}
         processingTransaction={transactionProcessing}
       />
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

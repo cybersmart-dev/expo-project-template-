@@ -161,7 +161,7 @@ const TransactionDetails = () => {
 
   return (
     <PaperSafeView>
-      <Appbar>
+      <Appbar className="bg-transparent">
         <Appbar.Action
           isLeading
           icon={({ color, size }) => (
@@ -180,7 +180,7 @@ const TransactionDetails = () => {
 
       <ViewShot
         style={{
-          backgroundColor: theme.colors.background,
+          backgroundColor: 'transparent',
           paddingVertical: 10,
           borderRadius: 12,
         }}
@@ -306,7 +306,7 @@ const TransactionDetails = () => {
         </Button>
       </View>
 
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

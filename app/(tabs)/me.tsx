@@ -4,17 +4,25 @@ import {
   Image,
   StatusBar as RNStatusBar,
   ScrollView,
+  useColorScheme,
+  ColorValue,
+  BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme, Text, Appbar, List } from "react-native-paper";
+import { useTheme, Text, Appbar, List, Switch, Dialog, Button, Portal } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import { router, useFocusEffect } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Me = () => {
   const theme = useTheme();
+  const colorScheme = useColorScheme();
   const [checked, setChecked] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [isSwitchOn, setIsSwitchOn] = React.useState(false);
+  const [deleteAccountDialogVisible, setDeleteAccountDialogVisible] = useState(false)
+  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
   useFocusEffect(
     useCallback(() => {
@@ -25,25 +33,47 @@ const Me = () => {
       };
     }, []),
   );
+
+  const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
+    if (theme.dark) {
+      return [theme.colors.primaryContainer, theme.colors.secondaryContainer];
+    }
+    return [theme.colors.primary, theme.colors.secondary];
+  };
+
   return (
-    <View
+    <LinearGradient
+      colors={[theme.colors.secondaryContainer, theme.colors.background]}
+      locations={[0, 1]}
+      start={{ x: 100, y: 0 }}
       style={{ backgroundColor: theme.colors.background }}
       className="px-3 flex flex-1 justify-center items-center"
     >
       <Appbar
         className="w-screen"
         style={{
-          backgroundColor: theme.colors.primary,
+          backgroundColor: theme.dark
+            ? theme.colors.primaryContainer
+            : theme.colors.primary,
           paddingTop: RNStatusBar.currentHeight,
         }}
       >
         <Appbar.Content color="white" title="Profile" />
-        <Appbar.Action onPress={() => router.push('/notifications')} color="white" icon={"bell"} />
+        <Appbar.Action
+          onPress={() => router.push("/notifications")}
+          color="white"
+          icon={"bell"}
+        />
       </Appbar>
-      <ScrollView className='flex-1 w-screen'>
+      <ScrollView className="flex-1 w-screen">
         <View className="flex-1">
-          <View
-            style={{ backgroundColor: theme.colors.primary }}
+          <LinearGradient
+            colors={getColors()}
+            style={{
+              backgroundColor: theme.dark
+                ? theme.colors.primaryContainer
+                : theme.colors.primary,
+            }}
             className="h-56 rounded-b-lg w-screen items-center justify-center"
           >
             <View className="items-center space-y-2">
@@ -82,7 +112,7 @@ const Me = () => {
                 </Text>
               </EaseView>
             </View>
-          </View>
+          </LinearGradient>
 
           <View className="px-4 mt-5">
             <List.Section>
@@ -95,6 +125,22 @@ const Me = () => {
                 title="Pin Management"
                 left={() => <List.Icon icon={"key"} />}
               />
+              <List.Subheader>App</List.Subheader>
+              <List.Item
+                title="Dark Theme"
+                onPress={onToggleSwitch}
+                left={() => <List.Icon icon={"brightness-2"} />}
+                right={() => (
+                  <List.Icon
+                    icon={() => (
+                      <Switch
+                        value={isSwitchOn}
+                        onValueChange={onToggleSwitch}
+                      />
+                    )}
+                  />
+                )}
+              />
               <List.Item
                 title="Check For Update"
                 left={() => <List.Icon icon={"android"} />}
@@ -102,18 +148,22 @@ const Me = () => {
               <List.Subheader>More</List.Subheader>
 
               <List.Item
-                title="Exit"
+                title="Exit App"
+                onPress={() => BackHandler.exitApp()}
                 left={() => <List.Icon icon={"door"} />}
               />
 
               <List.Item
                 title="Logout"
-                onPress={() => router.push('/logins/emailLogin')}
+                onPress={() => router.navigate('/logins/singin')}
                 titleStyle={{ color: "red" }}
                 left={() => <List.Icon color="red" icon={"door-open"} />}
               />
               <List.Item
                 titleStyle={{ color: "red" }}
+                onPress={() => {
+                 setDeleteAccountDialogVisible(true)
+                }}
                 title="Delete Account"
                 left={() => <List.Icon color="red" icon={"delete"} />}
               />
@@ -121,8 +171,44 @@ const Me = () => {
           </View>
         </View>
       </ScrollView>
-      <StatusBar style="light" />
-    </View>
+
+        <Portal>
+        <Dialog
+          style={{backgroundColor:'#f72d2d'}}
+          visible={deleteAccountDialogVisible}
+          onDismiss={() => setDeleteAccountDialogVisible(false)}
+        >
+          <Dialog.Title className="text-white">Warning</Dialog.Title>
+          <Dialog.Content>
+            <Text className="text-white">Are you sure do you want to delete this account</Text>
+          </Dialog.Content>
+          <Dialog.Actions className="">
+            <Button
+              buttonColor="#cc5c5c"
+              textColor={'white'}
+              className="w-20"
+              onPress={() => {
+                setDeleteAccountDialogVisible(false)
+                
+              }}
+              mode={"contained-tonal"}
+            >
+              Yes
+            </Button>
+            <Button
+              textColor="black"
+              buttonColor="lightgreen"
+              className="w-20 text-[#cc5c5c]"
+              onPress={() => setDeleteAccountDialogVisible(false)}
+              mode={"contained-tonal"}
+            >
+              No
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+      <StatusBar key={`${loaded}`} style="light" />
+    </LinearGradient>
   );
 };
 

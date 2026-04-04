@@ -1,11 +1,11 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React, { useState } from "react";
 import ActionButton from "../Buttons/ActionButton";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "../models/BottomSheet";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Button, Card } from "react-native-paper";
+import { Button, Card, Text } from "react-native-paper";
 import { router } from "expo-router";
 
 const ServicesContainer = () => {

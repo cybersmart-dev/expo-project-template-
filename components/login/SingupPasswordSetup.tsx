@@ -7,6 +7,7 @@ import FlashMessage, { showMessage } from "react-native-flash-message";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Image } from "expo-image";
 
 interface SingupPasswordSetupProps {
   onComfirm: (data: { pass1: string; pass2: string }) => void;
@@ -43,7 +44,7 @@ export default function SingupPasswordSetup({
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <FlashMessage position={"top"} />
-      <Appbar>
+      <Appbar className="bg-transparent">
         <Appbar.Action
           isLeading
           icon={({ color, size }) => (
@@ -60,12 +61,19 @@ export default function SingupPasswordSetup({
 
       <View className="space-y-10 mt-7 px-5">
         <View className="px-5">
+          <View className="w-full items-center">
+            <Image
+              className="h-24 w-24"
+              // placeholder={{ blurhash }}
+              contentFit="cover"
+              transition={1000}
+              source={require("@/assets/images/gif/password_setup_anim_lock.webp")}
+            />
+          </View>
           <Text className="text-2xl text-center font-light ">
             Create Password
           </Text>
-          <Text className="hidden text-center font-light">
-            🔒
-          </Text>
+          <Text className="hidden text-center font-light">🔒</Text>
         </View>
 
         <TextInput
@@ -73,7 +81,7 @@ export default function SingupPasswordSetup({
           className="bg-transparent"
           autoFocus
           secureTextEntry={showPassword ? false : true}
-          left={<TextInput.Icon size={20} icon="lock" />}
+          left={<TextInput.Icon size={20} icon="lock-outline" />}
           onChangeText={setPassword}
           mode="outlined"
           outlineStyle={{ borderRadius: 15 }}
@@ -81,14 +89,14 @@ export default function SingupPasswordSetup({
             <TextInput.Icon
               size={20}
               onPress={() => setShowPassword(!showPassword)}
-              icon={showPassword ? "eye-off" : "eye"}
+              icon={showPassword ? "eye-off-outline" : "eye-outline"}
             />
           }
         />
         <TextInput
           placeholder="Comfirm Password"
           className="bg-transparent"
-          left={<TextInput.Icon size={20} icon="lock" />}
+          left={<TextInput.Icon size={20} icon="lock-check-outline" />}
           secureTextEntry={showPassword2 ? false : true}
           onChangeText={setPassword2}
           mode="outlined"
@@ -97,13 +105,13 @@ export default function SingupPasswordSetup({
             <TextInput.Icon
               size={20}
               onPress={() => setShowPassword2(!showPassword2)}
-              icon={showPassword2 ? "eye-off" : "eye"}
+              icon={showPassword2 ? "eye-off-outline" : "eye-outline"}
             />
           }
         />
       </View>
 
-      <View className="px-8">
+      <View className="px-8 py-5">
         <Button
           disabled={comfirmDisabled()}
           onPress={handleComfirm}
@@ -115,7 +123,7 @@ export default function SingupPasswordSetup({
           SingUp Now
         </Button>
       </View>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 }

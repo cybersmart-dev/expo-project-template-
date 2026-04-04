@@ -95,7 +95,7 @@ const airtime2cash = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -194,6 +194,7 @@ const airtime2cash = () => {
               onChangeText={setPhoneNumber}
               placeholder="Sender Phone Number"
               keyboardType="numeric"
+              className="bg-transparent"
               error={phoneErrorVisible}
               left={<TextInput.Icon icon={"phone"} />}
               mode="outlined"
@@ -235,7 +236,7 @@ const airtime2cash = () => {
         title="Verify Your Number"
         description={`We have send otp to your phone number ( ${phoneNumber} ) `}
       />
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

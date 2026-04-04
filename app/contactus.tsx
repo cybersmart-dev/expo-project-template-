@@ -3,14 +3,15 @@ import React from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
-import { Appbar } from "react-native-paper";
+import { Appbar, useTheme } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 
 const contactus = () => {
+  const theme = useTheme()
   return (
     <PaperSafeView>
       <View>
-        <Appbar collapsable={true}>
+        <Appbar  className="bg-transparent" collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -31,7 +32,7 @@ const contactus = () => {
           />
         </Appbar>
       </View>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
 };

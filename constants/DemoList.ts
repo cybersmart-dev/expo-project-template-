@@ -144,3 +144,41 @@ export const ElectricityProviders = [
   }
 ];
 
+export const CableTVSubscription = [
+  {
+    id: 1,
+    name: "GOTV",
+    icon: "https://getlogo.net/wp-content/uploads/2021/05/gotv-nigeria-logo-vector.png",
+    plans: [
+      {
+        id: 1,
+        name: "GOTV 500 super",
+        amount: 500,
+      },
+    ],
+  },
+  {
+    id: 2,
+    name: "DSTV",
+    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdvcooV9w7FCAa8YdqKD7KWeXGio73Y71wUw&s",
+    plans: [
+      {
+        id: 1,
+        name: "DSTV 500 super",
+        amount: 500,
+      },
+    ],
+  },
+  {
+    id: 3,
+    name: "StarTimes",
+    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9fkKAS5ttwnbR8yXoC5y_m2Eemf0UwtjsIQ&s",
+    plans: [
+      {
+        id: 1,
+        name: "StartTime 500 super",
+        amount: 500,
+      },
+    ],
+  },
+];
