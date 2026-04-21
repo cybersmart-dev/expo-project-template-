@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Expo Project Template",
+    "name": "Expo Project Template Prod",
     "slug": "expoprojecttemplate",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "reactmail",
@@ -66,13 +66,16 @@
           "icon": "./assets/images/icon.png",
           "color": "#000000",
           "defaultChannel": "default",
-          "sounds": ["./assets/audio/mixkit_melodic_gold_price.wav"],
+          "sounds": [
+            "./assets/audio/mixkit_melodic_gold_price.wav"
+          ],
           "enableBackgroundRemoteNotifications": false
         }
       ],
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

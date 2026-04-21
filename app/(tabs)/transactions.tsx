@@ -1,11 +1,20 @@
-import { View, FlatList } from "react-native";
-import React from "react";
+import { View, FlatList, RefreshControl } from "react-native";
+import React, { useCallback, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { Appbar, List, useTheme, Text } from "react-native-paper";
-import { router } from "expo-router";
+import {
+  Appbar,
+  List,
+  useTheme,
+  Text,
+  Chip,
+  ActivityIndicator,
+} from "react-native-paper";
+import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Transactions } from "@/constants/DemoList";
 import { formatNumber } from "@/constants/Formats";
+import { Image } from "expo-image";
+import requests from "@/Network/HttpRequest";
 
 interface TransactionsListComponentProps {
   id?: number;
@@ -57,19 +66,74 @@ const TransactionsListComponent = ({
     />
   );
 };
+
+const services = [
+  "All",
+  "Data",
+  "Airtime",
+  "Electricity",
+  "Betting",
+  "Deposit",
+];
+
 const transactions = () => {
   const theme = useTheme();
+  const [transactions, setTransactions] = useState<any>([]);
+  const [fetching, setFetching] = useState(false);
+  const [networkDisconnected, setNetworkDisconnected] = useState(false);
+  const [selectedService, setSelectedService] = useState(services[0]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+    }, [selectedService]),
+  );
+
+  const fetchTransactions = async () => {
+    setFetching(true);
+    const response = await requests.get({
+      url: `/user/transactions/?service_type=${selectedService.toUpperCase()}`,
+    });
+
+    setFetching(false);
+
+    if (response.status == 1) {
+      setTransactions(response?.data);
+    }
+  };
   return (
     <PaperSafeView>
       <View>
         <Appbar className="bg-transparent">
           <Appbar.Content title="Transactions" />
-          <Appbar.Action icon={"filter"} onPress={() => null} />
+          <Appbar.Action icon={"face-agent"} onPress={() => null} />
         </Appbar>
       </View>
-      <View className="flex-1">
+      <View className="space-x-4">
         <FlatList
-          data={Transactions}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          data={services}
+          renderItem={({ item }) => (
+            <View className="px-3">
+              <Chip
+                selected={selectedService == item}
+                onPress={() => setSelectedService(item)}
+              >
+                {item}
+              </Chip>
+            </View>
+          )}
+        />
+      </View>
+      <RefreshControl
+        refreshing={false}
+        onRefresh={fetchTransactions}
+        className="flex-1 mt-2"
+      >
+        <FlatList
+          data={transactions}
           renderItem={({ item }) => (
             <TransactionsListComponent
               onPress={() => {
@@ -79,16 +143,40 @@ const transactions = () => {
                 });
               }}
               key={item.id}
-              title={item.title}
+              title={item.service_type}
               amount={item.amount}
-              date={item.date}
+              date={
+                item?.created_at
+                  ? new Date(item.created_at).toDateString()
+                  : "N/A"
+              }
               description={item.description}
               side={item.side}
               type={item.type}
             />
           )}
+          ListEmptyComponent={() => (
+            <View className="flex-1 items-center justify-center mt-10">
+              {fetching ? (
+                <View className="items-center justify-center space-y-3 mt-5">
+                  <ActivityIndicator size={30} />
+                  <Text>Loading Transactions...</Text>
+                </View>
+              ) : (
+                <View>
+                  <Image
+                    className="h-[100px] w-[100px] self-center "
+                    source={require("@/assets/images/gif/no_transactions_anim.webp")}
+                  />
+                  <Text className="text-center text-lg mt-2">
+                    No Transactions Yet!
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
         />
-      </View>
+      </RefreshControl>
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

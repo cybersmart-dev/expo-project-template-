@@ -1,11 +1,19 @@
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Chip, useTheme, Text } from "react-native-paper";
+import {
+  Chip,
+  useTheme,
+  Text,
+  Button,
+  ActivityIndicator,
+} from "react-native-paper";
 import { DataPackType } from "@/constants/Types";
 import { formatNumber } from "@/constants/Formats";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import { EaseView } from "react-native-ease";
 import { Timer } from "@/constants/Utils";
+import { Image } from "expo-image";
+import requests from "@/Network/HttpRequest";
 
 const BundlesList = {
   mtn: {
@@ -139,20 +147,19 @@ const DataPackComponent = ({
   selected,
 }: DataPackComponentProps) => {
   const theme = useTheme();
-  const [clied, setClied] = useState(false)
+  const [clied, setClied] = useState(false);
 
   const handlePress = async () => {
-    onPress()
-    setClied(true)
-    await new Timer().postDelayedAsync({sec: 300})
-    setClied(false)
-
-  }
+    onPress();
+    setClied(true);
+    await new Timer().postDelayedAsync({ sec: 300 });
+    setClied(false);
+  };
   return (
     <View className="p-1 mt-2">
       <EaseView
         animate={{ scale: clied ? 0.5 : 1 }}
-        transition={{type:'timing', duration: 700}}
+        transition={{ type: "timing", duration: 700 }}
       >
         <TouchableOpacity
           onPress={handlePress}
@@ -182,35 +189,60 @@ const DataPackComponent = ({
 };
 
 interface DataListContainerProps {
-  network?: "mtn" | "airtel" | "glo" | "9mobile";
+  network: "mtn" | "airtel" | "glo" | "9mobile" | undefined;
+  networkId?: number;
   onPackSelect: (data: DataPackType) => void;
+  onPressSelectNetwork?: () => void;
 }
 const DataListContainer = ({
-  network = "mtn",
+  network,
+  networkId,
   onPackSelect,
+  onPressSelectNetwork,
 }: DataListContainerProps) => {
   const [selectedBundle, setSelectedBundle] = useState("");
-  const [selectedBundlePacks, setSelectedBundlePacks] =
-    useState<Array<DataPackType>>();
-  const [selectedNetwork, setSelectedNetwork] = useState<{
-    networkId: number;
-    bundles: Array<{
-      bundleType: string;
-      packs: Array<DataPackType>;
-    }>;
-  }>();
+  const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
+  const [fetchingPlans, setFetchingPlans] = useState(false);
+  const [dataBundles, setDataBundles] = useState<Array<any>>([]);
   const [selectedPack, setSelectedPack] = useState<DataPackType>();
+  const [dataPlans, setDataPlans] = useState<Array<any>>([]);
+  const [selectedBundleName, setSelectedBundleName] = useState("");
 
   useEffect(() => {
-    handleNetworkSelect();
-  }, [network]);
+    if (network) {
+      setDataBundles([]);
+      setDataPlans([]);
+      setSelectedBundleName("")
+      fetchDataPlans();
+    }
+  }, [network, networkId]);
 
-  const handleNetworkSelect = () => {
-    const selected = BundlesList[network];
-    setSelectedNetwork(selected);
-    if (selected.bundles.length > 0) {
-      setSelectedBundle(selected.bundles[0].bundleType);
-      setSelectedBundlePacks(selected.bundles[0].packs);
+  useEffect(() => {
+    if (dataBundles[0]?.name) {
+      setDataPlans(dataBundles[0].plans);
+      setSelectedBundleName(dataBundles[0].name);
+    }
+  }, [dataBundles]);
+
+  const fetchDataPlans = async () => {
+    setNetworkRequestFailed(false);
+    setFetchingPlans(true);
+    const response = await requests.get({
+      url: `/data-plans/?id=${networkId}`,
+    });
+
+    setFetchingPlans(false);
+
+    if (response.status == 1) {
+      setDataBundles(response?.data?.categories);
+    }
+
+    if (response.status == 0) {
+      // do something
+    }
+
+    if (response.status == undefined) {
+      setNetworkRequestFailed(true);
     }
   };
 
@@ -218,20 +250,20 @@ const DataListContainer = ({
     <View className="w-full h-auto">
       <View className="flex-row items-center justify-around mt-5 px-2">
         <FlatList
-          keyExtractor={(item) => item.bundleType}
+          keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={selectedNetwork?.bundles}
+          data={dataBundles}
           renderItem={({ item }) => (
             <View className="p-1 mr-3 pr-1">
               <Chip
-                selected={true ? item.bundleType == selectedBundle : false}
+                selected={true ? item.name == selectedBundleName : false}
                 onPress={() => {
-                  setSelectedBundle(item.bundleType);
-                  setSelectedBundlePacks(item.packs);
+                  setSelectedBundleName(item.name);
+                  setDataPlans(item.plans);
                 }}
               >
-                {item.bundleType}
+                {item.name}
               </Chip>
             </View>
           )}
@@ -241,7 +273,8 @@ const DataListContainer = ({
         <FlatList
           keyExtractor={(item) => `${item.id}`}
           numColumns={3}
-          data={selectedBundlePacks}
+          data={dataPlans}
+          refreshControl={<RefreshControl refreshing={false} onRefresh={fetchDataPlans} />}
           renderItem={({ item }) => (
             <DataPackComponent
               selected={
@@ -255,7 +288,65 @@ const DataListContainer = ({
               item={item}
             />
           )}
+          ListEmptyComponent={() =>
+            !fetchingPlans && !networkRequestFailed && (
+              <View className="h-full items-center justify-center w-full pt-5">
+                <Image
+                  className="h-20 w-20 rounded-full"
+                  source={require("@/assets/images/gif/no_transactions_anim.webp")}
+                />
+
+                <Text className="mt-3">
+                  <Text className="font-bold">' {network?.toUpperCase() +' '+ selectedBundleName} '</Text> data plans not available currently
+                </Text>
+                <Button
+                  onPress={fetchDataPlans}
+                  mode={"contained-tonal"}
+                  className="mt-4"
+                >
+                  Reload
+                </Button>
+              </View>
+            )
+          }
         />
+        {networkRequestFailed && (
+          <View className="h-full items-center justify-center w-full">
+            <Image
+              className="h-28 w-24 rounded-full"
+              source={require("@/assets/images/gif/no_connection_anim2.gif")}
+            />
+
+            <Text className="font-bold">No Connection!</Text>
+            <Button
+              onPress={fetchDataPlans}
+              mode={"contained-tonal"}
+              className="mt-4"
+            >
+              Reload
+            </Button>
+          </View>
+        )}
+
+        {fetchingPlans && (
+          <View className="h-full items-center justify-center w-full">
+            <View className="space-y-3 items-center">
+              <ActivityIndicator size={30} />
+              <Text className="font-bold">Loading Plans...</Text>
+            </View>
+          </View>
+        )}
+
+        {!network && (
+          <View className="h-full items-center justify-center w-full">
+            <View className="space-y-3 items-center">
+              <Text className="font-bold">Select network first!</Text>
+              <Button onPress={onPressSelectNetwork} mode={"contained-tonal"}>
+                Select
+              </Button>
+            </View>
+          </View>
+        )}
       </View>
     </View>
   );

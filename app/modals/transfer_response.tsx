@@ -59,7 +59,7 @@ const transfer_response = () => {
     setDownloadOptionSheetVisible(false);
     router.push({
       pathname: "/TransactionDetails/[id]",
-      params: { id: 1, action: "download", fileType: fileType },
+      params: { id: transferData.id, action: "download", fileType: fileType },
     });
   };
 
@@ -107,7 +107,7 @@ const transfer_response = () => {
               onPress={() => {
                 router.push({
                   pathname: "/TransactionDetails/[id]",
-                  params: { id: 1 },
+                  params: { id: transferData.id },
                 });
               }}
               style={{ backgroundColor: theme.colors.primary }}
@@ -133,7 +133,7 @@ const transfer_response = () => {
             onPress={() => {
               router.push({
                 pathname: "/TransactionDetails/[id]",
-                params: { id: 1, action: "share" },
+                params: { id: transferData.id, action: "share" },
               });
             }}
             mode="outlined"

@@ -7,6 +7,7 @@ import {
   Platform,
   TouchableOpacity,
   BackHandler,
+  Alert,
 } from "react-native";
 import {
   Text,
@@ -31,14 +32,23 @@ import { PaperSafeView } from "@/components/PaperView";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
+import * as LocalAuthentication from "expo-local-authentication";
+import requests from "@/Network/HttpRequest";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
 
   const [password, setPassword] = useState("");
-
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
+  const [userInfo, setUserInfo] = useState<{
+    username: string;
+    email: string;
+  }>();
+  const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
+    useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -53,13 +63,13 @@ const PhoneLoginComponent = () => {
 
   useFocusEffect(
     useCallback(() => {
+      checkLoginState();
+      getUserInfo();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setExitDialogVisible(true);
         return true;
       });
-      return () => {
-        back.remove();
-      };
+      return () => back.remove();
     }, []),
   );
   const validateInput = () => {
@@ -74,33 +84,148 @@ const PhoneLoginComponent = () => {
     login();
   };
 
+  const getUserInfo = async () => {
+    try {
+      const userInfoString = await AsyncStorage.getItem("userInfo");
+      if (userInfoString) {
+        const userInfo = JSON.parse(userInfoString);
+        setUserInfo(userInfo);
+      }
+    } catch (error) {
+      console.error("Error fetching username:", error);
+    }
+    return null;
+  };
+
   const login = async () => {
     setShowProcessing(true);
     Keyboard.dismiss();
 
-    await new Timer().postDelayedAsync({ sec: 3000 });
 
-    setShowProcessing(false);
-    showMessage({
-      message: "Login",
-      description: "Login successfuly",
-      type: "success",
+    const response = await requests.post({
+      url: "/login/",
+      add_header_token: false,
+      data: { email: userInfo?.email, password: password },
     });
-    await saveLoginState();
-    router.push("/(tabs)");
+
+    if (response.token != undefined) {
+      setShowProcessing(false);
+      showMessage({
+        message: "Login Success",
+        description: "Welcome back!",
+        type: "success",
+      });
+      saveLoginState(response.token);
+      router.push("/(tabs)");
+    }
+
+    if (response.status == 0) {
+      setShowProcessing(false);
+      showMessage({
+        message: "Login Failed",
+        description: response.message,
+        type: "danger",
+      });
+    }
+    if (response.status == undefined) {
+      setShowProcessing(false);
+      setNetworkErrorSheetVisible(true);
+      showMessage({
+        message: "Network Error",
+        description: "Please check your internet connection and try again.",
+        type: "danger",
+      });
+    }
   };
 
-  const saveLoginState = async () => {
+  const checkLoginState = async () => {
     try {
-      await AsyncStorage.setItem("loginState", "1");
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("userInfo");
+        router.push("/logins/emailLogin");
+      }
+    } catch (error) {}
+  };
+
+  const saveLoginState = async (token: string) => {
+    try {
+      await AsyncStorage.setItem("token", token);
     } catch (error) {}
   };
 
   const removeAccount = async () => {
     try {
       await AsyncStorage.removeItem("loginState");
+      await AsyncStorage.clear();
       router.push("/");
     } catch (error) {}
+  };
+
+  const hasBiometrics = async () => {
+    const [hasHardware, isEnrolled] = await Promise.all([
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync(),
+    ]);
+    return hasHardware && isEnrolled;
+  };
+
+  useEffect(() => {
+    const checkBiometrics = async () => {
+      const available = await hasBiometrics();
+      console.log("Biometric Avilable", available);
+
+      setBiometricAvailable(available);
+    };
+    checkBiometrics();
+  }, []);
+
+  const fingerprintLogin = async () => {
+    // Check if biometric hardware is available
+    const hasHardware = await LocalAuthentication.hasHardwareAsync();
+    if (!hasHardware) {
+      Alert.alert(
+        "Not supported",
+        "This device does not have biometric hardware.",
+      );
+      return;
+    }
+
+    // Check if biometric records are enrolled
+    const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+    if (!isEnrolled) {
+      Alert.alert(
+        "No biometrics set up",
+        "Please set up a fingerprint or face scan in your device settings.",
+      );
+      return;
+    }
+
+    // Authenticate the user
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Authenticate to unlock the app",
+      cancelLabel: "Use Password",
+      promptSubtitle: "Login with biometric",
+    });
+
+    if (result.success) {
+      showMessage({
+        message: "Success!",
+        description: "Authentication successful.",
+        type: "success",
+        icon: "success",
+      });
+      router.push("/(tabs)");
+    } else {
+      showMessage({
+        message: "Failed",
+        description: "Authentication failed: " + result.error,
+        type: "danger",
+        icon: "danger",
+      });
+      // Handle authentication failure
+    }
   };
   return (
     <PaperSafeView
@@ -178,14 +303,14 @@ const PhoneLoginComponent = () => {
                 fontWeight: "bold",
               }}
             >
-              Mustapha!
+              {userInfo?.username}!
             </Text>
           </EaseView>
         </View>
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto  w-screen"
+        className="h-auto min-h-[40%]  w-screen"
         style={{
           position: "absolute",
           bottom: 0,
@@ -203,25 +328,30 @@ const PhoneLoginComponent = () => {
           transition={{ type: "timing", duration: 500, easing: "linear" }}
         >
           <View className="space-y-7 px-7 shadow-2xl">
-            <View className="items-center">
-              <TouchableOpacity
-                style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
-                className="p-4 rounded-full"
-              >
-                <Entypo
-                  name="fingerprint"
-                  size={40}
-                  color={theme.colors.onBackground}
-                />
-              </TouchableOpacity>
-              <Text className="font-bold  mt-2">Use FingerPrint</Text>
-            </View>
+            {biometricAvailable && (
+              <View className="items-center">
+                <TouchableOpacity
+                  onPress={fingerprintLogin}
+                  style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
+                  className="p-4 rounded-full"
+                >
+                  <Entypo
+                    name="fingerprint"
+                    size={40}
+                    color={theme.colors.onBackground}
+                  />
+                </TouchableOpacity>
+                <Text className="font-bold  mt-2">Use FingerPrint</Text>
+              </View>
+            )}
+
             <TextInput
               placeholder="Password"
               className="bg-transparent"
               secureTextEntry={showPassword ? false : true}
               left={<TextInput.Icon size={20} icon="key" />}
               onChangeText={setPassword}
+              onSubmitEditing={() => validateInput()}
               right={
                 <TextInput.Icon
                   size={20}
@@ -305,6 +435,11 @@ const PhoneLoginComponent = () => {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      <NetworkRequestErrorSheet
+        visible={networkErrorSheetVisible}
+        onDismiss={setNetworkErrorSheetVisible}
+      />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

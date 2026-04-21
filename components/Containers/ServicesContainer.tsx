@@ -7,6 +7,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Button, Card, Text } from "react-native-paper";
 import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 
 const ServicesContainer = () => {
   const [showMoreBottomSheet, setshowMoreBottomSheet] = useState(false);
@@ -48,7 +49,10 @@ const ServicesContainer = () => {
             )}
           />
           <ActionButton
-            onPress={() => router.push("/contactus")}
+            onPress={async (e) => {
+              e.preventDefault()
+              await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748")
+            }}
             label="Contact Us"
             icon={({ color }) => (
               <MaterialIcons name="contact-support" size={24} color={color} />
@@ -75,8 +79,6 @@ const ServicesContainer = () => {
             <Text className="text-lg font-bold">More Services</Text>
 
             <View className="space-y-2 px-1">
-              
-
               <Card className="p-3">
                 <View className="flex-row w-full items-center justify-between">
                   <ActionButton

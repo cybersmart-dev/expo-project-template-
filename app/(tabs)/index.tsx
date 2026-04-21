@@ -9,6 +9,7 @@ import {
   StatusBar as RNStatusBar,
   useColorScheme,
   BackHandler,
+  GestureResponderEvent,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -30,9 +31,10 @@ import {} from "expo-image";
 import { EaseView } from "react-native-ease";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{olj[ayj[j[cbj[ayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+import * as WebBrowser from "expo-web-browser";
+import requests from "@/Network/HttpRequest";
+import { showMessage } from "react-native-flash-message";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 export default function Index() {
   const theme = useTheme();
@@ -40,6 +42,8 @@ export default function Index() {
   const [hideBalance, setHideBalance] = useState(false);
   const [showPinSheet, setShowPinSheet] = useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
+  const [fetchingInfo, setFetchingInfo] = useState(false)
+  const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
@@ -47,7 +51,7 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      checkLoginState()
+      checkLoginState();
       setLoaded(true);
 
       return () => {
@@ -60,24 +64,36 @@ export default function Index() {
     if (!true) {
       setShowPinSheet(true);
     }
-    fetchData();
   }, []);
 
   const fetchData = async () => {
-    fetch("https://example.org", {})
-      .then((response) => {
-        return response.text();
-      })
-      .then((data) => {
-        console.log(`Response: ${data}`);
-      })
-      .catch((error) => {
-        //setNetworkErrorSheetVisible(true);
+   setFetchingInfo(true)
+    const response = await requests.get({ url: "/user/details/" });
+
+    setFetchingInfo(false);
+
+    if (response.status == 1) {
+      setUserInfo(response.data);
+      storeUserInfo(response.data);
+    }
+
+    if (response.status == 0) {
+      showMessage({
+        message: "Error",
+        description: response.message,
+        type: "danger",
       });
+    }
+
+    if (response.status == undefined) {
+      loadUserInfo();
+      setNetworkErrorSheetVisible(true);
+    }
   };
 
   useFocusEffect(
     useCallback(() => {
+      fetchData();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setExitDialogVisible(true);
         return true;
@@ -88,18 +104,37 @@ export default function Index() {
     }, []),
   );
 
+  const loadUserInfo = async () => {
+    try {
+      const userInfoString = await AsyncStorage.getItem("userInfo");
+      if (userInfoString) {
+        setUserInfo(JSON.parse(userInfoString));
+      }
+    } catch (error) {
+      console.error("Error loading user info:", error);
+    }
+  };
+
+  const storeUserInfo = async (userInfo: any) => {
+    try {
+      await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
+    } catch (error) {
+      console.error("Error storing user info:", error);
+    }
+  };
+
   const checkLoginState = async () => {
     try {
-      const state = await AsyncStorage.getItem("loginState");
-      console.log(state);
+      const loginState = (await AsyncStorage.getItem("token")) == null;
 
-      if (state == null) {
+      if (loginState) {
         router.push("/logins/emailLogin");
-        return;
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error checking login state:", error);
+    }
   };
-  
+
   return (
     <LinearGradient
       colors={[theme.colors.secondaryContainer, theme.colors.background]}
@@ -132,7 +167,10 @@ export default function Index() {
                   source={require("@/assets/images/profile_avatar.png")}
                 />
                 <Text className="text-white">
-                  Hi <Text className="font-bold text-white">Mustapha!</Text>
+                  Hi{" "}
+                  <Text className="font-bold text-white">
+                    {userInfo?.username || <Button>Refresh</Button>}!
+                  </Text>
                 </Text>
               </TouchableOpacity>
             }
@@ -143,7 +181,9 @@ export default function Index() {
             icon={"bell-outline"}
           />
           <Appbar.Action
-            onPress={() => router.push("/contactus")}
+            onPress={async () => {
+              await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
+            }}
             color="white"
             icon={"face-agent"}
           />
@@ -159,6 +199,9 @@ export default function Index() {
           <View className="">
             <BalanceContainer
               theme={theme}
+              fetchingInfo={fetchingInfo}
+              fetchInfo={fetchData}
+              userInfo={userInfo}
               hideBalance={hideBalance}
               onHideBalanceToggle={() => setHideBalance(!hideBalance)}
             />
@@ -188,30 +231,7 @@ export default function Index() {
           />
         </BottomSheet>
 
-        <BottomSheet
-          visible={networkErrorSheetVisible}
-          onDismiss={setNetworkErrorSheetVisible}
-          mode={"center"}
-          backgroundColor={"#ffc7c7"}
-        >
-          <View className="items-center p-5 px-5 bg-[]">
-            <Image
-              className="h-32 w-32"
-              source={require("@/assets/images/gif/no_connection_anim.gif")}
-            />
-            <Text className="font-bold mt-2 text-red-800">
-              Please check your network and try again
-            </Text>
-          </View>
-          <View className="p-3">
-            <Button
-              onPress={() => setNetworkErrorSheetVisible(false)}
-              mode="outlined"
-            >
-              Ok
-            </Button>
-          </View>
-        </BottomSheet>
+      <NetworkRequestErrorSheet visible={networkErrorSheetVisible} onDismiss={setNetworkErrorSheetVisible} />
         <StatusBar key={1} style="light" />
       </EaseView>
       <Portal>
@@ -229,8 +249,8 @@ export default function Index() {
               textColor={theme.colors.onBackground}
               className="w-20"
               onPress={() => {
-                setExitDialogVisible(false)
-                BackHandler.exitApp()
+                setExitDialogVisible(false);
+                BackHandler.exitApp();
               }}
               mode={"contained-tonal"}
             >

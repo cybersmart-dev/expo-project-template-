@@ -25,6 +25,8 @@ import { Networks } from "@/constants/DemoList";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
+import requests from "@/Network/HttpRequest";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 const SuggestAmounts = [
   {
@@ -132,13 +134,11 @@ const buyairtime = () => {
   const [pinSheetVisible, setPinSheetVisible] = useState(false);
   const [beneficiarySheetVisible, setBeneficiarySheetVisible] = useState(false);
   const [transactionProcessing, setTransactionProcessing] = useState(false);
-  const timerRef = useRef(0);
+  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false)
   const theme = useTheme();
   const [buyAirtimePreviewVisible, setbuyAirtimePreviewVisible] =
     useState(false);
-  const [selectedNetwork, setSelectedNetwork] = useState<NetworksType[0]>(
-    Networks[0],
-  );
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworksType[0]>();
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
@@ -150,6 +150,15 @@ const buyairtime = () => {
   }, [mobileNumber]);
 
   const handleBuy = () => {
+    if (!selectedNetwork) {
+      showMessage({
+        message: "Please Select Network",
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
     if (!isValidMobileNumber(mobileNumber)) {
       showMessage({
         message: "Invalid Number",
@@ -173,34 +182,46 @@ const buyairtime = () => {
     setPinSheetVisible(true);
   };
 
-  const handleBuyAirtime = (pin: string) => {
+  const handleBuyAirtime = async (pin: string) => {
     setTransactionProcessing(true);
 
-    timerRef.current = setTimeout(() => {
-      setTransactionProcessing(false);
-      setPinSheetVisible(false);
+    const response = await requests.post({
+      url: "/buy-airtime/", data: {
+        amount: toNumber(amount),
+        network_id: selectedNetwork?.id,
+        number: mobileNumber
+    } });
+
+    setTransactionProcessing(false);
+    setPinSheetVisible(false);
+
+    if (response.status == 1) {
       router.push({
         pathname: "/modals/transfer_response",
         params: {
           status: "Success",
           type: "Airtime",
           amount: amount,
-          data: JSON.stringify({
-            statusCode: 1,
-            type: "airtime",
-            phone: mobileNumber,
-            id: 1,
-            charge: 0.0,
-            cashback: 0.4,
-            message: `You have successfuly buy ${amount} of airtime to ${mobileNumber}`,
-          }),
+          data: JSON.stringify(response.data),
         },
       });
+      return;
+    }
 
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    }, 2000);
+    if (response.status == 0) {
+      showMessage({
+        message: "Transaction Failed",
+        description: response.message,
+        type: "danger",
+        icon: "danger",
+      });
+      return;
+    }
+
+    if (response.status == undefined) {
+      setNetWorkErrorVisible(true)
+      return;
+    }
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()} className="flex-1 ">
@@ -334,6 +355,7 @@ const buyairtime = () => {
           </View>
         </View>
       </BottomSheet>
+      <NetworkRequestErrorSheet visible={netWorkErrorVisible} onDismiss={setNetWorkErrorVisible}/>
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

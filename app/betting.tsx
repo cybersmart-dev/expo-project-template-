@@ -272,6 +272,8 @@ const betting = () => {
             </Button>
           </View>
         </View>
+
+        
       </View>
 
       <BottomSheet

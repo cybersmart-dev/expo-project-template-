@@ -1,5 +1,6 @@
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import { PaperSafeView, PaperView } from "@/components/PaperView";
+import requests from "@/Network/HttpRequest";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useFocusEffect } from "expo-router";
@@ -26,6 +27,11 @@ const Singup = () => {
   const [state, setState] = useState("");
   const [formHeight, setFormHeight] = useState(0);
 
+  const [fullnameErrorShow, setFullNameErrorShow] = useState(false);
+  const [emailErrorShow, setEmailErrorShow] = useState(false);
+  const [phoneNumberErrorShow, setPhoneNumberErrorShow] = useState(false);
+  const [stateErrorShow, setStateErrorShow] = useState(false);
+
   const [loaded, setLoaded] = useState(false);
 
   useFocusEffect(
@@ -37,12 +43,40 @@ const Singup = () => {
     }, []),
   );
 
-  const validateInputs = () => {
+  const validateInputs = async () => {
     Keyboard.dismiss();
-    if (!fullName || !email || !phoneNumber || !state) {
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(?:\+234|234|0)(?:70|80|81|90|91|701|702|703|704|705|706|707|708|709|810|811|812|813|814|815|816|817|818|819|901|902|903|904|905|906|907|908|909)\d{7}$/;
+
+    const trimmedFullName = fullName.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPhoneNumber = phoneNumber.trim();
+    const trimmedState = state.trim();
+
+    const hasFullNameError = trimmedFullName.length === 0;
+    const hasEmailError = trimmedEmail.length === 0 || !emailRegex.test(trimmedEmail);
+    const hasPhoneNumberError = trimmedPhoneNumber.length === 0 || !phoneRegex.test(trimmedPhoneNumber);
+    const hasStateError = trimmedState.length === 0;
+
+    setFullNameErrorShow(hasFullNameError);
+    setEmailErrorShow(hasEmailError);
+    setPhoneNumberErrorShow(hasPhoneNumberError);
+    setStateErrorShow(hasStateError);
+
+    if (hasFullNameError || hasEmailError || hasPhoneNumberError || hasStateError) {
+      const message = "Please fix invalid input";
+      const description = hasFullNameError
+        ? "Enter your full name."
+        : hasEmailError
+        ? "Enter a valid email address."
+        : hasPhoneNumberError
+        ? "Enter a valid phone number."
+        : "Enter your state.";
+
       showMessage({
-        message: "Required fields is missing",
-        description: "All fields are required",
+        message,
+        description,
         type: "danger",
       });
       return;
@@ -51,15 +85,18 @@ const Singup = () => {
     router.push({
       pathname: "/logins/setupPassword",
       params: {
-        fullName: fullName,
-        email: email,
-        phoneNumber: phoneNumber,
-        state: state,
+        fullName: trimmedFullName,
+        email: trimmedEmail,
+        phoneNumber: trimmedPhoneNumber,
+        state: trimmedState,
       },
     });
 
     return;
   };
+
+ 
+
 
   const handleOnLayout = (event: LayoutChangeEvent): void => {
     const height = event.nativeEvent.layout.height;
@@ -177,7 +214,11 @@ const Singup = () => {
               placeholder="Full Name"
               keyboardType={"default"}
               className="bg-transparent"
-              onChangeText={setFullName}
+              error={fullnameErrorShow}
+              onChangeText={(value) => {
+                setFullName(value);
+                setFullNameErrorShow(false);
+              }}
               left={<TextInput.Icon size={20} icon="account" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
@@ -187,7 +228,11 @@ const Singup = () => {
               placeholder="Email Address"
               keyboardType={"email-address"}
               className="bg-transparent"
-              onChangeText={setEmail}
+              error={emailErrorShow}
+              onChangeText={(value) => {
+                setEmail(value);
+                setEmailErrorShow(false);
+              }}
               left={<TextInput.Icon size={20} icon="email" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
@@ -197,7 +242,11 @@ const Singup = () => {
               placeholder="Phone Number"
               keyboardType={"numeric"}
               className="bg-transparent"
-              onChangeText={setPhoneNumber}
+              error={phoneNumberErrorShow}
+              onChangeText={(value) => {
+                setPhoneNumber(value);
+                setPhoneNumberErrorShow(false);
+              }}
               left={<TextInput.Icon size={20} icon="phone" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
@@ -207,7 +256,11 @@ const Singup = () => {
               placeholder="State"
               keyboardType={"default"}
               className="bg-transparent"
-              onChangeText={setState}
+              error={stateErrorShow}
+              onChangeText={(value) => {
+                setState(value);
+                setStateErrorShow(false);
+              }}
               left={<TextInput.Icon size={20} icon="home" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}

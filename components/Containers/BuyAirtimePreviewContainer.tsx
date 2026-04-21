@@ -30,16 +30,7 @@ const BuyAirtimePreviewContainer = ({
   }, []);
 
   const validateTransaction = () => {
-    setValidatingTransaction(true);
-
-    timerRef.current = setTimeout(() => {
-      setValidatingTransaction(false);
-      console.log("runnung");
-
-      if (timerRef?.current) {
-        clearTimer();
-      }
-    }, 2000);
+   
   };
 
   const clearTimer = () => {

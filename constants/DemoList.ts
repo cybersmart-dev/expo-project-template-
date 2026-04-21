@@ -21,6 +21,7 @@ export const Networks: NetworksType = [
     name: "9mobile",
     icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ5NyP_4Se11SXnz9hvsbF829TqjE23u-0hg&s",
   },
+  
 ];
 
 

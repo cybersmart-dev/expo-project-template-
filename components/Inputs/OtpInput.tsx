@@ -23,6 +23,8 @@ interface OtpInputProps {
   value?: string | undefined;
   height?: DimensionValue | undefined
   width?: DimensionValue | undefined
+  editable?: boolean | undefined
+  
   
 }
 export default function OtpInput({
@@ -36,6 +38,7 @@ export default function OtpInput({
   containerClassName = "flex-row justify-center items-center",
   inputClassName = "",
   value = "",
+  editable
 }: OtpInputProps) {
   const [digits, setDigits] = useState(Array(length).fill(""));
   const inputsRef = useRef<Array<TextInput | null>>([]);
@@ -163,6 +166,7 @@ export default function OtpInput({
           value={digits[i]}
           onChangeText={(text) => handleChange(text, i)}
           onKeyPress={(e) => handleKeyPress(e, i)}
+          editable={editable}
           keyboardType="number-pad"
           secureTextEntry={true}
           maxLength={1}

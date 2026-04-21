@@ -1,4 +1,4 @@
-import { View, Keyboard } from "react-native";
+import { View, Keyboard, Platform, Linking } from "react-native";
 import React, { useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import { Appbar, Button, TextInput, useTheme, Text } from "react-native-paper";
@@ -9,6 +9,8 @@ import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { toNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { StatusBar } from "expo-status-bar";
+import * as IntentLauncher from "expo-intent-launcher";
+import { Image } from "expo-image";
 
 const transfer = () => {
   const theme = useTheme();
@@ -16,7 +18,7 @@ const transfer = () => {
   const [amount, setAmount] = useState("");
   const { number, token } = useLocalSearchParams();
   const [showPassword, setShowPassword] = useState(false);
-  const [sharePin, setSharePin] = useState('')
+  const [sharePin, setSharePin] = useState("");
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
@@ -58,6 +60,22 @@ const transfer = () => {
       },
     });
   };
+
+  const handleCreatePin = async () => {
+    if (Platform.OS === "android") {
+      const supported = await Linking.canOpenURL("tel:");
+
+      if (supported) {
+        await Linking.openURL("tel:" + encodeURIComponent("*321#"));
+      } else {
+        showMessage({
+          message: "Dialer not supported",
+          type: "danger",
+          icon: "danger",
+        });
+      }
+    }
+  };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
@@ -96,18 +114,26 @@ const transfer = () => {
                 onChangeText={setAmount}
                 keyboardType={"number-pad"}
                 mode="outlined"
+                className="bg-transparent"
                 value={amount}
                 outlineStyle={{ borderRadius: 15 }}
                 placeholder={"Amount"}
-                right={<TextInput.Icon icon={() => <Button onPress={() => setAmount('15000')}>ALL</Button>} />}
+                right={
+                  <TextInput.Icon
+                    icon={() => (
+                      <Button onPress={() => setAmount("15000")}>ALL</Button>
+                    )}
+                  />
+                }
               />
             </View>
             <View className="space-y-2">
               <Text>Amount To Receive</Text>
               <TextInput
                 editable={false}
-                value={`${(toNumber(amount) - 50) >= 0 ? formatNumber(toNumber(amount) - 50) : formatNumber(0)}`}
+                value={`${toNumber(amount) - 50 >= 0 ? formatNumber(toNumber(amount) - 50) : formatNumber(0)}`}
                 placeholder={`${formatNumber(0)}`}
+                className="bg-transparent"
                 mode="outlined"
                 outlineStyle={{ borderRadius: 15 }}
               />
@@ -118,6 +144,7 @@ const transfer = () => {
               <TextInput
                 placeholder={`Enter your pin`}
                 mode="outlined"
+                className="bg-transparent"
                 secureTextEntry={showPassword ? false : true}
                 keyboardType="numeric"
                 onChangeText={setSharePin}
@@ -132,8 +159,9 @@ const transfer = () => {
               />
 
               <View className="flex-row items-center space-x-0">
-                <Text>I dont know my pin</Text>
+                <Text>I dont have share pin</Text>
                 <Button
+                  onPress={() => handleCreatePin()}
                   labelStyle={{ textDecorationLine: "underline" }}
                   mode="text"
                 >

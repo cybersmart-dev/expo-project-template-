@@ -71,12 +71,9 @@ const Index = () => {
 
   const checkLoginState = async () => {
     try {
-      const state = await AsyncStorage.getItem("loginState");
-      console.log(state);
-
-      if (state != null && state == "1") {
+      const token = await AsyncStorage.getItem("token");
+      if (token) {
         router.push("/logins/singin");
-        return;
       }
     } catch (error) {}
   };

@@ -1,3 +1,4 @@
+import { formatNumber } from "@/constants/Formats";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -9,33 +10,29 @@ interface BalanceContainerProps {
   user?: Object;
   theme?: any;
   hideBalance?: boolean;
+  userInfo?: any;
+  fetchingInfo: boolean
   onHideBalanceToggle?: () => void;
+  fetchInfo: () => void
+
 }
 const BalanceContainer = ({
   user,
   hideBalance,
   onHideBalanceToggle,
+  userInfo,
+  fetchingInfo,
+  fetchInfo
 }: BalanceContainerProps) => {
   const timerRef = useRef(0);
   const colorScheme = useColorScheme();
   const theme = useTheme()
-  const [refreshingBalance, setRefreshingBalance] = useState(false);
-
-  const handleRefresh = () => {
-    setRefreshingBalance(true);
-    timerRef.current = setTimeout(() => {
-      setRefreshingBalance(false);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = 0;
-      }
-    }, 2000);
-  };
+ 
   const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
     if (theme.dark) {
-      return [theme.colors.primaryContainer, theme.colors.secondaryContainer]
+      return [theme.colors.primaryContainer, theme.colors.primaryContainer]
     }
-    return [theme.colors.primary, theme.colors.secondary]
+    return [theme.colors.primary, theme.colors.primary]
   }
 
   return (
@@ -63,13 +60,13 @@ const BalanceContainer = ({
           />
         </View>
 
-        <View className="mt-2 flex-row items-center">
+        <View className="mt-0 flex-row items-center">
           {hideBalance ? (
             <Text className="text-3xl text-white font-bold items-center">
               ₦******{" "}
             </Text>
           ) : (
-            <Text className="text-3xl text-white font-bold">₦119,300.30 </Text>
+            <Text className="text-3xl text-white font-bold">₦{formatNumber(userInfo?.wallet?.balance) || "0.00"} </Text>
           )}
         </View>
         <View className="mt-5">
@@ -81,7 +78,7 @@ const BalanceContainer = ({
               </Text>
             ) : (
               <Text className="text-[15px] text-white font-bold">
-                ₦1,500.00{" "}
+                ₦{formatNumber(userInfo?.wallet?.cashback) || "0.00"}{" "}
               </Text>
             )}
           </View>
@@ -90,11 +87,11 @@ const BalanceContainer = ({
 
       <View className="absolute p-3 bottom-0 right-0 space-y-3 items-center">
         <EaseView
-          animate={{ rotate: refreshingBalance ? 360 : 0 }}
+          animate={{ rotate: fetchingInfo ? 360 : 0 }}
           transition={{ duration: 2000, type: "timing" }}
           className="self-end mr-3"
         >
-          <Pressable onPress={handleRefresh}>
+          <Pressable onPress={fetchInfo}>
             <Icon size={24} color="white" source={"sync"} />
           </Pressable>
         </EaseView>

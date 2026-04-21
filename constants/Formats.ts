@@ -10,7 +10,9 @@ export const formatNumber = (num: number) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-
+  if (isNaN(toNumber(f.replaceAll(',','')))) {
+    return "0.00"
+  }
   return f;
 };
 export const formatNumberWithDecimal = (num, dec) => {

@@ -21,24 +21,30 @@ import { Networks } from "@/constants/DemoList";
 import { isValidMobileNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
+import requests from "@/Network/HttpRequest";
+import NoConnectionModal from "@/components/models/NoConnectionModal";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 const buydata = () => {
   const theme = useTheme();
   const [selectedNetworkName, setSelectedNetworkName] = useState<
     "mtn" | "airtel" | "glo" | "9mobile"
-  >("mtn");
-  const [selectedBundlePacks, setSelectedBundlePacks] = useState<DataPackType>();
+  >();
+  const [selectedBundlePacks, setSelectedBundlePacks] =
+    useState<DataPackType>();
   const [selectedNetworkData, setselectedNetworkData] = useState<
     NetworksType[0]
-  >(Networks[0]);
+  >();
   const [beneficiarySheetVisible, setBeneficiarySheetVisible] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [pinSheetVisible, setPinSheetVisible] = useState(false);
   const [transactionProcessing, setTransactionProcessing] = useState(false);
-  const timerRef = useRef(0);
+  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false)
 
   const [buyDataPreviewVisible, setBuyDataPreviewVisible] = useState(false);
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
+
+  const [selectNetworkSheetVisible, setSelectNetworkSheetVisible] = useState(false)
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
@@ -49,6 +55,14 @@ const buydata = () => {
   }, [mobileNumber]);
 
   const handleBuy = () => {
+    if (!selectedNetworkData) {
+      showMessage({
+        message: "Please Select Network",
+        type: "danger",
+        icon: "danger",
+      });
+      return
+    }
     if (!isValidMobileNumber(mobileNumber)) {
       showMessage({
         message: "Please Enter valid mobile number",
@@ -63,7 +77,7 @@ const buydata = () => {
         type: "danger",
         icon: "danger",
       });
-      return
+      return;
     }
 
     setBuyDataPreviewVisible(true);
@@ -74,34 +88,49 @@ const buydata = () => {
     setPinSheetVisible(true);
   };
 
-  const handleBuyData = (pin: string) => {
+
+  const handleBuyData = async (pin: string) => {
     const amount = selectedBundlePacks?.price;
     setTransactionProcessing(true);
 
-    timerRef.current = setTimeout(() => {
-      setTransactionProcessing(false);
+    const response = await requests.post({
+      url: "/buy-data/",
+      data: {
+        number: mobileNumber,
+        plan_id: selectedBundlePacks?.id,
+        network_id: selectedNetworkData?.id,
+        pin: pin,
+      },
+    });
+
+    setTransactionProcessing(false);
+
+    if (response.status == 0) {
       setPinSheetVisible(false);
-      router.push({
-        pathname: "/modals/transfer_response",
-        params: {
-          status: "Success",
-          type: "Data",
-          amount: amount,
-          data: JSON.stringify({
-            statusCode: 1,
-            type: "data",
-            phone: mobileNumber,
-            id: 1,
-            charge: 0.0,
-            cashback: 0.4,
-            message: `You have successfuly buy ${selectedNetworkName.toUpperCase()} ${selectedBundlePacks?.benefits} of data to ${mobileNumber}`,
-          }),
-        },
+      showMessage({
+        message: "Transaction Failed",
+        description: response.message,
+        type: "danger",
+        icon: "danger",
       });
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    }, 2000);
+      return;
+    }
+
+    if (response.status == undefined) {
+      setPinSheetVisible(false);
+      setNetWorkErrorVisible(true)
+      return
+    }
+
+    router.push({
+      pathname: "/modals/transfer_response",
+      params: {
+        status: "Success",
+        type: "Data",
+        amount: amount,
+        data: JSON.stringify(response.data),
+      },
+    });
   };
   return (
     <PaperSafeView className="flex-1">
@@ -143,18 +172,21 @@ const buydata = () => {
           </Pressable>
           <SelectNetworkComponent
             onChangeText={setMobileNumber}
+            showNetworksSheet={selectNetworkSheetVisible}
             onSelectNetwork={(data) => {
               setSelectedNetworkName(data.name);
               setselectedNetworkData(data);
-              setSelectedBundlePacks(undefined)
+              setSelectedBundlePacks(undefined);
             }}
           />
         </View>
 
         <View>
           <DataListContainer
+            networkId={selectedNetworkData?.id}
             network={selectedNetworkName}
             onPackSelect={setSelectedBundlePacks}
+            onPressSelectNetwork={() => setSelectNetworkSheetVisible(true)}
           />
 
           <View className="px-5">
@@ -185,7 +217,7 @@ const buydata = () => {
 
       <BottomSheet
         mode="center"
-        height={"50%"}
+        height={"auto"}
         visible={buyDataPreviewVisible}
         onDismiss={setBuyDataPreviewVisible}
       >
@@ -218,6 +250,8 @@ const buydata = () => {
           </View>
         </View>
       </BottomSheet>
+      <NoConnectionModal visible={false} />
+      <NetworkRequestErrorSheet visible={netWorkErrorVisible} onDismiss={setNetWorkErrorVisible}/>
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

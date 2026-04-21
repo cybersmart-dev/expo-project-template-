@@ -6,6 +6,7 @@ import { Appbar, Button, useTheme, Text } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { EaseView } from "react-native-ease";
+import { Image } from "expo-image";
 
 const notifications = () => {
   const theme = useTheme();
@@ -78,11 +79,19 @@ const notifications = () => {
             scale: activeTab == "1" ? 1 : 0.1,
             opacity: activeTab == "1" ? 1 : 0,
           }}
-          transition={{type:'timing', duration: 1000}}
+          transition={{ type: "timing", duration: 1000 }}
           className="absolute h-full w-full"
         >
-          <View className='flex-1 items-center justify-center'>
-            <Text className='text-3xl'>All</Text>
+          <View className="h-full items-center mt-20">
+            <View>
+              <Image
+                className="h-[80px] w-[80px] self-center "
+                source={require("@/assets/images/gif/no_transactions_anim.webp")}
+              />
+              <Text className="text-center text-lg mt-2">
+                No Notifications Yet!
+              </Text>
+            </View>
           </View>
         </EaseView>
 
@@ -91,11 +100,19 @@ const notifications = () => {
             scale: activeTab == "2" ? 1 : 0.1,
             opacity: activeTab == "2" ? 1 : 0,
           }}
-          transition={{type:'timing', duration: 1000}}
+          transition={{ type: "timing", duration: 1000 }}
           className="absolute h-full w-full"
         >
-           <View className='flex-1 items-center justify-center'>
-            <Text className='text-3xl'>Service</Text>
+          <View className="flex-1 items-center mt-20">
+              <View>
+              <Image
+                className="h-[80px] w-[80px] self-center "
+                source={require("@/assets/images/gif/no_transactions_anim.webp")}
+              />
+              <Text className="text-center text-lg mt-2">
+                No Notifications Yet!
+              </Text>
+            </View>
           </View>
         </EaseView>
 
@@ -104,11 +121,19 @@ const notifications = () => {
             scale: activeTab == "3" ? 1 : 0.1,
             opacity: activeTab == "3" ? 1 : 0,
           }}
-          transition={{type:'timing', duration: 1000}}
+          transition={{ type: "timing", duration: 1000 }}
           className="absolute h-full w-full "
         >
-           <View className='flex-1 items-center justify-center'>
-            <Text className='text-3xl'>Transactions</Text>
+          <View className="flex-1 items-center mt-20">
+              <View>
+              <Image
+                className="h-[80px] w-[80px] self-center "
+                source={require("@/assets/images/gif/no_transactions_anim.webp")}
+              />
+              <Text className="text-center text-lg mt-2">
+                No Notifications Yet!
+              </Text>
+            </View>
           </View>
         </EaseView>
       </View>

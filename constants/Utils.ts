@@ -47,6 +47,10 @@ export class Timer {
   }
 }
 
+export const formatDate = (dateString: string) => {
+  return dateString ? new Date(dateString).toDateString() : "N/A";
+};
+
 export class Interval {
   count;
   interval;
@@ -55,16 +59,17 @@ export class Interval {
     this.interval = 0;
   }
 
-  async listinerAsync(setCounterState: React.Dispatch<React.SetStateAction<number>>) {
+  async listinerAsync(
+    setCounterState: React.Dispatch<React.SetStateAction<number>>,
+  ) {
     const promise = new Promise((resolve, reject) => {
       this.interval = setInterval(() => {
         this.count -= 1;
-        setCounterState(this.count)
+        setCounterState(this.count);
         if (this.count <= 0) {
           resolve(this.count);
-          this.clear()
+          this.clear();
         }
-        
       }, 1000);
     });
     return await promise;

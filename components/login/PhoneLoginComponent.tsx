@@ -25,6 +25,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import requests from "@/Network/HttpRequest";
+import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -35,6 +37,8 @@ const PhoneLoginComponent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
   const processingRef = useRef<number>(null);
+  const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
+      useState(false);
 
   const [loaded, setLoaded] = useState(false);
 
@@ -71,22 +75,58 @@ const PhoneLoginComponent = () => {
     setShowProcessing(true);
     Keyboard.dismiss();
 
-    await new Timer().postDelayedAsync({ sec: 3000 });
-
-    setShowProcessing(false);
-    showMessage({
-      message: "Login",
-      description: "Login successfuly",
-      type: "success",
+    const response = await requests.post({
+      url: "/login/",
+      add_header_token: false,
+      data: {
+        email: phone,
+        password: password,
+      },
     });
-    await saveLoginState();
-    router.push("/(tabs)");
+
+    console.log("response ", response);
+    
+        if (response.status == 0) {
+          showMessage({
+            message: "Login Failed",
+            description: response.message,
+            type: "danger",
+            icon: "danger",
+          });
+          setShowProcessing(false);
+          return;
+        }
+        
+    
+        if (response?.token) {
+          showMessage({
+            message: "Login",
+            description: "Login successfuly",
+            type: "success",
+          });
+          setShowProcessing(false);
+          await saveLoginState(response?.token);
+        }
+    
+        if (response.status == undefined) {
+          setNetworkErrorSheetVisible(true);
+          setShowProcessing(false);
+          return;
+        }
   };
 
-  const saveLoginState = async () => {
+ const saveLoginState = async (token: string) => {
     try {
-      await AsyncStorage.setItem("loginState", "1");
-    } catch (error) {}
+      if (token) {
+        await AsyncStorage.setItem("loginState", "1");
+        await AsyncStorage.setItem("token", token);
+        router.push("/(tabs)");
+      }
+    } catch (error) {
+      showMessage({
+        message: `${error}`,
+      });
+    }
   };
   return (
     <PaperSafeView
@@ -260,7 +300,12 @@ const PhoneLoginComponent = () => {
           </View>
         </EaseView>
       </KeyboardAvoidingView>
-      <Processing visible={false} />
+     
+      <NetworkRequestErrorSheet
+              visible={networkErrorSheetVisible}
+              onDismiss={setNetworkErrorSheetVisible}
+      />
+      
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

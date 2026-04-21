@@ -1,5 +1,5 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { FlatList, Pressable, ScrollView, TextInput, View } from "react-native";
+import { FlatList, Pressable, ScrollView, TextInput, View, StatusBar as RNStatusBar } from "react-native";
 import {
   Avatar,
   Button,
@@ -19,6 +19,7 @@ import { showMessage } from "react-native-flash-message";
 
 interface SelectNetworkComponentProps {
   onChangeText: (text: string) => void;
+  showNetworksSheet?: boolean
   onSelectNetwork: (data: {
     id: number;
     name: "mtn" | "airtel" | "glo" | "9mobile";
@@ -27,6 +28,7 @@ interface SelectNetworkComponentProps {
 }
 const SelectNetworkComponent = ({
   onSelectNetwork,
+  showNetworksSheet = false,
   onChangeText,
 }: SelectNetworkComponentProps) => {
   const [selectNetworkVisible, setselectNetworkVisible] = useState(false);
@@ -35,7 +37,7 @@ const SelectNetworkComponent = ({
     id: number;
     name: "mtn" | "airtel" | "glo" | "9mobile";
     icon: string;
-  }>(Networks[0]);
+  }>();
   const mobileNumberRef = useRef<TextInput>(null);
   const [mobileNumber, setMobileNumber] = useState("");
   const [contactsSheetVisible, setContactsSheetVisible] = useState(false);
@@ -48,9 +50,13 @@ const SelectNetworkComponent = ({
     initializeNumber();
   }, []);
 
+  useEffect(() => {
+    setselectNetworkVisible(showNetworksSheet)
+  }, [!showNetworksSheet]);
+
   const initializeNumber = () => {
-    setMobileNumber("07026426748");
-    onChangeText("07026426748");
+    // setMobileNumber("07026426748");
+    // onChangeText("07026426748");
   };
 
   const selectContact = async () => {
@@ -100,6 +106,12 @@ const SelectNetworkComponent = ({
         onChangeText(number);
         setContactsSheetVisible(false);
         setUsersearchInputText("");
+      } else {
+        showMessage({
+          message: "Invali Number",
+          description: "This number is not valid",
+          type:"danger"
+        })
       }
     }
   };
@@ -241,7 +253,7 @@ const SelectNetworkComponent = ({
         mode="full-width"
         onDismiss={setContactsSheetVisible}
       >
-        <View>
+        <View style={{paddingTop:RNStatusBar.currentHeight}}>
           <View className="px-2 m-2">
             <Searchbar
               placeholder="Search Contact"

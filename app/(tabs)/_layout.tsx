@@ -1,13 +1,14 @@
 import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
-import { View, StatusBar as RNStatusBar } from "react-native";
+import { View, StatusBar as RNStatusBar, TouchableOpacity } from "react-native";
 import { useColorScheme } from "@/components/useColorScheme";
 import { IconButton, useTheme } from "react-native-paper";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 
@@ -15,7 +16,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = useTheme();
   return (
-    <SafeAreaView edges={['bottom', 'left', 'right']}  className="flex-1">
+    <SafeAreaView edges={["bottom", "left", "right"]} className="flex-1">
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: theme.colors.primary,
@@ -26,6 +27,7 @@ export default function TabLayout() {
             borderRadius: 50,
             elevation: 10,
           },
+          
           tabBarBackground: () => (
             <View
               style={{
@@ -48,6 +50,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Feather name="home" size={size} color={color} />
             ),
+           
           }}
         />
         <Tabs.Screen
@@ -63,6 +66,7 @@ export default function TabLayout() {
             ),
           }}
         />
+        
 
         <Tabs.Screen
           name="me"
