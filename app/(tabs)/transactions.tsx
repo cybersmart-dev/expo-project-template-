@@ -8,6 +8,7 @@ import {
   Text,
   Chip,
   ActivityIndicator,
+  Button,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +16,7 @@ import { Transactions } from "@/constants/DemoList";
 import { formatNumber } from "@/constants/Formats";
 import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
 
 interface TransactionsListComponentProps {
   id?: number;
@@ -82,6 +84,7 @@ const transactions = () => {
   const [fetching, setFetching] = useState(false);
   const [networkDisconnected, setNetworkDisconnected] = useState(false);
   const [selectedService, setSelectedService] = useState(services[0]);
+  const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -99,6 +102,13 @@ const transactions = () => {
 
     if (response.status == 1) {
       setTransactions(response?.data);
+    }
+
+    if (response.status == 0) {
+      Toast.danger({ title: "Error", body: response.message });
+    }
+    if (response.status == undefined) {
+      setNetworkRequestFailed(true);
     }
   };
   return (
@@ -161,6 +171,26 @@ const transactions = () => {
                 <View className="items-center justify-center space-y-3 mt-5">
                   <ActivityIndicator size={30} />
                   <Text>Loading Transactions...</Text>
+                </View>
+              ) : networkRequestFailed ? (
+                <View className="px-10 items-center">
+                  <Image
+                    className="h-[70px] w-[70px] self-center "
+                    source={require("@/assets/images/gif/failed_anim.webp")}
+                  />
+                  <Text className="text-center text-lg mt-2 font-bold font-mono">
+                    Network Disconnected
+                  </Text>
+                  <Text className="opacity-70 text-center">
+                    Please check your network connection and press reload
+                  </Text>
+                  <Button
+                    onPress={fetchTransactions}
+                    className="mt-5"
+                    mode={"contained-tonal"}
+                  >
+                    Reload
+                  </Button>
                 </View>
               ) : (
                 <View>

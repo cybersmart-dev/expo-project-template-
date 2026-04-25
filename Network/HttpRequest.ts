@@ -1,5 +1,8 @@
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Crypto from 'expo-crypto';
+import { } from "@/constants/Storage"
+
 
 interface requestProps {
   url: string;
@@ -84,19 +87,16 @@ export default class requests {
   }
 
   
-    static generateUUID() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-        /[xy]/g,
-        function (c) {
-          const r = (Math.random() * 16) | 0;
-          const v = c === "x" ? r : (r & 0x3) | 0x8;
-          return v.toString(16);
-        },
-      );
+  static generateUUID() {
+      const uuid = Crypto.randomUUID()
+      return uuid
     }
 
   static getUrl(path: string) {
-    return "http://192.168.43.69:8000/api" + path;
+    if (__DEV__) {
+      return "http://192.168.43.69:8000/api" + path;
+    }
+    return "https://mypock.up.railway.app/api" + path;
   }
 
   static async getToken() {

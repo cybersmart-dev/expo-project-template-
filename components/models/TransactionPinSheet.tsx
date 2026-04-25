@@ -142,7 +142,7 @@ const TransactionPinSheet = ({
                   Stop
                 </Button>
               )}
-              {!cancelProcessing && (
+              {!cancelProcessing && isTransactionPinSheet && (
                 <FAB
                   onPress={fingerprintLogin}
                   className="bottom-0"

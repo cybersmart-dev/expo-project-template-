@@ -24,9 +24,12 @@ import { isValidMobileNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { StatusBar } from "expo-status-bar";
+import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
 
 const airtime2cash = () => {
   const [selectedNetwork, setSelectedNetwork] = useState("");
+  const [selectedNetworkId, setSelectedNetworkId] = useState(0);
   const theme = useTheme();
   const [phoneErrorVisible, setPhoneErrorVisible] = useState(false);
   const [amountErrorVisible, setAmountErrorVisible] = useState(false);
@@ -61,32 +64,74 @@ const airtime2cash = () => {
     sendOtp();
   };
 
-  const sendOtp = () => {
+  const sendOtp = async () => {
     setProcessingRequest(true);
-    timerRef.current = setTimeout(() => {
+
+    const response = await requests.post({
+      url: "/sell-airtime/verify/",
+      data: {
+        network_id: selectedNetworkId,
+        number: phoneNumber,
+        req_type: "send",
+      },
+    });
+
+    if (response.status == 0) {
+      Toast.danger({ title: "Transaction Failed", body: response.message });
+      setOtpSheetVisible(false);
+      return;
+    }
+
+    if (response.status == 1) {
+      Toast.success({ title: "OTP Send", body: response.message });
       setProcessingRequest(false);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = 0;
-      }
-    }, 2000);
+      return;
+    }
+
+    if (response.status == undefined) {
+      Toast.danger({ title: "Transaction Failed", body: response.message });
+      setOtpSheetVisible(false);
+      return;
+    }
   };
 
-  const verifyOtp = (otp: string) => {
+  const verifyOtp = async (otp: string) => {
     setProcessingRequest(true);
-    timerRef.current = setTimeout(() => {
-      setProcessingRequest(false);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        timerRef.current = 0;
-      }
+    
+    const response = await requests.post({
+      url: "/sell-airtime/verify/",
+      data: {
+        network_id: selectedNetworkId,
+        number: phoneNumber,
+        req_type: "verify",
+        otp: otp
+      },
+    });
 
+    setProcessingRequest(false);
+    setOtpSheetVisible(false);
+
+    if (response.status == 0) {
+      Toast.danger({ title: "Transaction Failed", body: response.message });
       setOtpSheetVisible(false);
+      return;
+    }
+
+    if (response.status == 1) {
+      Toast.success({ title: "OTP Verify", body: response.message });
+      setProcessingRequest(false);
       router.push({
         pathname: "/airtime2cash/transfer",
-        params: { number: phoneNumber, token: "thistoken" },
+        params: { number: phoneNumber, token: response?.data?.token, network_id: selectedNetworkId },
       });
-    }, 2000);
+      return;
+    }
+
+    if (response.status == undefined) {
+      Toast.danger({ title: "Transaction Failed", body: response.message });
+      setOtpSheetVisible(false);
+      return;
+    }
   };
 
   const handleOtpFinish = (pin: string) => {
@@ -130,7 +175,10 @@ const airtime2cash = () => {
                     ? theme.colors.secondary
                     : theme.colors.primaryContainer,
               }}
-              onPress={() => handleNetworkSelect("mtn")}
+              onPress={() => {
+                handleNetworkSelect("mtn");
+                setSelectedNetworkId(1);
+              }}
               className=" p-3 rounded-lg"
             >
               <Image
@@ -145,7 +193,10 @@ const airtime2cash = () => {
                     ? theme.colors.secondary
                     : theme.colors.primaryContainer,
               }}
-              onPress={() => handleNetworkSelect("airtel")}
+              onPress={() => {
+                handleNetworkSelect("airtel");
+                setSelectedNetworkId(2);
+              }}
               className="bg-blue-300 p-3 rounded-lg"
             >
               <Image
@@ -160,7 +211,10 @@ const airtime2cash = () => {
                     ? theme.colors.secondary
                     : theme.colors.primaryContainer,
               }}
-              onPress={() => handleNetworkSelect("glo")}
+              onPress={() => {
+                handleNetworkSelect("glo");
+                setSelectedNetworkId(3);
+              }}
               className="bg-blue-300 p-3 rounded-lg"
             >
               <Image
@@ -175,7 +229,10 @@ const airtime2cash = () => {
                     ? theme.colors.secondary
                     : theme.colors.primaryContainer,
               }}
-              onPress={() => handleNetworkSelect("9mobile")}
+              onPress={() => {
+                handleNetworkSelect("9mobile");
+                setSelectedNetworkId(4);
+              }}
               className="bg-blue-300 p-3 rounded-lg"
             >
               <Image

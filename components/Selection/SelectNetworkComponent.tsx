@@ -47,8 +47,14 @@ const SelectNetworkComponent = ({
     useState<Contacts.ExistingContact[]>();
 
   useEffect(() => {
-    initializeNumber();
-  }, []);
+    if (isValidMobileNumber(mobileNumber)) {
+      if (!selectedNetwork) {
+        let network = Networks[0]
+        setSelectedNetwork(network)
+        onSelectNetwork(network)
+      }
+    }
+  }, [mobileNumber]);
 
   useEffect(() => {
     setselectNetworkVisible(showNetworksSheet)

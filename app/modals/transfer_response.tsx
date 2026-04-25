@@ -5,22 +5,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   Appbar,
   Button,
-  Divider,
   Icon,
-  IconButton,
   List,
-  Switch,
   useTheme,
   Text
 } from "react-native-paper";
 import BottomSheet from "@/components/models/BottomSheet";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import Animated, {
+import {
   createAnimatedComponent,
-  FadeIn,
-  FadeOut,
-  FadingTransition,
-  JumpingTransition,
 } from "react-native-reanimated";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";

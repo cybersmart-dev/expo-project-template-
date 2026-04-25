@@ -35,6 +35,7 @@ import * as WebBrowser from "expo-web-browser";
 import requests from "@/Network/HttpRequest";
 import { showMessage } from "react-native-flash-message";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import RecentTransactionsContainer from "@/components/Containers/RecentTransactionsContainer";
 
 export default function Index() {
   const theme = useTheme();
@@ -212,7 +213,7 @@ export default function Index() {
             <HomeQuickActionsContainer />
           </View>
           <View className="p-3">
-            <HomeSliderContainer />
+           <RecentTransactionsContainer />
           </View>
           <View className="px-3 mb-3">
             <Text className="mb-3 ml-2 font-bold">Services</Text>

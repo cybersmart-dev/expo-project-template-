@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Expo Project Template Prod",
+    "name": "Expo Project Template Dev",
     "slug": "expoprojecttemplate",
     "version": "1.0.3",
     "orientation": "portrait",
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.expoproject.template.prod",
+      "package": "com.expoproject.template.dev",
       "permissions": [
         "android.permission.READ_CONTACTS",
         "android.permission.WRITE_CONTACTS",
@@ -75,7 +75,9 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-image",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true

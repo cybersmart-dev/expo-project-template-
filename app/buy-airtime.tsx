@@ -27,6 +27,7 @@ import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import { Toast } from "@/constants/Toast";
 
 const SuggestAmounts = [
   {
@@ -209,12 +210,7 @@ const buyairtime = () => {
     }
 
     if (response.status == 0) {
-      showMessage({
-        message: "Transaction Failed",
-        description: response.message,
-        type: "danger",
-        icon: "danger",
-      });
+      Toast.danger({title: "Transaction Failed", body: response.message})
       return;
     }
 
