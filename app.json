@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Expo Project Template Dev",
-    "slug": "expoprojecttemplate",
+    "name": "MYPock",
+    "slug": "mypock",
     "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.expoproject.template.dev",
+      "package": "com.mypock.android",
       "permissions": [
         "android.permission.READ_CONTACTS",
         "android.permission.WRITE_CONTACTS",
@@ -85,14 +85,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "64ae5a67-e9e8-4a2b-9829-35fb6564d861"
+        "projectId": "1ca3b9d4-270f-4ac4-97a8-71955b410293"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/64ae5a67-e9e8-4a2b-9829-35fb6564d861"
-    }
+      "url": "https://u.expo.dev/1ca3b9d4-270f-4ac4-97a8-71955b410293"
+    },
+    "owner": "cybersmart83"
   }
 }
