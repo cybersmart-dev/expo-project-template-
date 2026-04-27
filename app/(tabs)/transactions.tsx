@@ -13,7 +13,7 @@ import {
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Transactions } from "@/constants/DemoList";
-import { formatNumber } from "@/constants/Formats";
+import { formatNumber, getTransactionSideFormat } from "@/constants/Formats";
 import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
@@ -36,31 +36,28 @@ const TransactionsListComponent = ({
   description,
   date,
   amount,
+  status,
   onPress,
 }: TransactionsListComponentProps) => {
   const getState = () => {
-    if (side == "DEBIT") {
-      return {
-        color: "red",
-        format: `- ₦${formatNumber(amount)}`,
-      };
-    }
-    return {
-      color: "green",
-      format: `+ ₦${formatNumber(amount)}`,
-    };
+   
   };
   return (
     <List.Item
-      title={title}
+      title={
+        <View className="flex-row items-center space-x-1">
+          <Text className="font-bold">{title}</Text>
+          <Text className="text-[10px]">{status}</Text>
+        </View>
+      }
       onPress={onPress}
       descriptionNumberOfLines={1}
       description={description}
       right={() => (
-        <View className="items-center">
-          <Text style={{ color: getState().color }} className="text-green-600">
+        <View className="items-end justify-evenly">
+          <Text style={{ color: getTransactionSideFormat(side, amount).color }} className="text-green-600">
             {" "}
-            {getState().format}
+            {getTransactionSideFormat(side, amount).format}
           </Text>
           <Text className="text-[10px] opacity-75">{date}</Text>
         </View>
@@ -155,6 +152,7 @@ const transactions = () => {
               key={item.id}
               title={item.service_type}
               amount={item.amount}
+              status={item?.status}
               date={
                 item?.created_at
                   ? new Date(item.created_at).toDateString()
@@ -195,10 +193,10 @@ const transactions = () => {
               ) : (
                 <View>
                   <Image
-                    className="h-[100px] w-[100px] self-center "
+                    className="h-[70px] w-[70px] self-center "
                     source={require("@/assets/images/gif/no_transactions_anim.webp")}
                   />
-                  <Text className="text-center text-lg mt-2">
+                  <Text className="text-center text-[12px] mt-2">
                     No Transactions Yet!
                   </Text>
                 </View>

@@ -17,4 +17,12 @@ export class Toast {
       icon: "success",
     });
   }
+  static warning({ title = "", body = "" }) {
+    showMessage({
+      message: title,
+      description: body,
+      type: "warning",
+      icon: "warning",
+    });
+  }
 }

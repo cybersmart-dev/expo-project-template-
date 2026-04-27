@@ -27,6 +27,7 @@ import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
+import { Storage } from "@/constants/Storage";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -38,7 +39,7 @@ const PhoneLoginComponent = () => {
   const [showProcessing, setShowProcessing] = useState(false);
   const processingRef = useRef<number>(null);
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
-      useState(false);
+    useState(false);
 
   const [loaded, setLoaded] = useState(false);
 
@@ -85,41 +86,44 @@ const PhoneLoginComponent = () => {
     });
 
     console.log("response ", response);
-    
-        if (response.status == 0) {
-          showMessage({
-            message: "Login Failed",
-            description: response.message,
-            type: "danger",
-            icon: "danger",
-          });
-          setShowProcessing(false);
-          return;
-        }
-        
-    
-        if (response?.token) {
-          showMessage({
-            message: "Login",
-            description: "Login successfuly",
-            type: "success",
-          });
-          setShowProcessing(false);
-          await saveLoginState(response?.token);
-        }
-    
-        if (response.status == undefined) {
-          setNetworkErrorSheetVisible(true);
-          setShowProcessing(false);
-          return;
-        }
+
+    if (response.status == 0) {
+      showMessage({
+        message: "Login Failed",
+        description: response.message,
+        type: "danger",
+        icon: "danger",
+      });
+      setShowProcessing(false);
+      return;
+    }
+
+    if (response?.token) {
+      showMessage({
+        message: "Login",
+        description: "Login successfuly",
+        type: "success",
+      });
+      setShowProcessing(false);
+      await saveLoginState(response?.token);
+    }
+
+    if (response.status == undefined) {
+      setNetworkErrorSheetVisible(true);
+      setShowProcessing(false);
+      return;
+    }
   };
 
- const saveLoginState = async (token: string) => {
+  const saveLoginState = async (token: string) => {
     try {
       if (token) {
-        await AsyncStorage.setItem("loginState", "1");
-        await AsyncStorage.setItem("token", token);
+        let auth = JSON.stringify({
+          token: token,
+          password: password,
+        });
+        await Storage.SecureStore("auth", auth);
+
         router.push("/(tabs)");
       }
     } catch (error) {
@@ -236,6 +240,7 @@ const PhoneLoginComponent = () => {
               keyboardType={"number-pad"}
               className="bg-transparent"
               onChangeText={setPhone}
+              disabled={showProcessing}
               left={<TextInput.Icon size={20} icon="phone" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
@@ -245,6 +250,7 @@ const PhoneLoginComponent = () => {
                 placeholder="Password"
                 className="bg-transparent"
                 secureTextEntry={showPassword ? false : true}
+                 disabled={showProcessing}
                 left={<TextInput.Icon size={20} icon="lock" />}
                 onChangeText={setPassword}
                 right={
@@ -258,7 +264,7 @@ const PhoneLoginComponent = () => {
                 outlineStyle={{ borderRadius: 15 }}
               />
               <View className="w-full items-end">
-                <Button mode="text" className="">
+                <Button  disabled={showProcessing} mode="text" className="">
                   Forgot Password?
                 </Button>
               </View>
@@ -294,18 +300,18 @@ const PhoneLoginComponent = () => {
 
               <View className="flex-row items-center justify-center pt-0 pb-2">
                 <Text>I Don't have an account</Text>
-                <Button onPress={() => router.push("/singup")}>Sing up</Button>
+                <Button  disabled={showProcessing} onPress={() => router.push("/singup")}>Sing up</Button>
               </View>
             </View>
           </View>
         </EaseView>
       </KeyboardAvoidingView>
-     
+
       <NetworkRequestErrorSheet
-              visible={networkErrorSheetVisible}
-              onDismiss={setNetworkErrorSheetVisible}
+        visible={networkErrorSheetVisible}
+        onDismiss={setNetworkErrorSheetVisible}
       />
-      
+
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

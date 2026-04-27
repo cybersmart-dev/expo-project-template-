@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Image,
@@ -19,12 +19,9 @@ import {
   Dialog,
   Portal,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import { EaseView } from "react-native-ease";
-import { Timer } from "@/constants/Utils";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,6 +32,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as LocalAuthentication from "expo-local-authentication";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import { Toast } from "@/constants/Toast";
+import { Storage } from "@/constants/Storage";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -63,25 +62,24 @@ const PhoneLoginComponent = () => {
 
   useFocusEffect(
     useCallback(() => {
-      checkLoginState();
       getUserInfo();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        if (showProcessing) {
+          Toast.warning({title:"Please wait while Processing..."})
+          return true
+        }
         setExitDialogVisible(true);
         return true;
       });
       return () => back.remove();
-    }, []),
+    }, [showProcessing]),
   );
   const validateInput = () => {
     if (!password) {
-      showMessage({
-        message: "Password Error",
-        description: "Please Enter Your Password",
-        type: "danger",
-      });
+      Toast.danger({title:"Password Error", body:"Please Enter Your Password"})
       return;
     }
-    login();
+    login(userInfo?.email, password);
   };
 
   const getUserInfo = async () => {
@@ -97,56 +95,35 @@ const PhoneLoginComponent = () => {
     return null;
   };
 
-  const login = async () => {
+  const login = async (email: string | undefined, password: string) => {
     setShowProcessing(true);
     Keyboard.dismiss();
-
 
     const response = await requests.post({
       url: "/login/",
       add_header_token: false,
-      data: { email: userInfo?.email, password: password },
+      data: { email: email, password: password },
     });
 
     if (response.token != undefined) {
       setShowProcessing(false);
-      showMessage({
-        message: "Login Success",
-        description: "Welcome back!",
-        type: "success",
-      });
+      Toast.success({ title: "Login Success", body: "Welcome back!" });
       saveLoginState(response.token);
       router.push("/(tabs)");
     }
 
     if (response.status == 0) {
       setShowProcessing(false);
-      showMessage({
-        message: "Login Failed",
-        description: response.message,
-        type: "danger",
-      });
+      Toast.danger({ title: "Login Failed", body: response.message });
     }
     if (response.status == undefined) {
       setShowProcessing(false);
       setNetworkErrorSheetVisible(true);
-      showMessage({
-        message: "Network Error",
-        description: "Please check your internet connection and try again.",
-        type: "danger",
+      Toast.danger({
+        title: "Network Error",
+        body: "Please check your internet connection and try again.",
       });
     }
-  };
-
-  const checkLoginState = async () => {
-    try {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("userInfo");
-        router.push("/logins/emailLogin");
-      }
-    } catch (error) {}
   };
 
   const saveLoginState = async (token: string) => {
@@ -157,9 +134,7 @@ const PhoneLoginComponent = () => {
 
   const removeAccount = async () => {
     try {
-      await AsyncStorage.removeItem("loginState");
-      await AsyncStorage.clear();
-      router.push("/");
+      await requests.clearToken()
     } catch (error) {}
   };
 
@@ -174,8 +149,6 @@ const PhoneLoginComponent = () => {
   useEffect(() => {
     const checkBiometrics = async () => {
       const available = await hasBiometrics();
-      console.log("Biometric Avilable", available);
-
       setBiometricAvailable(available);
     };
     checkBiometrics();
@@ -210,13 +183,11 @@ const PhoneLoginComponent = () => {
     });
 
     if (result.success) {
-      showMessage({
-        message: "Success!",
-        description: "Authentication successful.",
-        type: "success",
-        icon: "success",
-      });
-      router.push("/(tabs)");
+      const auth = await Storage.secureGet("auth");
+      if (auth) {
+        const password = JSON.parse(auth)?.password;
+        login(userInfo?.email, password);
+      }
     } else {
       showMessage({
         message: "Failed",
@@ -236,17 +207,17 @@ const PhoneLoginComponent = () => {
         <Appbar.Content
           title={
             <MaskedView
-              maskElement={<Text className="text-3xl font-bold">T-Pay</Text>}
+              maskElement={<Text className="text-3xl font-bold">MYPock</Text>}
             >
               <LinearGradient
                 colors={[
                   theme.colors.onBackground,
                   theme.colors.inversePrimary,
                 ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
-                <Text className="text-3xl font-bold opacity-0">T-Pay</Text>
+                <Text className="text-3xl font-bold opacity-0">MYPock</Text>
               </LinearGradient>
             </MaskedView>
           }
@@ -331,6 +302,7 @@ const PhoneLoginComponent = () => {
             {biometricAvailable && (
               <View className="items-center">
                 <TouchableOpacity
+                  disabled={showProcessing}
                   onPress={fingerprintLogin}
                   style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
                   className="p-4 rounded-full"
@@ -351,6 +323,7 @@ const PhoneLoginComponent = () => {
               secureTextEntry={showPassword ? false : true}
               left={<TextInput.Icon size={20} icon="key" />}
               onChangeText={setPassword}
+              disabled={showProcessing}
               onSubmitEditing={() => validateInput()}
               right={
                 <TextInput.Icon
@@ -394,7 +367,7 @@ const PhoneLoginComponent = () => {
 
               <View className="flex-row items-center justify-center pt-0 pb-2">
                 <Text>Not my account?</Text>
-                <Button onPress={() => removeAccount()}>Logout</Button>
+                <Button disabled={showProcessing} onPress={() => removeAccount()}>Logout</Button>
               </View>
             </View>
           </View>

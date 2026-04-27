@@ -20,7 +20,7 @@ export function isValidMobileNumber(mobileNumber: string) {
   return true;
 }
 
-export function toNumber(num: string) {
+export function toNumber(num: string | number) {
   return new Number(num).valueOf();
 }
 

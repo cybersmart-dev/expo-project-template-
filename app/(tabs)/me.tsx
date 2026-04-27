@@ -128,7 +128,6 @@ const Me = () => {
 
   useFocusEffect(
     useCallback(() => {
-      checkLoginState();
       loadUserInfo();
       setLoaded(true);
 

@@ -1,24 +1,75 @@
-import { View, Keyboard, Platform, Linking } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Keyboard,
+  Platform,
+  Linking,
+  Pressable,
+  BackHandler,
+  Image
+} from "react-native";
+import React, { useCallback, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { Appbar, Button, TextInput, useTheme, Text } from "react-native-paper";
+import {
+  Appbar,
+  Button,
+  TextInput,
+  useTheme,
+  Text,
+  ActivityIndicator,
+  IconButton,
+  Icon,
+  Divider,
+} from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { formatNumber } from "@/constants/Formats";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { toNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { StatusBar } from "expo-status-bar";
 import * as IntentLauncher from "expo-intent-launcher";
-import { Image } from "expo-image";
+import {  } from "expo-image";
+import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
+import BottomSheet from "@/components/models/BottomSheet";
+import { Networks } from "@/constants/DemoList";
 
 const transfer = () => {
+  const { number, token, network_id } = useLocalSearchParams();
   const theme = useTheme();
   const [transferSheetVisible, setTransferSheetVisible] = useState(false);
   const [amount, setAmount] = useState("");
-  const { number, token } = useLocalSearchParams();
+
   const [showPassword, setShowPassword] = useState(false);
   const [sharePin, setSharePin] = useState("");
+  const [hideBalance, setHideBalance] = useState(false);
+  const [showPinSheet, setShowPinSheet] = useState(false);
+
+  const [airtimeBalance, setAirtimeBalance] = useState(0);
+  const [fetchingBalance, setFetchingBalance] = useState(false);
+  const [fetchBalaceFailed, setFetchBalaceFailed] = useState(false);
+  const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
+  const [showBackBottomSheet, setShowBackBottomSheet] = useState(false);
+  const [processingTransfer, setProcessingTransfer] = useState(false);
+  const [networkData, setNetworkData] = useState({})
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBalance();
+      getNetworkData()
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        setShowBackBottomSheet(true);
+        return true;
+      });
+      return () => back.remove();
+    }, []),
+  );
+
+  const getNetworkData = () => {
+    const network: any = Networks.find(network => network?.id === toNumber(`${network_id}`))
+    setNetworkData(network)
+
+  }
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
@@ -40,25 +91,73 @@ const transfer = () => {
     setTransferSheetVisible(true);
   };
 
-  const handleConvert = (pin: string) => {
-    setTransferSheetVisible(false);
-    router.push({
-      pathname: "/modals/transfer_response",
-      params: {
-        status: "Success",
-        type: "Deposit",
+  const fetchBalance = async () => {
+    setFetchingBalance(true);
+    setNetworkRequestFailed(false);
+    const response = await requests.post({ url: "/sell-airtime/balance/" });
+    setFetchingBalance(false);
+
+    if (response.status == 1) {
+      setAirtimeBalance(response.data?.balance);
+    }
+    if (response.status == 0) {
+      Toast.danger({
+        title: "Faield to fetch balabce",
+        body: response?.message,
+      });
+    }
+
+    if (response.status == undefined) {
+      setNetworkRequestFailed(true);
+      Toast.danger({
+        title: "failed to fetch balanec",
+        body: response?.message,
+      });
+    }
+  };
+
+  const handleConvert = async (pin: string) => {
+    setProcessingTransfer(true);
+    const response = await requests.post({
+      url: "/sell-airtime/verify/",
+      data: {
+        network_id: network_id,
+        number: number,
+        req_type: "transfer",
         amount: amount,
-        data: JSON.stringify({
-          statusCode: 1,
-          type: "transfer",
-          phone: number,
-          id: 1,
-          charge: 0.0,
-          cashback: 0.4,
-          message: `You have successfuly convert ${amount} of airtime`,
-        }),
+        pin: pin,
+        share_pin: sharePin
       },
     });
+
+    setProcessingTransfer(false);
+    setTransferSheetVisible(false);
+
+    console.log(response)
+
+    if (response.status == 0) {
+      Toast.danger({title:"Transaction failed", body: response.message})
+    }
+
+    if (response.status == 1) {
+
+      Toast.success({title: "Successful", body: response.message})
+      router.push({
+        pathname: "/modals/transfer_response",
+        params: {
+          status: "Success",
+          type: "Deposit",
+          amount: amount,
+          data: JSON.stringify(response.data),
+        },
+      });
+    }
+
+    if (response.status == undefined) {
+       Toast.danger({title:"Transaction failed", body: response.message})
+    }
+
+    
   };
 
   const handleCreatePin = async () => {
@@ -75,6 +174,17 @@ const transfer = () => {
         });
       }
     }
+  };
+
+  const getAmountWithFee = () => {
+    let fee = toNumber(amount) * 0.2;
+    return toNumber(amount) - fee;
+  };
+
+  const getReceveAmount = () => {
+    return toNumber(getAmountWithFee()) >= 0
+      ? formatNumber(getAmountWithFee())
+      : formatNumber(0);
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
@@ -102,9 +212,61 @@ const transfer = () => {
 
         <View>
           <View className="px-5 my-5">
-            <View className="items-center space-y-2">
-              <Text>Airtime Balance</Text>
-              <Text className="text-3xl"> ₦{formatNumber(15000)}</Text>
+            <View
+              style={{
+                backgroundColor: theme.dark
+                  ? theme.colors.primary
+                  : theme.colors.primaryContainer,
+              }}
+              className="items-center space-y-2 rounded-lg flex-row p-2 justify-around"
+            >
+              <View>
+                <View className="flex-row items-center space-x-2 mb-2">
+                  <Text className="font-bold text-[11px] text-black ">
+                    Airtime Balance
+                  </Text>
+                  <Pressable onPress={() => setHideBalance(!hideBalance)}>
+                    <Icon
+                      color="black"
+                      size={20}
+                      source={hideBalance ? "eye" : "eye-off"}
+                    />
+                  </Pressable>
+                  <Pressable onPress={fetchBalance}>
+                    <Icon color="black" size={20} source={"sync"} />
+                  </Pressable>
+                </View>
+                {fetchingBalance ? (
+                  <View className="space-y-2">
+                    <ActivityIndicator color={"black"} />
+                    <Text className="text-[10px] text-center text-black">
+                      Loading balance...
+                    </Text>
+                  </View>
+                ) : networkRequestFailed ? (
+                  <View>
+                    <Button
+                      onPress={fetchBalance}
+                      mode={"contained-tonal"}
+                      icon={"sync"}
+                    >
+                      Reload
+                    </Button>
+                  </View>
+                ) : (
+                  <Text className="text-3xl text-black">
+                    ₦{hideBalance ? "*****" : formatNumber(airtimeBalance)}
+                  </Text>
+                )}
+              </View>
+
+              <View className="items-center justify-center">
+                <View className="w-full flex-row items-center justify-center space-x-2">
+                  <Text className="text-lg font-bold text-black">{new String(networkData?.name)?.toUpperCase()}</Text>
+                  <Image className="h-6 w-6 rounded-full" source={{uri: networkData?.icon}} />
+                </View>
+                <Text className="text-black">{number}</Text>
+              </View>
             </View>
           </View>
           <View className="px-5 space-y-4">
@@ -121,7 +283,9 @@ const transfer = () => {
                 right={
                   <TextInput.Icon
                     icon={() => (
-                      <Button onPress={() => setAmount("15000")}>ALL</Button>
+                      <Button onPress={() => setAmount(`${airtimeBalance}`)}>
+                        ALL
+                      </Button>
                     )}
                   />
                 }
@@ -131,7 +295,7 @@ const transfer = () => {
               <Text>Amount To Receive</Text>
               <TextInput
                 editable={false}
-                value={`${toNumber(amount) - 50 >= 0 ? formatNumber(toNumber(amount) - 50) : formatNumber(0)}`}
+                value={`${getReceveAmount()}`}
                 placeholder={`${formatNumber(0)}`}
                 className="bg-transparent"
                 mode="outlined"
@@ -186,9 +350,42 @@ const transfer = () => {
       </View>
       <TransactionPinSheet
         visible={transferSheetVisible}
+        processingTransaction={processingTransfer}
         onCancel={() => setTransferSheetVisible(false)}
         onComplate={handleConvert}
       />
+
+      <BottomSheet visible={showBackBottomSheet} height={"auto"}>
+        <View className="p-2 px-3">
+          <Text className="font-bold text-lg">GO BACK</Text>
+          <Divider />
+          <Text className="mt-2">Are you sure do you want go back</Text>
+
+          <View className="gap-2 mt-5 flex-row w-full">
+            <Button
+              onPress={() => router.back()}
+              className="text-lg p-0"
+              buttonColor="red"
+              textColor="white"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+              mode={"contained-tonal"}
+            >
+              Yes
+            </Button>
+            <Button
+              onPress={() => setShowBackBottomSheet(false)}
+              className="text-lg p-0 flex-1"
+              buttonColor="lightgreen"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+              mode={"contained-tonal"}
+            >
+              No
+            </Button>
+          </View>
+        </View>
+      </BottomSheet>
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

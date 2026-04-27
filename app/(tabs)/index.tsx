@@ -45,6 +45,7 @@ export default function Index() {
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [fetchingInfo, setFetchingInfo] = useState(false)
   const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
+  const [refreshKey, setRefreshKey] = useState(0)
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
@@ -52,7 +53,7 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      checkLoginState();
+     
       setLoaded(true);
 
       return () => {
@@ -193,7 +194,10 @@ export default function Index() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={fetchData} />
+            <RefreshControl refreshing={false} onRefresh={() => {
+              fetchData()
+              setRefreshKey(prev => prev + 1)
+            }} />
           }
           className="pb-5 flex-1"
         >
@@ -208,15 +212,18 @@ export default function Index() {
             />
           </View>
 
-          <View className="p-3">
-            <Text className="mb-4 ml-2 font-bold">Quick Actions</Text>
+          <View className="px-3 mb-3">
+            <Text className="mb-1 mt-2 font-bold opacity-70 uppercase text-[11px]">Quick Actions</Text>
             <HomeQuickActionsContainer />
           </View>
-          <View className="p-3">
-           <RecentTransactionsContainer />
-          </View>
+
           <View className="px-3 mb-3">
-            <Text className="mb-3 ml-2 font-bold">Services</Text>
+             <Text className="font-bold opacity-70 uppercase text-[11px]">Recent Transactions</Text>
+           <RecentTransactionsContainer refreshKey={refreshKey} />
+          </View>
+
+          <View className="px-3 mb-3">
+            <Text className="mb-1 ml-2 font-bold opacity-70 uppercase text-[11px]">Services</Text>
             <ServicesContainer />
           </View>
         </ScrollView>

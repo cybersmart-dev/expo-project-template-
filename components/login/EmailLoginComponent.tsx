@@ -28,6 +28,8 @@ import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
+import { Toast } from "@/constants/Toast";
+import { Storage } from "@/constants/Storage";
 
 const EmailLoginComponent = () => {
   const theme = useTheme();
@@ -87,26 +89,15 @@ const EmailLoginComponent = () => {
         password: password,
       },
     });
-    console.log("response ", response);
 
     if (response.status == 0) {
-      showMessage({
-        message: "Login Failed",
-        description: response.message,
-        type: "danger",
-        icon: "danger",
-      });
+      Toast.danger({ title: "Login Failed", body: response.message });
       setShowProcessing(false);
       return;
     }
-    
 
     if (response?.token) {
-      showMessage({
-        message: "Login",
-        description: "Login successfuly",
-        type: "success",
-      });
+      Toast.success({ title: "Login", body: "Login successfuly" });
       setShowProcessing(false);
       await saveLoginState(response?.token);
     }
@@ -121,8 +112,13 @@ const EmailLoginComponent = () => {
   const saveLoginState = async (token: string) => {
     try {
       if (token) {
-        await AsyncStorage.setItem("loginState", "1");
-        await AsyncStorage.setItem("token", token);
+        
+        let auth = JSON.stringify({
+          token: token,
+          password: password,
+        });
+        await Storage.SecureStore("auth", auth);
+
         router.push("/(tabs)");
       }
     } catch (error) {
@@ -237,6 +233,7 @@ const EmailLoginComponent = () => {
               keyboardType={"email-address"}
               className="bg-transparent"
               mode="outlined"
+              disabled={showProcessing}
               outlineStyle={{ borderRadius: 15 }}
               onChangeText={setEmail}
               left={<TextInput.Icon size={20} icon="email" />}
@@ -248,6 +245,7 @@ const EmailLoginComponent = () => {
                 onChangeText={setPassword}
                 secureTextEntry={showPassword ? false : true}
                 left={<TextInput.Icon size={20} icon="lock" />}
+                disabled={showProcessing}
                 mode="outlined"
                 outlineStyle={{ borderRadius: 15 }}
                 className="bg-transparent"
@@ -260,7 +258,7 @@ const EmailLoginComponent = () => {
                 }
               />
               <View className="w-full items-end">
-                <Button mode="text" className="">
+                <Button disabled={showProcessing} mode="text" className="">
                   Forgot Password?
                 </Button>
               </View>
@@ -297,7 +295,7 @@ const EmailLoginComponent = () => {
 
               <View className="flex-row items-center justify-center pt-0 pb-3">
                 <Text>I Don't have an account</Text>
-                <Button onPress={() => router.push("/singup")}>Sing up</Button>
+                <Button disabled={showProcessing} onPress={() => router.push("/singup")}>Sing up</Button>
               </View>
             </View>
           </View>

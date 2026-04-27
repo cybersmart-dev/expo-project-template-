@@ -1,4 +1,4 @@
-import { Modal, View } from "react-native";
+import { Modal, Pressable, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -30,6 +30,8 @@ import * as WebBrowser from "expo-web-browser";
 import requests from "@/Network/HttpRequest";
 import { Image } from "expo-image";
 import NoConnectionModal from "@/components/models/NoConnectionModal";
+import * as Clipboard from "expo-clipboard";
+import { Toast } from "@/constants/Toast";
 
 //type TransactionsType = Transactions
 
@@ -67,7 +69,6 @@ const TransactionDetailsTypeData = ({
             </DataTable.Cell>
             <DataTable.Cell numeric>{data?.network}</DataTable.Cell>
           </DataTable.Row>
-          
         </View>
       )}
       {type?.toLowerCase() == "airtime" && (
@@ -111,7 +112,7 @@ const TransactionDetails = () => {
 
   const fetchTransaction = async () => {
     setFetching(true);
-    setNetworkError(false)
+    setNetworkError(false);
     const response = await requests.get({ url: `/user/transactions/${id}/` });
 
     setFetching(false);
@@ -214,6 +215,11 @@ const TransactionDetails = () => {
       </View>
     );
   };
+
+  const handleCopy = async (text: string) => {
+    await Clipboard.setStringAsync(text);
+    Toast.success({title:"Copied", body:"ID Copied"})
+  };
   return (
     <PaperSafeView>
       <Appbar className="bg-transparent">
@@ -272,7 +278,17 @@ const TransactionDetails = () => {
                 <DataTable.Cell>
                   <Text className="font-bold">Transaction ID</Text>
                 </DataTable.Cell>
-                <DataTable.Cell numeric>{transaction?.id}</DataTable.Cell>
+                <DataTable.Cell numeric>
+                  <Pressable
+                    onPress={() => handleCopy(transaction?.id)}
+                    className="flex-row items-center space-x-0 mr-2"
+                  >
+                    <Text ellipsizeMode={'middle'} numberOfLines={1}>{transaction?.id}</Text>
+                    <Pressable onPress={() => handleCopy(transaction?.id)}>
+                      <Icon source={"content-copy"} size={17} />
+                    </Pressable>
+                  </Pressable>
+                </DataTable.Cell>
               </DataTable.Row>
 
               <DataTable.Row>
@@ -392,7 +408,10 @@ const TransactionDetails = () => {
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
 
-      <NoConnectionModal onRetry={() => fetchTransaction()} visible={networkError} />
+      <NoConnectionModal
+        onRetry={() => fetchTransaction()}
+        visible={networkError}
+      />
     </PaperSafeView>
   );
 };

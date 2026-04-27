@@ -1,8 +1,7 @@
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Crypto from 'expo-crypto';
-import { } from "@/constants/Storage"
-
+import * as Crypto from "expo-crypto";
+import { Storage } from "@/constants/Storage";
 
 interface requestProps {
   url: string;
@@ -26,7 +25,7 @@ interface requestGetProps {
 
 interface requestPostProps {
   url: string;
-  data?: {tnxid: string} | Object;
+  data?: { tnxid: string } | Object;
   add_header_token?: boolean;
 }
 
@@ -42,7 +41,7 @@ export default class requests {
   }: requestProps): Promise<responseProps> {
     url = this.getUrl(url);
     if (data) {
-      data.tnxid = this.generateUUID()
+      data.tnxid = this.generateUUID();
     }
     try {
       const response = await fetch(url, {
@@ -53,13 +52,17 @@ export default class requests {
 
       const responseData: responseProps = await response.json();
 
-     if (responseData.message?.toLowerCase().match(/token/i) || responseData.message?.toLowerCase().includes("Authorization") && responseData.status == 0) {
-       if (router.pathname != "/logins/emailLogin") {
-         await this.clearToken();
-         router.push("/logins/emailLogin");
-         return { status: 0, message: "Session expired" };
-       }
-     }
+      if (
+        responseData.message?.toLowerCase().match(/token/i) ||
+        (responseData.message?.toLowerCase().includes("Authorization") &&
+          responseData.status == 0)
+      ) {
+        if (router.pathname != "/logins/emailLogin") {
+          await this.clearToken();
+          router.push("/logins/emailLogin");
+          return { status: 0, message: "Session expired" };
+        }
+      }
 
       return responseData;
     } catch (error) {
@@ -69,7 +72,11 @@ export default class requests {
 
   static async get({ url, add_header_token = true }: requestGetProps) {
     const headers = await this.getheaders(add_header_token);
-    const response = await this.request({ url: url, method: "GET", headers: headers });
+    const response = await this.request({
+      url: url,
+      method: "GET",
+      headers: headers,
+    });
 
     return response;
   }
@@ -86,11 +93,10 @@ export default class requests {
     return response;
   }
 
-  
   static generateUUID() {
-      const uuid = Crypto.randomUUID()
-      return uuid
-    }
+    const uuid = Crypto.randomUUID();
+    return uuid;
+  }
 
   static getUrl(path: string) {
     if (__DEV__) {
@@ -101,30 +107,33 @@ export default class requests {
 
   static async getToken() {
     try {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
-        return token;
+      const auth = await Storage.secureGet("auth");
+      
+      
+      if (auth) {
+        const token = JSON.parse(auth)?.token;
+        if (token) {
+          return token;
+        }
       }
     } catch (error) {}
   }
 
   static async clearToken() {
     try {
-      await AsyncStorage.removeItem("token");
-      await AsyncStorage.removeItem("userInfo")
-
+      await Storage.secureRemove("auth");
       router.push("/logins/emailLogin");
     } catch (error) {}
   }
 
-  static async getheaders(add_header_token: boolean ) {
+  static async getheaders(add_header_token: boolean) {
     const token = await this.getToken();
 
     let headers: any = {
       "content-type": "application/json",
     };
     if (add_header_token) {
-     headers.Authorization = `Token ${token}`;
+      headers.Authorization = `Token ${token}`;
     }
     return headers;
   }

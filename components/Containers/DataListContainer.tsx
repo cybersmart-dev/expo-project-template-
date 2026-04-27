@@ -339,10 +339,10 @@ const DataListContainer = ({
 
         {!network && (
           <View className="h-full items-center justify-center w-full">
-            <View className="space-y-3 items-center">
-              <Text className="font-bold">Select network first!</Text>
+            <View className="space-y-3 items-center w-full">
+              <Text className="font-bold w-full text-center uppercase">Select network first!</Text>
               <Button onPress={onPressSelectNetwork} mode={"contained-tonal"}>
-                Select
+                Select Now
               </Button>
             </View>
           </View>

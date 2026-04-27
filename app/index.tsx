@@ -27,6 +27,7 @@ import Fontisto from "@expo/vector-icons/Fontisto";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import requests from "@/Network/HttpRequest";
 
 const Index = () => {
   const theme = useTheme();
@@ -71,7 +72,7 @@ const Index = () => {
 
   const checkLoginState = async () => {
     try {
-      const token = await AsyncStorage.getItem("token");
+      const token = await requests.getToken();
       if (token) {
         router.push("/logins/singin");
       }
@@ -84,17 +85,17 @@ const Index = () => {
         <Appbar.Content
           title={
             <MaskedView
-              maskElement={<Text className="text-3xl font-bold">T-Pay</Text>}
+              maskElement={<Text className="text-3xl font-bold">MYPock</Text>}
             >
               <LinearGradient
                 colors={[
                   theme.colors.onPrimaryContainer,
                   theme.colors.surfaceVariant,
                 ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 1, y: 1 }}
               >
-                <Text className="text-3xl font-bold opacity-0">T-Pay</Text>
+                <Text className="text-3xl font-bold opacity-0">MYPock</Text>
               </LinearGradient>
             </MaskedView>
           }

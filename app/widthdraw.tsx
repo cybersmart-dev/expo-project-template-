@@ -1,6 +1,5 @@
 import {
   View,
-  Text,
   Pressable,
   Image,
   GestureResponderEvent,
@@ -20,6 +19,7 @@ import {
   Searchbar,
   TextInput,
   useTheme,
+  Text,
 } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 import { showMessage } from "react-native-flash-message";
@@ -301,9 +301,9 @@ const widthdraw = () => {
         <View>
           <View className="p-3 px-5 space-y-5">
             <Text className="text-[17px] font-bold text-center">
-              Select Betting Company
+              Select Bank
             </Text>
-            <Searchbar value="" placeholder="Search Betting Companies..." />
+            <Searchbar value="" placeholder="Search Bank" />
           </View>
           <View className="px-6">
             <FlatList

@@ -191,6 +191,8 @@ const SelectNetworkComponent = ({
           placeholder="Mobile Number"
           placeholderTextColor={theme.colors.onBackground}
           maxLength={11}
+          autoFocus={true}
+          focusable
         />
         <View className="flex-row">
           {mobileNumber.length > 0 && (
