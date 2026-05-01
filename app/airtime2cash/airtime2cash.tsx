@@ -6,7 +6,7 @@ import {
   Keyboard,
   Image,
 } from "react-native";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
   Appbar,
@@ -17,7 +17,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import {} from "expo-image";
 import { NetworkImages } from "@/constants/Images";
 import { isValidMobileNumber } from "@/constants/Utils";
@@ -26,6 +26,8 @@ import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { StatusBar } from "expo-status-bar";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
+import { Storage } from "@/constants/Storage";
+import { Networks } from "@/constants/DemoList";
 
 const airtime2cash = () => {
   const [selectedNetwork, setSelectedNetwork] = useState("");
@@ -34,12 +36,19 @@ const airtime2cash = () => {
   const [phoneErrorVisible, setPhoneErrorVisible] = useState(false);
   const [amountErrorVisible, setAmountErrorVisible] = useState(false);
   const [otpSheetVisible, setOtpSheetVisible] = useState(false);
+  const [networks, setNetworks] = useState<Array<(typeof Networks[0])>>([]);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
 
   const timerRef = useRef(0);
 
   const [processingRequest, setProcessingRequest] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadNetworks();
+    }, []),
+  );
 
   const handleNetworkSelect = (network: string) => {
     setSelectedNetwork(network);
@@ -97,14 +106,14 @@ const airtime2cash = () => {
 
   const verifyOtp = async (otp: string) => {
     setProcessingRequest(true);
-    
+
     const response = await requests.post({
       url: "/sell-airtime/verify/",
       data: {
         network_id: selectedNetworkId,
         number: phoneNumber,
         req_type: "verify",
-        otp: otp
+        otp: otp,
       },
     });
 
@@ -122,7 +131,11 @@ const airtime2cash = () => {
       setProcessingRequest(false);
       router.push({
         pathname: "/airtime2cash/transfer",
-        params: { number: phoneNumber, token: response?.data?.token, network_id: selectedNetworkId },
+        params: {
+          number: phoneNumber,
+          token: response?.data?.token,
+          network_id: selectedNetworkId,
+        },
       });
       return;
     }
@@ -132,6 +145,15 @@ const airtime2cash = () => {
       setOtpSheetVisible(false);
       return;
     }
+  };
+
+  const loadNetworks = async () => {
+    try {
+      const networksString = await Storage.secureGet("networks");
+      if (networksString) {
+        setNetworks(JSON.parse(networksString));
+      }
+    } catch (error) {}
   };
 
   const handleOtpFinish = (pin: string) => {
@@ -168,78 +190,27 @@ const airtime2cash = () => {
             showsVerticalScrollIndicator={false}
             className="space-x-5 py-2"
           >
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  selectedNetwork == "mtn"
-                    ? theme.colors.secondary
-                    : theme.colors.primaryContainer,
-              }}
-              onPress={() => {
-                handleNetworkSelect("mtn");
-                setSelectedNetworkId(1);
-              }}
-              className=" p-3 rounded-lg"
-            >
-              <Image
-                className="h-[55px] w-[55px] rounded-full"
-                source={{ uri: NetworkImages.MtnImageLogo }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  selectedNetwork == "airtel"
-                    ? theme.colors.secondary
-                    : theme.colors.primaryContainer,
-              }}
-              onPress={() => {
-                handleNetworkSelect("airtel");
-                setSelectedNetworkId(2);
-              }}
-              className="bg-blue-300 p-3 rounded-lg"
-            >
-              <Image
-                className="h-[55px] w-[55px] rounded-full"
-                source={{ uri: NetworkImages.AirtelImageLogo }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  selectedNetwork == "glo"
-                    ? theme.colors.secondary
-                    : theme.colors.primaryContainer,
-              }}
-              onPress={() => {
-                handleNetworkSelect("glo");
-                setSelectedNetworkId(3);
-              }}
-              className="bg-blue-300 p-3 rounded-lg"
-            >
-              <Image
-                className="h-[55px] w-[55px] rounded-full"
-                source={{ uri: NetworkImages.GloImageLogo }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  selectedNetwork == "9mobile"
-                    ? theme.colors.secondary
-                    : theme.colors.primaryContainer,
-              }}
-              onPress={() => {
-                handleNetworkSelect("9mobile");
-                setSelectedNetworkId(4);
-              }}
-              className="bg-blue-300 p-3 rounded-lg"
-            >
-              <Image
-                className="h-[55px] w-[55px] rounded-full"
-                source={{ uri: NetworkImages["9mobileImageLogo"] }}
-              />
-            </TouchableOpacity>
+            {networks.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={{
+                  backgroundColor:
+                    selectedNetwork.toLocaleLowerCase() == item?.name?.toLocaleLowerCase()
+                      ? theme.colors.secondary
+                      : theme.colors.primaryContainer,
+                }}
+                onPress={() => {
+                  handleNetworkSelect(item.name);
+                  setSelectedNetworkId(item.id);
+                }}
+                className=" p-3 rounded-lg"
+              >
+                <Image
+                  className="h-[55px] w-[55px] rounded-full"
+                  source={{ uri: item.icon }}
+                />
+              </TouchableOpacity>
+            ))}
           </ScrollView>
         </View>
         <View className="px-5">

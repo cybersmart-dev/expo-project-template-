@@ -168,6 +168,15 @@ function RootLayoutNav() {
               }}
             />
 
+             <Stack.Screen
+              name="PinManagement/CreateTransactionPin"
+              options={{
+                presentation: "containedModal",
+                title: "Create Transaction Pin",
+                headerShown: false,
+              }}
+            />
+
             <Stack.Screen
               name="buy-data"
               options={{

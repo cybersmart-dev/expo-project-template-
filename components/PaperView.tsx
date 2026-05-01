@@ -70,7 +70,7 @@ export const PaperSafeView: React.FC<PaperSafeViewProps> = ({
           scaleX: loaded ? 1 : 0.7,
           opacity: loaded ? 1 : 0,
         }}
-        transition={{ type: "timing", duration: 700, easing: "linear" }}
+        transition={{ type: "timing", duration: 500, easing: "linear" }}
         className="flex-1"
       >
         <LinearGradient

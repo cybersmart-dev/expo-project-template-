@@ -39,9 +39,7 @@ const TransactionsListComponent = ({
   status,
   onPress,
 }: TransactionsListComponentProps) => {
-  const getState = () => {
-   
-  };
+  const getState = () => {};
   return (
     <List.Item
       title={
@@ -55,7 +53,10 @@ const TransactionsListComponent = ({
       description={description}
       right={() => (
         <View className="items-end justify-evenly">
-          <Text style={{ color: getTransactionSideFormat(side, amount).color }} className="text-green-600">
+          <Text
+            style={{ color: getTransactionSideFormat(side, amount).color }}
+            className="text-green-600"
+          >
             {" "}
             {getTransactionSideFormat(side, amount).format}
           </Text>
@@ -82,6 +83,7 @@ const transactions = () => {
   const [networkDisconnected, setNetworkDisconnected] = useState(false);
   const [selectedService, setSelectedService] = useState(services[0]);
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
+  const [spens, setSpens] = useState<any>({})
 
   useFocusEffect(
     useCallback(() => {
@@ -90,6 +92,7 @@ const transactions = () => {
   );
 
   const fetchTransactions = async () => {
+    setNetworkRequestFailed(false);
     setFetching(true);
     const response = await requests.get({
       url: `/user/transactions/?service_type=${selectedService.toUpperCase()}`,
@@ -99,6 +102,7 @@ const transactions = () => {
 
     if (response.status == 1) {
       setTransactions(response?.data);
+      setSpens(response?.spens)
     }
 
     if (response.status == 0) {
@@ -134,10 +138,24 @@ const transactions = () => {
           )}
         />
       </View>
+      <View className="flex-row items-center justify-around px-5 my-3 space-x-2">
+        <View className="h-10 flex-1 rounded-lg bg-[#83ec963a] items-center justify-center">
+          <Text className="flex-row  w-full items-center px-2">
+            <Text className="flex-1  text-[15px]">IN</Text>{"  "}
+            <Text className="flex-0 text-[12px]">₦{formatNumber(spens?.in)}</Text>
+          </Text>
+        </View>
+        <View className="h-10 flex-1 rounded-lg bg-[#ec94833a] items-center justify-center">
+          <Text className="flex-row  w-full items-center px-2">
+            <Text className="flex-1  text-[15px]">OUT</Text>
+            <Text className="flex-0 text-[12px]">{"  "}₦{formatNumber(spens?.out)}</Text>
+          </Text>
+        </View>
+      </View>
       <RefreshControl
         refreshing={false}
         onRefresh={fetchTransactions}
-        className="flex-1 mt-2"
+        className="flex-1 mt-0"
       >
         <FlatList
           data={transactions}

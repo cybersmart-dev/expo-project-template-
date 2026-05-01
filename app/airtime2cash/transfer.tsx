@@ -33,6 +33,8 @@ import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
 import BottomSheet from "@/components/models/BottomSheet";
 import { Networks } from "@/constants/DemoList";
+import { Storage } from "@/constants/Storage";
+import { EaseView } from "react-native-ease";
 
 const transfer = () => {
   const { number, token, network_id } = useLocalSearchParams();
@@ -47,6 +49,7 @@ const transfer = () => {
 
   const [airtimeBalance, setAirtimeBalance] = useState(0);
   const [fetchingBalance, setFetchingBalance] = useState(false);
+  const [networks, setNetworks] = useState<Array<(typeof Networks[0])>>([]);
   const [fetchBalaceFailed, setFetchBalaceFailed] = useState(false);
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
   const [showBackBottomSheet, setShowBackBottomSheet] = useState(false);
@@ -54,9 +57,8 @@ const transfer = () => {
   const [networkData, setNetworkData] = useState({})
 
   useFocusEffect(
-    useCallback(() => {
-      fetchBalance();
-      getNetworkData()
+    useCallback( () => {
+     loadData()
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setShowBackBottomSheet(true);
         return true;
@@ -65,10 +67,15 @@ const transfer = () => {
     }, []),
   );
 
-  const getNetworkData = () => {
-    const network: any = Networks.find(network => network?.id === toNumber(`${network_id}`))
-    setNetworkData(network)
+  const loadData = async () => {
+      fetchBalance();
+      getNetworkData()
+  }
 
+  const getNetworkData = async () => {
+    const networks = await loadNetworks()
+    const network: any = networks.find((network:any ) => network?.id === 1)
+    setNetworkData(network)
   }
 
   const handleContinue = () => {
@@ -80,9 +87,9 @@ const transfer = () => {
       });
       return;
     }
-    if (!sharePin) {
+    if (!sharePin || sharePin.length <= 3) {
       showMessage({
-        message: "Please Enter Your share pin",
+        message: "Please Enter Your Valid Share Pin",
         type: "danger",
         icon: "danger",
       });
@@ -160,6 +167,17 @@ const transfer = () => {
     
   };
 
+   const loadNetworks = async () => {
+      try {
+        const networksString = await Storage.secureGet("networks");
+        if (networksString) {
+          const networks = JSON.parse(networksString)
+          setNetworks(networks);
+          return networks
+        }
+      } catch (error) {}
+    };
+
   const handleCreatePin = async () => {
     if (Platform.OS === "android") {
       const supported = await Linking.canOpenURL("tel:");
@@ -218,7 +236,7 @@ const transfer = () => {
                   ? theme.colors.primary
                   : theme.colors.primaryContainer,
               }}
-              className="items-center space-y-2 rounded-lg flex-row p-2 justify-around"
+              className="items-center space-y-2 rounded-lg flex-row p-5 justify-around"
             >
               <View>
                 <View className="flex-row items-center space-x-2 mb-2">
@@ -233,7 +251,9 @@ const transfer = () => {
                     />
                   </Pressable>
                   <Pressable onPress={fetchBalance}>
-                    <Icon color="black" size={20} source={"sync"} />
+                    <EaseView animate={{rotate: fetchingBalance ? 0 : 360}} transition={{duration: 500, type:"timing"}}>
+                      <Icon color="black" size={20} source={"sync"} />
+                    </EaseView>
                   </Pressable>
                 </View>
                 {fetchingBalance ? (

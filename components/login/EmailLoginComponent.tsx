@@ -1,5 +1,4 @@
-import Processing from "../models/Processing";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Image,
@@ -13,19 +12,15 @@ import {
   Button,
   TextInput,
   Appbar,
-  MD3Colors,
   ActivityIndicator,
 } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
-import FlashMessage, { showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 import { PaperSafeView } from "../PaperView";
 import { EaseView } from "react-native-ease";
-import { Timer } from "@/constants/Utils";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { StatusBar } from "expo-status-bar";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
 import { Toast } from "@/constants/Toast";
@@ -119,12 +114,14 @@ const EmailLoginComponent = () => {
         });
         await Storage.SecureStore("auth", auth);
 
+        const response = await requests.get({ url: "/networks/" })
+        
+        await Storage.SecureStore("networks", JSON.stringify(response))
+
         router.push("/(tabs)");
       }
     } catch (error) {
-      showMessage({
-        message: `${error}`,
-      });
+      Toast.danger({title:"Error", body: `${error}`})
     }
   };
   return (

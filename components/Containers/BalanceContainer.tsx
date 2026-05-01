@@ -1,20 +1,35 @@
 import { formatNumber } from "@/constants/Formats";
+import { Timer } from "@/constants/Utils";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useRef, useState } from "react";
 import { ColorValue, Pressable, useColorScheme, View } from "react-native";
 import { EaseView } from "react-native-ease";
-import { Button, Icon, IconButton, Text, useTheme } from "react-native-paper";
+import {
+  AnimatedFAB,
+  Button,
+  Icon,
+  IconButton,
+  Text,
+  useTheme,
+} from "react-native-paper";
+import Animated, {
+  createAnimatedComponent,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+
+const AnimatedButton = createAnimatedComponent(Button);
 
 interface BalanceContainerProps {
   user?: Object;
   theme?: any;
   hideBalance?: boolean;
   userInfo?: any;
-  fetchingInfo: boolean
+  fetchingInfo: boolean;
   onHideBalanceToggle?: () => void;
-  fetchInfo: () => void
-
+  fetchInfo: () => void;
 }
 const BalanceContainer = ({
   user,
@@ -22,27 +37,58 @@ const BalanceContainer = ({
   onHideBalanceToggle,
   userInfo,
   fetchingInfo,
-  fetchInfo
+  fetchInfo,
 }: BalanceContainerProps) => {
   const timerRef = useRef(0);
   const colorScheme = useColorScheme();
-  const theme = useTheme()
- 
+  const theme = useTheme();
+  const bounce = useSharedValue(0);
+
+  const [loaded, setLoaded] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      animateBuuton()
+      setLoaded(true);
+      
+      return () => {
+        setLoaded(false);
+       
+        
+      };
+    }, []),
+  );
+
+  const animateBuuton = async () => {
+    bounce.value = -20
+    await new Timer().postDelayedAsync({ sec: 300 })
+    bounce.value = 1
+    
+  }
+
   const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
     if (theme.dark) {
-      return [theme.colors.primaryContainer, theme.colors.primaryContainer]
+      return [theme.colors.primaryContainer, theme.colors.primaryContainer];
     }
-    return [theme.colors.primary, theme.colors.primary]
-  }
+    return [theme.colors.primary, theme.colors.primary];
+  };
+
+  const addMoneyButtonAnimetedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: withSpring(bounce.value, { damping: 50 }) },
+       
+      ],
+    };
+  });
 
   return (
     <LinearGradient
       colors={getColors()}
       style={{
-        backgroundColor:
-          theme.dark
-            ? theme.colors.primaryContainer
-            : theme.colors.primary,
+        backgroundColor: theme.dark
+          ? theme.colors.primaryContainer
+          : theme.colors.primary,
       }}
       className="relative h-[190px] w-full rounded-b-lg mt-0  p-4"
     >
@@ -66,7 +112,9 @@ const BalanceContainer = ({
               ₦******{" "}
             </Text>
           ) : (
-            <Text className="text-3xl text-white font-bold">₦{formatNumber(userInfo?.wallet?.balance) || "0.00"} </Text>
+            <Text className="text-3xl text-white font-bold">
+              ₦{formatNumber(userInfo?.wallet?.balance) || "0.00"}{" "}
+            </Text>
           )}
         </View>
         <View className="mt-5">
@@ -95,15 +143,20 @@ const BalanceContainer = ({
             <Icon size={24} color="white" source={"sync"} />
           </Pressable>
         </EaseView>
-        <Button
-          onPress={() => router.push("/add_money")}
-          buttonColor={theme.colors.onPrimary}
-          textColor={theme.colors.primary}
-          mode="contained"
-          icon="plus"
-        >
-          Add Money
-        </Button>
+
+        <Animated.View style={[addMoneyButtonAnimetedStyle]}>
+          <Button
+            onPress={() => router.push("/add_money")}
+            
+            icon="plus"
+            textColor={"black"}
+            buttonColor={
+              theme.dark ? theme.colors.primary : theme.colors.primaryContainer
+            }
+          >
+            ADD MONEY
+          </Button>
+        </Animated.View>
       </View>
     </LinearGradient>
   );

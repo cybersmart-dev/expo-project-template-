@@ -6,7 +6,7 @@ import {
   Appbar,
   Button,
   useTheme,
-  Text
+  Text,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -15,6 +15,9 @@ import OtpInput from "@/components/Inputs/OtpInput";
 import { showMessage } from "react-native-flash-message";
 import BottomSheet from "@/components/models/BottomSheet";
 import { Timer } from "@/constants/Utils";
+import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 const chanepin = () => {
   const theme = useTheme();
@@ -26,8 +29,9 @@ const chanepin = () => {
   const [newPinError, setNewPinError] = useState(false);
   const [newPin2Error, setNewPin2Error] = useState(false);
   const [processingVisible, setProcessingVisible] = useState(false);
+  const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
+    useState(false);
 
-  
   const handleChange = async () => {
     if (oldPin.length < 4) {
       showMessage({
@@ -82,16 +86,31 @@ const chanepin = () => {
 
   const confirmChange = async () => {
     setProcessingVisible(true);
-    await new Timer().postDelayedAsync({ sec: 3000 });
-    setProcessingVisible(false);
-    showMessage({
-      message:"Pin Changed",
-      description: "Pin Changed Successfuly",
-      type: "success",
-      icon: "success",
-      duration: 3000,
+    const response = await requests.post({
+      url: "/user/payment/change-pin/",
+      data: { oldPin: oldPin, newPin: newPin },
     });
-    router.push('/(tabs)')
+    setProcessingVisible(false);
+
+    if (response.status == 1) {
+      Toast.success({
+        title: "Pin Changed",
+        body: "Pin Changed Successfuly",
+      });
+      router.push("/(tabs)");
+    }
+    if (response.status == 0) {
+      Toast.danger({
+        title: response.message,
+      });
+    }
+
+    if (response.status == undefined) {
+      Toast.danger({
+        title: response.message,
+      });
+      setNetworkErrorSheetVisible(true);
+    }
   };
 
   return (
@@ -114,8 +133,8 @@ const chanepin = () => {
         </Appbar>
 
         <View className="px-5">
-          <View className="space-y-5 mt-3">
-            <Text className="mb-5 font-bold text-[15px]">
+          <View className="space-y-5  px-5 mt-3">
+            <Text className="mb-3 font-bold text-[12px] uppercase">
               Enter your current pin
             </Text>
             <OtpInput
@@ -127,9 +146,11 @@ const chanepin = () => {
             />
           </View>
 
-          <View className="space-y-5 mt-5">
+          <View className="space-y-5 px-5 mt-5">
             <View className="mb-5">
-              <Text className="font-bold text-[15px]">Enter your new pin</Text>
+              <Text className="font-bold text-[12px] uppercase">
+                Enter your new pin
+              </Text>
               <Text className="text-[12px] opacity-75">
                 Your new pin most be diffrent with your old pin
               </Text>
@@ -142,6 +163,9 @@ const chanepin = () => {
               error={newPinError}
             />
             <View>
+              <Text className="font-bold text-[12px] mb-2 ml-1 uppercase">
+                Confirm your new pin
+              </Text>
               <OtpInput
                 length={4}
                 height={50}
@@ -159,7 +183,7 @@ const chanepin = () => {
               labelStyle={{ fontSize: 16 }}
               mode="contained"
             >
-              Chnage
+              Change
             </Button>
           </View>
         </View>
@@ -173,6 +197,10 @@ const chanepin = () => {
           </View>
         </View>
       </BottomSheet>
+      <NetworkRequestErrorSheet
+        visible={networkErrorSheetVisible}
+        onDismiss={setNetworkErrorSheetVisible}
+      />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

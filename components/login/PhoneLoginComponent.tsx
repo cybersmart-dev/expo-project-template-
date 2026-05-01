@@ -123,6 +123,9 @@ const PhoneLoginComponent = () => {
           password: password,
         });
         await Storage.SecureStore("auth", auth);
+        const response = await requests.get({ url: "/networks/" })
+                
+        await Storage.SecureStore("networks", JSON.stringify(response))
 
         router.push("/(tabs)");
       }

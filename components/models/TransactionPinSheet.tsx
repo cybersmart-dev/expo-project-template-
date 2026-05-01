@@ -12,6 +12,7 @@ import {
 import { router } from "expo-router";
 import * as LocalAuthentication from "expo-local-authentication";
 import { showMessage } from "react-native-flash-message";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface TransactionPinSheetProps {
   title?: string;
@@ -70,7 +71,10 @@ const TransactionPinSheet = ({
     });
 
     if (result.success) {
-      onComplate("localauth");
+      const pin = await getUserPin()
+      console.log("User Pin", pin);
+      
+      onComplate(pin);
     } else {
       showMessage({
         message: "Failed",
@@ -81,6 +85,18 @@ const TransactionPinSheet = ({
       // Handle authentication failure
     }
   };
+
+  const getUserPin = async () => {
+    try {
+      const userInfoString = await AsyncStorage.getItem("userInfo")
+      if (userInfoString) {
+        const userInfo = JSON.parse(userInfoString)
+        return userInfo.transaction_pin
+      }
+    } catch (error) {
+      
+    }
+  }
   return (
     <BottomSheet
       outterChildrenStyle={{ paddingBottom: 50 }}

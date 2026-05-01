@@ -77,6 +77,12 @@ export default function Index() {
     if (response.status == 1) {
       setUserInfo(response.data);
       storeUserInfo(response.data);
+
+      const transaction_pin = response?.data?.transaction_pin
+      if (!transaction_pin) {
+        router.push("/PinManagement/CreateTransactionPin")
+      }
+      
     }
 
     if (response.status == 0) {

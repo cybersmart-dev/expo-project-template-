@@ -12,6 +12,7 @@ interface requestProps {
 }
 
 interface responseProps {
+  [x: string]: any;
   status: number | undefined;
   message?: string;
   data?: any;

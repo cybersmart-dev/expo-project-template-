@@ -10,6 +10,7 @@ import {
   IconButton,
   List,
   Text,
+  Tooltip,
   useTheme,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -279,15 +280,19 @@ const TransactionDetails = () => {
                   <Text className="font-bold">Transaction ID</Text>
                 </DataTable.Cell>
                 <DataTable.Cell numeric>
+                   <Tooltip title={transaction?.id}>
                   <Pressable
                     onPress={() => handleCopy(transaction?.id)}
                     className="flex-row items-center space-x-0 mr-2"
                   >
                     <Text ellipsizeMode={'middle'} numberOfLines={1}>{transaction?.id}</Text>
-                    <Pressable onPress={() => handleCopy(transaction?.id)}>
+                   
+                      <Pressable onPress={() => handleCopy(transaction?.id)}>
                       <Icon source={"content-copy"} size={17} />
                     </Pressable>
-                  </Pressable>
+                    
+                    </Pressable>
+                    </Tooltip>
                 </DataTable.Cell>
               </DataTable.Row>
 

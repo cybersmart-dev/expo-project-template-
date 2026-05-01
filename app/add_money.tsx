@@ -18,6 +18,7 @@ import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import { showMessage } from "react-native-flash-message";
 import * as Clipboard from "expo-clipboard";
+import { Toast } from "@/constants/Toast";
 
 const add_money = () => {
   const theme = useTheme();
@@ -206,7 +207,10 @@ const add_money = () => {
 
               <View>
                 <Button
-                  labelStyle={{ fontSize: 17, color: "white" }}
+                  onPress={() => {
+                    Toast.warning({title:"Dynamic founding", body: "not available currently please try again later"})
+                  }}
+                  labelStyle={{ fontSize: 17 }}
                   className="p-1 text-lg"
                   mode={"contained"}
                 >

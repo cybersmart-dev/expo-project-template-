@@ -13,6 +13,7 @@ import {
   Appbar,
   Dialog,
   Portal,
+  ActivityIndicator,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { showMessage } from "react-native-flash-message";
@@ -35,6 +36,7 @@ const Index = () => {
   const [bounceState, setBounceState] = useState(0);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [loginCheckFinished, setLoginCheckFinished] = useState(false)
 
   useFocusEffect(
     useCallback(() => {
@@ -73,11 +75,23 @@ const Index = () => {
   const checkLoginState = async () => {
     try {
       const token = await requests.getToken();
+      
       if (token) {
         router.push("/logins/singin");
       }
+      setLoginCheckFinished(true)
     } catch (error) {}
   };
+
+  if (!loginCheckFinished) {
+    return (
+      <PaperSafeView>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size={50} />
+        </View>
+      </PaperSafeView>
+    )
+  }
 
   return (
     <PaperSafeView>

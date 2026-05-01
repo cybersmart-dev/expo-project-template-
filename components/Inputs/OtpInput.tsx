@@ -24,6 +24,7 @@ interface OtpInputProps {
   height?: DimensionValue | undefined
   width?: DimensionValue | undefined
   editable?: boolean | undefined
+  secureTextEntry?: boolean
   
   
 }
@@ -38,7 +39,8 @@ export default function OtpInput({
   containerClassName = "flex-row justify-center items-center",
   inputClassName = "",
   value = "",
-  editable
+  editable,
+  secureTextEntry=true
 }: OtpInputProps) {
   const [digits, setDigits] = useState(Array(length).fill(""));
   const inputsRef = useRef<Array<TextInput | null>>([]);
@@ -153,7 +155,7 @@ export default function OtpInput({
     <View
       style={{
         flexDirection: "row",
-        justifyContent: "space-around",
+        justifyContent: "space-between",
         alignItems: "center",
         width: "auto",
       }}
@@ -168,7 +170,7 @@ export default function OtpInput({
           onKeyPress={(e) => handleKeyPress(e, i)}
           editable={editable}
           keyboardType="number-pad"
-          secureTextEntry={true}
+          secureTextEntry={secureTextEntry}
           maxLength={1}
           style={{
             borderColor: error ? theme.colors.error : "gray",

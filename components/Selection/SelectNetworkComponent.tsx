@@ -1,5 +1,12 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { FlatList, Pressable, ScrollView, TextInput, View, StatusBar as RNStatusBar } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  TextInput,
+  View,
+  StatusBar as RNStatusBar,
+} from "react-native";
 import {
   Avatar,
   Button,
@@ -10,21 +17,19 @@ import {
   useTheme,
 } from "react-native-paper";
 import BottomSheet from "../models/BottomSheet";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NetworksType } from "@/constants/Types";
-import { Networks } from "@/constants/DemoList";
 import * as Contacts from "expo-contacts";
 import { isValidMobileNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
+import { Networks } from "@/constants/DemoList";
+import { Storage } from "@/constants/Storage";
+import { useFocusEffect } from "expo-router";
 
 interface SelectNetworkComponentProps {
   onChangeText: (text: string) => void;
-  showNetworksSheet?: boolean
-  onSelectNetwork: (data: {
-    id: number;
-    name: "mtn" | "airtel" | "glo" | "9mobile";
-    icon: string;
-  }) => void;
+  showNetworksSheet?: boolean;
+  onSelectNetwork: (data: typeof Networks[0]) => void;
 }
 const SelectNetworkComponent = ({
   onSelectNetwork,
@@ -33,31 +38,36 @@ const SelectNetworkComponent = ({
 }: SelectNetworkComponentProps) => {
   const [selectNetworkVisible, setselectNetworkVisible] = useState(false);
   const theme = useTheme();
-  const [selectedNetwork, setSelectedNetwork] = useState<{
-    id: number;
-    name: "mtn" | "airtel" | "glo" | "9mobile";
-    icon: string;
-  }>();
+  const [selectedNetwork, setSelectedNetwork] = useState<typeof Networks[0]>();
   const mobileNumberRef = useRef<TextInput>(null);
   const [mobileNumber, setMobileNumber] = useState("");
   const [contactsSheetVisible, setContactsSheetVisible] = useState(false);
   const [usersearchInputText, setUsersearchInputText] = useState("");
   const [contacts, setContacts] = useState<Contacts.ExistingContact[]>();
+  const [networks, setNetworks] = useState<Array<typeof Networks[0]>>([]);
   const [searchContacts, setSearchContacts] =
     useState<Contacts.ExistingContact[]>();
+
+  useFocusEffect(
+    useCallback(() => {
+      loadNetworks();
+    }, []),
+  );
 
   useEffect(() => {
     if (isValidMobileNumber(mobileNumber)) {
       if (!selectedNetwork) {
-        let network = Networks[0]
-        setSelectedNetwork(network)
-        onSelectNetwork(network)
+        let network = networks[0];
+        if (network) {
+          setSelectedNetwork(network);
+          onSelectNetwork(network);
+        }
       }
     }
   }, [mobileNumber]);
 
   useEffect(() => {
-    setselectNetworkVisible(showNetworksSheet)
+    setselectNetworkVisible(showNetworksSheet);
   }, [!showNetworksSheet]);
 
   const initializeNumber = () => {
@@ -77,12 +87,12 @@ const SelectNetworkComponent = ({
         setContacts(contacts);
         setSearchContacts(contacts);
         setContactsSheetVisible(true);
-      }else{
+      } else {
         showMessage({
-          message: 'No Contacts Found on this device',
-          type:'warning',
-          icon:'warning'
-        })
+          message: "No Contacts Found on this device",
+          type: "warning",
+          icon: "warning",
+        });
       }
     } else {
     }
@@ -116,8 +126,8 @@ const SelectNetworkComponent = ({
         showMessage({
           message: "Invali Number",
           description: "This number is not valid",
-          type:"danger"
-        })
+          type: "danger",
+        });
       }
     }
   };
@@ -132,6 +142,15 @@ const SelectNetworkComponent = ({
     };
     handleSearch();
   }, [usersearchInputText]);
+
+  const loadNetworks = async () => {
+    try {
+      const networksString = await Storage.secureGet("networks");
+      if (networksString) {
+        setNetworks(JSON.parse(networksString));
+      }
+    } catch (error) {}
+  };
 
   const handleSearchContact = () => {
     const result: any = [];
@@ -224,7 +243,7 @@ const SelectNetworkComponent = ({
 
           <ScrollView className="px-5 mb-[40px]">
             <List.Section>
-              {Networks.map((network) => (
+              {networks.map((network) => (
                 <List.Item
                   key={network.id}
                   onPress={() => {
@@ -235,7 +254,7 @@ const SelectNetworkComponent = ({
                   left={() => (
                     <Avatar.Image
                       size={40}
-                      source={{ uri: network.icon, height: 40, width: 40 }}
+                      source={{ uri: network?.icon, height: 40, width: 40 }}
                     />
                   )}
                   titleStyle={{ fontSize: 20, fontWeight: "bold" }}
@@ -261,7 +280,7 @@ const SelectNetworkComponent = ({
         mode="full-width"
         onDismiss={setContactsSheetVisible}
       >
-        <View style={{paddingTop:RNStatusBar.currentHeight}}>
+        <View style={{ paddingTop: RNStatusBar.currentHeight }}>
           <View className="px-2 m-2">
             <Searchbar
               placeholder="Search Contact"

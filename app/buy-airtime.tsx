@@ -190,7 +190,8 @@ const buyairtime = () => {
       url: "/buy-airtime/", data: {
         amount: toNumber(amount),
         network_id: selectedNetwork?.id,
-        number: mobileNumber
+        number: mobileNumber,
+        pin:pin
     } });
 
     setTransactionProcessing(false);

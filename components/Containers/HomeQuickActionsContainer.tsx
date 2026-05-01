@@ -6,13 +6,17 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useFocusEffect } from "expo-router";
 import { Card, useTheme } from "react-native-paper";
 import { EaseView } from "react-native-ease";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { Timer } from "@/constants/Utils";
 
 export const HomeQuickActionsContainer = () => {
   const theme = useTheme();
   const [loaded, setLoaded] = useState(false);
+  const bounce = useSharedValue(0);
 
   useFocusEffect(
     useCallback(() => {
+      animateBuuton()
       setLoaded(true);
 
       return () => {
@@ -20,13 +24,26 @@ export const HomeQuickActionsContainer = () => {
       };
     }, []),
   );
+
+  const animateBuuton = async () => {
+      bounce.value = 1.3
+      await new Timer().postDelayedAsync({ sec: 300 })
+      bounce.value = 1
+      
+    }
+
+   const actionButtonAnimetedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [
+          { scale: withSpring(bounce.value, { damping: 50 }) },
+          { translateY: bounce.value },
+        ],
+      };
+    });
   return (
     <Card>
       <View className="flex-row items-center justify-around p-2">
-        <EaseView
-          animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 500 }}
-        >
+        <Animated.View  >
           <ActionButton
             label="  Data  "
             onPress={() => router.push("/buy-data")}
@@ -34,11 +51,8 @@ export const HomeQuickActionsContainer = () => {
               <FontAwesome name="signal" size={24} color={color} />
             )}
           />
-        </EaseView>
-        <EaseView
-          animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 500, delay: 200 }}
-        >
+        </Animated.View>
+        <Animated.View style={[actionButtonAnimetedStyle]}>
           <ActionButton
             label="Airtime"
             onPress={() => router.push("/buy-airtime")}
@@ -46,12 +60,9 @@ export const HomeQuickActionsContainer = () => {
               <FontAwesome name="mobile" size={24} color={color} />
             )}
           />
-        </EaseView>
+        </Animated.View>
 
-        <EaseView
-          animate={{ scale: loaded ? 1 : 0 }}
-          transition={{ type: "timing", duration: 500, delay: 400 }}
-        >
+        <Animated.View style={[actionButtonAnimetedStyle]}>
           <ActionButton
             icon={({ color }) => (
               <Ionicons name="cash-outline" size={24} color={color} />
@@ -59,7 +70,7 @@ export const HomeQuickActionsContainer = () => {
             onPress={() => router.push("/airtime2cash/airtime2cash")}
             label="Sell Airtime"
           />
-        </EaseView>
+        </Animated.View>
       </View>
     </Card>
   );
