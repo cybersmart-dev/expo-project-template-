@@ -161,8 +161,8 @@ const RecentTransactionsContainer = ({
           />
         ))}
         {transactions.length == 0 && !fetching && !networkRequestFailed && (
-          <View className="w-full">
-            <Text className="text-center">NO DATA</Text>
+          <View className="w-full mt-2">
+            <Text className="text-center font-[ArchivoBlackRegular] text-[11px]">NO DATA</Text>
           </View>
         )}
         {fetching && transactions.length == 0 && (

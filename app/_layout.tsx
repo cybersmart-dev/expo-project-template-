@@ -37,6 +37,8 @@ SplashScreen.hideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    "JosefinSansVariableFont": require("../assets/fonts/JosefinSans-VariableFont_wght.ttf"),
+    "ArchivoBlackRegular": require("../assets/fonts/ArchivoBlack-Regular.ttf"),
     ...FontAwesome.font,
   });
 

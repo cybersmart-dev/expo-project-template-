@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { View, Pressable, Keyboard, FlatList, Image } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { View, Pressable, Keyboard, FlatList, Image as RNImage } from "react-native";
 import { PaperSafeView } from "@/components/PaperView";
 import { StatusBar } from "expo-status-bar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -17,14 +17,16 @@ import {
   DataTable,
   Text,
 } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { formatNumber } from "@/constants/Formats";
 import { Timer, toNumber } from "@/constants/Utils";
 import BottomSheet from "@/components/models/BottomSheet";
 import { BettingProviders } from "@/constants/DemoList";
 import { showMessage } from "react-native-flash-message";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
-import {} from "expo-image";
+import {Image } from "expo-image";
+import requests from "@/Network/HttpRequest";
+import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 
 const betting = () => {
   const theme = useTheme();
@@ -38,9 +40,21 @@ const betting = () => {
     useState(false);
 
   const [transactionProcessing, setTransactionProcessing] = useState(false);
+  const [bettingProviders, setBettingProviders] = useState<
+    typeof BettingProviders
+  >([]);
+  const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
+    useState(false);
   const [previewSheetVisible, setPreviewSheetVisible] = useState(false);
+  const [fetchingProcessing, setFetchingProcessing] = useState(false);
   const [transactionPinSheetVisible, setTransactionPinSheetVisible] =
     useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProviders();
+    }, []),
+  );
 
   const handleShowProviders = () => {
     setProviderSelectSheetVisible(true);
@@ -98,7 +112,7 @@ const betting = () => {
     }
     if (customerId.length >= 10 && !idVerified) {
       await handleVerifyID();
-      await new Timer().postDelayedAsync({sec:500})
+      await new Timer().postDelayedAsync({ sec: 500 });
       setPreviewSheetVisible(true);
     } else {
       setPreviewSheetVisible(true);
@@ -132,6 +146,21 @@ const betting = () => {
       },
     });
   };
+
+  const fetchProviders = async () => {
+    setFetchingProcessing(true);
+    const response = await requests.get({ url: "/betting-providers/" });
+
+    setFetchingProcessing(false);
+
+    if (response.status == 1) {
+      setBettingProviders(response.data);
+    }
+
+    if (response.status == undefined) {
+      setNetworkErrorSheetVisible(true);
+    }
+  };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
@@ -160,10 +189,12 @@ const betting = () => {
                 left={
                   <TextInput.Icon
                     icon={() => (
-                      <Image
+                      <RNImage
                         className="h-10 w-10 rounded-full"
                         source={{
-                          uri: selectedProvider ? selectedProvider.icon : "",
+                          uri: selectedProvider
+                            ? selectedProvider.image_url
+                            : "",
                         }}
                       />
                     )}
@@ -272,8 +303,6 @@ const betting = () => {
             </Button>
           </View>
         </View>
-
-        
       </View>
 
       <BottomSheet
@@ -292,7 +321,7 @@ const betting = () => {
           <View className="px-6">
             <FlatList
               keyExtractor={(item) => `${item.id}`}
-              data={BettingProviders}
+              data={bettingProviders}
               renderItem={({ item }) => (
                 <View className="mt-2">
                   <List.Item
@@ -302,9 +331,9 @@ const betting = () => {
                     left={() => (
                       <List.Icon
                         icon={() => (
-                          <Image
+                          <RNImage
                             className="h-10 w-10 rounded-full"
-                            source={{ uri: item.icon }}
+                            source={{ uri: item.image_url }}
                           />
                         )}
                       />
@@ -312,6 +341,37 @@ const betting = () => {
                   />
                 </View>
               )}
+              ListEmptyComponent={
+                <View>
+                  {fetchingProcessing && (
+                    <View className="items-center justify-center space-y-3 mt-5">
+                      <ActivityIndicator size={30} />
+                      <Text>Loading Providers...</Text>
+                    </View>
+                  )}
+                  {bettingProviders?.length <= 0 && !fetchingProcessing && (
+                    <View className="flex-1 mt-5 items-center justify-center px-5 h-full">
+                      <Image
+                        className="h-[70px] w-[70px] self-center "
+                        source={require("@/assets/images/gif/failed_anim.webp")}
+                      />
+                      <Text className="text-center text-lg mt-2 font-bold font-mono">
+                        Network Disconnected
+                      </Text>
+                      <Text className="opacity-70 text-center">
+                        Please check your network connection and press reload
+                      </Text>
+                      <Button
+                        onPress={fetchProviders}
+                        className="mt-5"
+                        mode={"contained-tonal"}
+                      >
+                        Reload
+                      </Button>
+                    </View>
+                  )}
+                </View>
+              }
             />
           </View>
         </View>
@@ -361,6 +421,10 @@ const betting = () => {
         onCancel={() => setTransactionPinSheetVisible(false)}
         onComplate={handlePinComplate}
         processingTransaction={transactionProcessing}
+      />
+      <NetworkRequestErrorSheet
+        visible={networkErrorSheetVisible}
+        onDismiss={setNetworkErrorSheetVisible}
       />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

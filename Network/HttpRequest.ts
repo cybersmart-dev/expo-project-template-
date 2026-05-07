@@ -103,7 +103,7 @@ export default class requests {
     if (__DEV__) {
       return "http://192.168.43.69:8000/api" + path;
     }
-    return "https://mypock.up.railway.app/api" + path;
+    return "https://mypock.vercel.app/api" + path;
   }
 
   static async getToken() {

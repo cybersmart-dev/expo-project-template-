@@ -1,5 +1,5 @@
 import { Keyboard, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
   ActivityIndicator,
@@ -18,6 +18,10 @@ import Keypad from "@/components/Buttons/Keypad";
 import { showMessage } from "react-native-flash-message";
 import ResetPinOtpComponent from "./ResetPinOtpComponent";
 import NewPinComponent from "./NewPinComponent";
+import requests from "@/Network/HttpRequest";
+import { getUserInfo } from "@/constants/UserInfo";
+import { maskEmail } from "@/constants/Formats";
+import { Toast } from "@/constants/Toast";
 
 const resetpin = () => {
   const theme = useTheme();
@@ -26,30 +30,64 @@ const resetpin = () => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [otpValidated, setOtpValidated] = useState(false);
+  const [userInfo, setuserInfo] = useState<any>();
+  const [otpToken, setOtpToken] = useState<string | undefined>("")
+  const [sendErrorMessage, setSendErrorMessage] = useState<string | undefined>("")
+
+  useEffect(useCallback(() => { 
+    loadUserInfo()
+  }, []));
+  
+
+  const loadUserInfo = async () => {
+    const info = await getUserInfo()
+    setuserInfo(info)
+  }
 
   const handleSendOtp = async () => {
     setSendingOtp(true);
-    await new Timer().postDelayedAsync({ sec: 3000 });
-    setOtpSend(true);
+    const response = await requests.post({
+      url: "/auth/password-less/otp/send/",
+      data: {
+        email: userInfo?.email,
+      },
+    });
+    
     setSendingOtp(false);
+
+    if (response.status == 0) {
+      setSendErrorMessage(response?.message)
+      Toast.danger({title: response?.message})
+    }
+
+    if (response.status == 1) {
+      setOtpSend(true);
+      setOtpToken(response?.token)
+    }
+    if (response.status == undefined) {
+      setSendErrorMessage(response?.message)
+      Toast.danger({title: response?.message})
+    }
   };
 
-  const confirmResetPin = async () => {
-   
-  };
+  const confirmResetPin = async () => {};
 
   if (!otpSend) {
     return (
-      <View>
+      <PaperSafeView>
         <BottomSheet mode={"center"}>
           {!sendingOtp && (
             <View>
               <View className="p-3 px-5">
                 <Text className="text-lg ">Reset pin</Text>
               </View>
+             
               <View className="p-3 px-4">
+                {sendErrorMessage?.trim() != "" && (
+                  <Text className="mb-2 text-red-400 text-[13px]">{sendErrorMessage }</Text>
+                 )}
                 <Text>
-                  We will send otp to your email address example@gmail.com
+                  We will send otp to your email address <Text className="font-[ArchivoBlackRegular]">{userInfo?.email}</Text>
                 </Text>
               </View>
               <View className="flex-row p-3 justify-end w-full space-x-3">
@@ -78,7 +116,7 @@ const resetpin = () => {
             </View>
           )}
         </BottomSheet>
-      </View>
+      </PaperSafeView>
     );
   }
 
@@ -104,7 +142,9 @@ const resetpin = () => {
         <View className="">
           {!otpValidated && (
             <ResetPinOtpComponent
+              otpToken={otpToken}
               onOtpValidated={() => setOtpValidated(true)}
+              userInfo={userInfo}
             />
           )}
           {otpValidated && <NewPinComponent />}

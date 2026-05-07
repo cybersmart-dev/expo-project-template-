@@ -63,22 +63,22 @@ export const BettingProviders = [
   {
     id: 1,
     name: 'SpotyBet',
-    icon: 'https://play-lh.googleusercontent.com/ey2jDyUUJtjMT6T8Lli343tlCNM9HpEE4xbvh4I9zfIA2LCs9oZuWZTbS6OrlvMbqNSHQ83_mXiLmfSE1BllvQ=w240-h480-rw'
+    image_url: 'https://play-lh.googleusercontent.com/ey2jDyUUJtjMT6T8Lli343tlCNM9HpEE4xbvh4I9zfIA2LCs9oZuWZTbS6OrlvMbqNSHQ83_mXiLmfSE1BllvQ=w240-h480-rw'
   },
   {
     id: 2,
     name: 'MSport',
-    icon: 'https://play-lh.googleusercontent.com/KTIOJFZff5nOlKJnkvhUBGqfzb0e7bsryCeMKIhbIozG8camnhxwJx5-98wkrqvcOKnE'
+    image_url: 'https://play-lh.googleusercontent.com/KTIOJFZff5nOlKJnkvhUBGqfzb0e7bsryCeMKIhbIozG8camnhxwJx5-98wkrqvcOKnE'
   },
   {
     id: 3,
     name: 'Bet9ja',
-    icon:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNKCRQfT6yRkTPZf_-e5EbT6uP_7LVadvZ9g&s'
+    image_url:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNKCRQfT6yRkTPZf_-e5EbT6uP_7LVadvZ9g&s'
   },
   {
     id: 4,
     name: '1XBet',
-    icon:'https://play-lh.googleusercontent.com/V7bL_5xtOgCFPbsN44iK4MdtdnXb07ik04FJb7gaubqbrD4ISlW7XpH4tbq0spO_LDY'
+    image_url:'https://play-lh.googleusercontent.com/V7bL_5xtOgCFPbsN44iK4MdtdnXb07ik04FJb7gaubqbrD4ISlW7XpH4tbq0spO_LDY'
   }
 ]
 

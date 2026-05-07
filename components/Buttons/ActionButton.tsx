@@ -44,7 +44,7 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
   };
 
   const bounceBuuton = async () => {
-    bounce.value = 1.3;
+    bounce.value = 1.2;
     await new Timer().postDelayedAsync({ sec: 300 });
     bounce.value = 1;
   };

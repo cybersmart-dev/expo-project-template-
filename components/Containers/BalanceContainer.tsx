@@ -18,6 +18,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 const AnimatedButton = createAnimatedComponent(Button);
@@ -44,26 +45,46 @@ const BalanceContainer = ({
   const theme = useTheme();
   const bounce = useSharedValue(0);
 
+  let addMoneyWidthTimer = useRef(0);
+  const addMoneyWidthX = useSharedValue(0);
+
   const [loaded, setLoaded] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      animateBuuton()
+      animateBuuton();
       setLoaded(true);
-      
+
       return () => {
         setLoaded(false);
-       
-        
       };
     }, []),
   );
 
   const animateBuuton = async () => {
-    bounce.value = -20
-    await new Timer().postDelayedAsync({ sec: 300 })
-    bounce.value = 1
-    
+    if (addMoneyWidthX.value >= 140) {
+      addMoneyWidthX.value = 0;
+    }
+    addMoneyWidthTimer.current = setInterval(() => {
+      addMoneyWidthX.value = addMoneyWidthX.value + 4;
+
+      if (addMoneyWidthX.value >= 140) {
+        clearInterval(addMoneyWidthTimer.current);
+        addMoneyWidthTimer.current = 0;
+        bounceLoopAnimation()
+      }
+    }, 1);
+  };
+
+  const bounceLoopAnimation = () => {
+    const loop = () => {
+      bounce.value = bounce.value + 1
+      if (bounce.value >= 5) {
+        bounce.value = 0
+      }
+      requestAnimationFrame(loop)
+    }
+    requestAnimationFrame(loop)
   }
 
   const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
@@ -75,10 +96,8 @@ const BalanceContainer = ({
 
   const addMoneyButtonAnimetedStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { translateX: withSpring(bounce.value, { damping: 50 }) },
-       
-      ],
+      transform: [{ translateX: withSpring(bounce.value, { damping: 40 }) }],
+      width: withSpring(addMoneyWidthX.value, { damping: 90 }),
     };
   });
 
@@ -108,11 +127,11 @@ const BalanceContainer = ({
 
         <View className="mt-0 flex-row items-center">
           {hideBalance ? (
-            <Text className="text-3xl text-white font-bold items-center">
+            <Text className="text-3xl text-white font-[ArchivoBlackRegular] items-center ">
               ₦******{" "}
             </Text>
           ) : (
-            <Text className="text-3xl text-white font-bold">
+            <Text className="text-3xl text-white font-[ArchivoBlackRegular]">
               ₦{formatNumber(userInfo?.wallet?.balance) || "0.00"}{" "}
             </Text>
           )}
@@ -121,11 +140,11 @@ const BalanceContainer = ({
           <Text className="text-white opacity-75 text-[12px]">Cashback</Text>
           <View className="mt-2 flex-row items-center">
             {hideBalance ? (
-              <Text className="text text-white font-bold items-center">
+              <Text className="text text-white font-[ArchivoBlackRegular] items-center">
                 ₦******{" "}
               </Text>
             ) : (
-              <Text className="text-[15px] text-white font-bold">
+              <Text className="text-[15px] text-white font-[ArchivoBlackRegular]">
                 ₦{formatNumber(userInfo?.wallet?.cashback) || "0.00"}{" "}
               </Text>
             )}
@@ -147,9 +166,9 @@ const BalanceContainer = ({
         <Animated.View style={[addMoneyButtonAnimetedStyle]}>
           <Button
             onPress={() => router.push("/add_money")}
-            
             icon="plus"
             textColor={"black"}
+            
             buttonColor={
               theme.dark ? theme.colors.primary : theme.colors.primaryContainer
             }

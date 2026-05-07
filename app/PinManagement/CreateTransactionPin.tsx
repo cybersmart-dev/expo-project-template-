@@ -2,7 +2,7 @@ import { Keyboard, Pressable, View } from "react-native";
 import React, { useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import { Appbar, useTheme, Text, Button, Icon, ActivityIndicator } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import OtpInput from "@/components/Inputs/OtpInput";
 import Keypad from "@/components/Buttons/Keypad";
@@ -14,17 +14,21 @@ const CreateTransactionPin = () => {
   const theme = useTheme();
   const [userPin, setUserPin] = useState("");
   const [userPin2, setUserPin2] = useState("");
+  const {token} = useLocalSearchParams()
 
   const [userPinError, setUserPinError] = useState(false);
   const [userPin2Error, setUserPin2Error] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>("")
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
   const [showPin, setShowPin] = useState(true);
 
-   const [showProcessing, setShowProcessing] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
+  
 
   const handleConfirm = async () => {
+    setErrorMessage("")
     if (userPin.length <= 3) {
       setUserPinError(true);
       Toast.danger({ title: "Your transaction pin length most be 4" });
@@ -48,14 +52,15 @@ const CreateTransactionPin = () => {
 
     setShowProcessing(true)
     const response = await requests.post({
-      url: "/user/payment/create-pin/",
-      data: { pin: userPin },
+      url: "/user/payment/reset-pin/",
+      data: { pin: userPin, token: token },
     });
 
     setShowProcessing(false)
 
     if (response.status == 0) {
       Toast.danger({ title: response?.message });
+      setErrorMessage(response.message)
     }
     if (response.status == 1) {
       Toast.success({ title: response?.message });
@@ -85,6 +90,10 @@ const CreateTransactionPin = () => {
         <Text className="text-center mt-5 text-lg font-bold uppercase">
           Create Your Transaction Pin
         </Text>
+
+        {errorMessage?.trim() != "" && (
+          <Text className="text-center text-red-400 mt-2">{errorMessage }</Text>
+        )}
 
         <View className="p-5">
           <View className="rounded-lg" style={{}}>

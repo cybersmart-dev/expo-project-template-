@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import React, { useEffect, useState } from "react";
 import Keypad from "@/components/Buttons/Keypad";
 import OtpInput from "@/components/Inputs/OtpInput";
@@ -6,12 +6,20 @@ import { Timer } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { router } from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Text } from "react-native-paper";
+import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
 
 interface ResetPinOtpComponent {
   onOtpValidated: () => void;
+  userInfo?: any;
+  otpToken?: string;
 }
-const ResetPinOtpComponent = ({ onOtpValidated }: ResetPinOtpComponent) => {
+const ResetPinOtpComponent = ({
+  onOtpValidated,
+  userInfo,
+  otpToken,
+}: ResetPinOtpComponent) => {
   const [otpValue, setOtpValue] = useState("");
   const [deleteRefreshKey, setDeleteRefreshKey] = useState(0);
   const [validatingOtpProcessing, setValidatingOtpProcessing] = useState(false);
@@ -30,29 +38,51 @@ const ResetPinOtpComponent = ({ onOtpValidated }: ResetPinOtpComponent) => {
 
   const validateOtp = async () => {
     setValidatingOtpProcessing(true);
-    await new Timer().postDelayedAsync({ sec: 3000 });
-    setValidatingOtpProcessing(false);
+    const response = await requests.post({
+      url: "/auth/password-less/otp/verify/",
+      data: {
+        token: otpToken,
+        otp: otpValue,
+      },
+    });
 
-    onOtpValidated();
+    setValidatingOtpProcessing(false);
+    
+
+    if (response.status == 1) {
+      Toast.success({ title: "OTP validated successful" })
+      router.push({pathname: "/PinManagement/CreateTransactionPin", params:{token: response.token}})
+    }
+
+    if (response.status == 0) {
+      Toast.danger({title: response?.message})
+    }
+    
+    // onOtpValidated();
   };
 
   return (
     <View>
       <View className="px-5">
-        <View className="m-2 items-center w-full justify-center mb-5">
-          <Text className="opacity-75 text-[12px] text-center">
-            We have been send otp to your email address example@gmail.com. dont
-            forget to check spam folder
+        <View className="m-2 items-center w-full justify-center mb-5 px-3">
+          <Text className="opacity-75 text-[13px] text-center">
+            We have been send otp to your email address{" "}
+            <Text className="font-[ArchivoBlackRegular]">
+              {userInfo?.email}
+            </Text>
+            . dont forget to check spam folder
           </Text>
         </View>
-        <OtpInput
-          value={otpValue}
-          key={deleteRefreshKey}
-          editable={false}
-          length={4}
-          height={50}
-          width={50}
-        />
+        <View className="px-4">
+          <OtpInput
+            value={otpValue}
+            key={deleteRefreshKey}
+            editable={false}
+            length={4}
+            height={50}
+            width={50}
+          />
+        </View>
       </View>
       <View className="px-5 mt-10">
         <Keypad
