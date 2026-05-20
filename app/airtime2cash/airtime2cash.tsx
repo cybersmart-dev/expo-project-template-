@@ -36,9 +36,12 @@ const airtime2cash = () => {
   const [phoneErrorVisible, setPhoneErrorVisible] = useState(false);
   const [amountErrorVisible, setAmountErrorVisible] = useState(false);
   const [otpSheetVisible, setOtpSheetVisible] = useState(false);
-  const [networks, setNetworks] = useState<Array<(typeof Networks[0])>>([]);
+  const [networks, setNetworks] = useState<Array<(typeof Networks)[0]>>([]);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
+  const [verifyErrorMessage, setVerifyErrorMessage] = useState<
+    string | undefined
+  >("");
 
   const timerRef = useRef(0);
 
@@ -118,11 +121,10 @@ const airtime2cash = () => {
     });
 
     setProcessingRequest(false);
-    setOtpSheetVisible(false);
 
     if (response.status == 0) {
-      Toast.danger({ title: "Transaction Failed", body: response.message });
-      setOtpSheetVisible(false);
+      setVerifyErrorMessage(response.message);
+      Toast.danger({ title: "Otp Validation Failed", body: response.message });
       return;
     }
 
@@ -141,6 +143,7 @@ const airtime2cash = () => {
     }
 
     if (response.status == undefined) {
+      setVerifyErrorMessage(response.message);
       Toast.danger({ title: "Transaction Failed", body: response.message });
       setOtpSheetVisible(false);
       return;
@@ -195,7 +198,8 @@ const airtime2cash = () => {
                 key={item.id}
                 style={{
                   backgroundColor:
-                    selectedNetwork.toLocaleLowerCase() == item?.name?.toLocaleLowerCase()
+                    selectedNetwork.toLocaleLowerCase() ==
+                    item?.name?.toLocaleLowerCase()
                       ? theme.colors.secondary
                       : theme.colors.primaryContainer,
                 }}
@@ -206,6 +210,7 @@ const airtime2cash = () => {
                 className=" p-3 rounded-lg"
               >
                 <Image
+                    resizeMode={"stretch"}
                   className="h-[55px] w-[55px] rounded-full"
                   source={{ uri: item.icon }}
                 />
@@ -256,13 +261,15 @@ const airtime2cash = () => {
         onCancel={() => {
           setOtpSheetVisible(false);
         }}
+        sheetType={"otpVerification"}
         processingTransaction={processingRequest}
         digits={6}
         isTransactionPinSheet={false}
         sheetMode={"center"}
         visible={otpSheetVisible}
         title="Verify Your Number"
-        description={`We have send otp to your phone number ( ${phoneNumber} ) `}
+        description={`We have send otp to your phone number ( ${phoneNumber} ) \n\n${verifyErrorMessage ? `Error: ${verifyErrorMessage}` : ""}`}
+        onOtpResend={sendOtp}
       />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

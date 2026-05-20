@@ -94,12 +94,7 @@ const BalanceContainer = ({
     return [theme.colors.primary, theme.colors.primary];
   };
 
-  const addMoneyButtonAnimetedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: withSpring(bounce.value, { damping: 40 }) }],
-      width: withSpring(addMoneyWidthX.value, { damping: 90 }),
-    };
-  });
+ 
 
   return (
     <LinearGradient
@@ -163,7 +158,7 @@ const BalanceContainer = ({
           </Pressable>
         </EaseView>
 
-        <Animated.View style={[addMoneyButtonAnimetedStyle]}>
+        <Animated.View>
           <Button
             onPress={() => router.push("/add_money")}
             icon="plus"

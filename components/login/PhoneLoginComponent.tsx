@@ -28,6 +28,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
 import { Storage } from "@/constants/Storage";
+import BottomLayout from "../Containers/BottomLayout";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -123,9 +124,9 @@ const PhoneLoginComponent = () => {
           password: password,
         });
         await Storage.SecureStore("auth", auth);
-        const response = await requests.get({ url: "/networks/" })
-                
-        await Storage.SecureStore("networks", JSON.stringify(response))
+        const response = await requests.get({ url: "/networks/" });
+
+        await Storage.SecureStore("networks", JSON.stringify(response));
 
         router.push("/(tabs)");
       }
@@ -218,97 +219,89 @@ const PhoneLoginComponent = () => {
           </EaseView>
         </View>
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto min-h-[55%] w-screen"
-        style={{
-          position: "absolute",
-          bottom: 0,
-        }}
-      >
-        <EaseView
-          style={{
-            backgroundColor: theme.colors.surfaceVariant,
-            marginTop: 50,
-            paddingBottom: 30,
-            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
-          }}
-          className="rounded-t-[30px] h-full justify-center "
-          animate={{ translateY: loaded ? 0 : 100 }}
-          transition={{ type: "timing", duration: 500, easing: "linear" }}
-        >
-          <View className="space-y-5 px-7 shadow-2xl">
+
+      <BottomLayout>
+        <View className="px-5 space-y-5 mt-5">
+          <TextInput
+            placeholder="Phone Number"
+            keyboardType={"number-pad"}
+            className="bg-transparent"
+            onChangeText={setPhone}
+            disabled={showProcessing}
+            left={<TextInput.Icon size={20} icon="phone" />}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 15 }}
+          />
+          <View>
             <TextInput
-              placeholder="Phone Number"
-              keyboardType={"number-pad"}
+              placeholder="Password"
               className="bg-transparent"
-              onChangeText={setPhone}
+              secureTextEntry={showPassword ? false : true}
               disabled={showProcessing}
-              left={<TextInput.Icon size={20} icon="phone" />}
+              left={<TextInput.Icon size={20} icon="lock" />}
+              onChangeText={setPassword}
+              right={
+                <TextInput.Icon
+                  size={20}
+                  onPress={() => setShowPassword(!showPassword)}
+                  icon={showPassword ? "eye-off" : "eye"}
+                />
+              }
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
             />
-            <View>
-              <TextInput
-                placeholder="Password"
-                className="bg-transparent"
-                secureTextEntry={showPassword ? false : true}
-                 disabled={showProcessing}
-                left={<TextInput.Icon size={20} icon="lock" />}
-                onChangeText={setPassword}
-                right={
-                  <TextInput.Icon
-                    size={20}
-                    onPress={() => setShowPassword(!showPassword)}
-                    icon={showPassword ? "eye-off" : "eye"}
-                  />
-                }
-                mode="outlined"
-                outlineStyle={{ borderRadius: 15 }}
-              />
-              <View className="w-full items-end">
-                <Button  disabled={showProcessing} mode="text" className="">
-                  Forgot Password?
-                </Button>
-              </View>
-            </View>
-            <View className="">
-              {showProcessing && (
-                <Button
-                  disabled
-                  onPress={() => validateInput()}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  <View className="flex-row">
-                    <Text> </Text>
-                    <ActivityIndicator size={25} />
-                  </View>
-                </Button>
-              )}
-
-              {!showProcessing && (
-                <Button
-                  onPress={() => validateInput()}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  Login
-                </Button>
-              )}
-
-              <View className="flex-row items-center justify-center pt-0 pb-2">
-                <Text>I Don't have an account</Text>
-                <Button  disabled={showProcessing} onPress={() => router.push("/singup")}>Sing up</Button>
-              </View>
+            <View className="w-full items-end">
+              <Button
+                onPress={() => router.push("/passwordreset/PasswordReset")}
+                disabled={showProcessing}
+                mode="text"
+                className=""
+              >
+                Forgot Password?
+              </Button>
             </View>
           </View>
-        </EaseView>
-      </KeyboardAvoidingView>
+          <View className="">
+            {showProcessing && (
+              <Button
+                disabled
+                onPress={() => validateInput()}
+                className="text-lg p-1"
+                style={{ borderRadius: 15 }}
+                labelStyle={{ fontSize: 16 }}
+                mode="contained"
+              >
+                <View className="flex-row">
+                  <Text> </Text>
+                  <ActivityIndicator size={25} />
+                </View>
+              </Button>
+            )}
+
+            {!showProcessing && (
+              <Button
+                onPress={() => validateInput()}
+                className="text-lg p-1"
+                style={{ borderRadius: 15 }}
+                labelStyle={{ fontSize: 16 }}
+                mode="contained"
+              >
+                Login
+              </Button>
+            )}
+
+            <View className="flex-row items-center justify-center pt-0 pb-2">
+              <Text>I Don't have an account</Text>
+              <Button
+                disabled={showProcessing}
+                onPress={() => router.push("/singup")}
+              >
+                Sing up
+              </Button>
+            </View>
+          </View>
+        </View>
+      </BottomLayout>
 
       <NetworkRequestErrorSheet
         visible={networkErrorSheetVisible}

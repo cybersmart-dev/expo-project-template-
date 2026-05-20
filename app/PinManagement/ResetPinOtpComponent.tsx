@@ -9,6 +9,7 @@ import BottomSheet from "@/components/models/BottomSheet";
 import { ActivityIndicator, Text } from "react-native-paper";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
+import { getUserInfo } from "@/constants/UserInfo";
 
 interface ResetPinOtpComponent {
   onOtpValidated: () => void;
@@ -38,11 +39,14 @@ const ResetPinOtpComponent = ({
 
   const validateOtp = async () => {
     setValidatingOtpProcessing(true);
+    const userInfo = await getUserInfo()
+
     const response = await requests.post({
       url: "/auth/password-less/otp/verify/",
       data: {
         token: otpToken,
         otp: otpValue,
+        email: userInfo.email
       },
     });
 
@@ -51,7 +55,7 @@ const ResetPinOtpComponent = ({
 
     if (response.status == 1) {
       Toast.success({ title: "OTP validated successful" })
-      router.push({pathname: "/PinManagement/CreateTransactionPin", params:{token: response.token}})
+      router.push({pathname: "/PinManagement/CreateTransactionPin", params:{token: response.token, action: 'reset'}})
     }
 
     if (response.status == 0) {

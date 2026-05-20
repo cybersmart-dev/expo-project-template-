@@ -43,9 +43,9 @@ export default function Index() {
   const [hideBalance, setHideBalance] = useState(false);
   const [showPinSheet, setShowPinSheet] = useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
-  const [fetchingInfo, setFetchingInfo] = useState(false)
+  const [fetchingInfo, setFetchingInfo] = useState(false);
   const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshKey, setRefreshKey] = useState(0);
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
@@ -53,7 +53,6 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-     
       setLoaded(true);
 
       return () => {
@@ -69,7 +68,7 @@ export default function Index() {
   }, []);
 
   const fetchData = async () => {
-   setFetchingInfo(true)
+    setFetchingInfo(true);
     const response = await requests.get({ url: "/user/details/" });
 
     setFetchingInfo(false);
@@ -78,11 +77,13 @@ export default function Index() {
       setUserInfo(response.data);
       storeUserInfo(response.data);
 
-      const transaction_pin = response?.data?.transaction_pin
+      const transaction_pin = response?.data?.transaction_pin;
       if (!transaction_pin) {
-        router.push("/PinManagement/CreateTransactionPin")
+        router.push({
+          pathname: "/PinManagement/CreateTransactionPin",
+          params: { action: "create" },
+        });
       }
-      
     }
 
     if (response.status == 0) {
@@ -200,10 +201,13 @@ export default function Index() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={false} onRefresh={() => {
-              fetchData()
-              setRefreshKey(prev => prev + 1)
-            }} />
+            <RefreshControl
+              refreshing={false}
+              onRefresh={() => {
+                fetchData();
+                setRefreshKey((prev) => prev + 1);
+              }}
+            />
           }
           className="pb-5 flex-1"
         >
@@ -219,17 +223,23 @@ export default function Index() {
           </View>
 
           <View className="px-3 mb-3">
-            <Text className="mb-1 mt-2 font-bold opacity-70 uppercase text-[11px]">Quick Actions</Text>
+            <Text className="mb-1 mt-2 font-bold opacity-70 uppercase text-[11px]">
+              Quick Actions
+            </Text>
             <HomeQuickActionsContainer />
           </View>
 
           <View className="px-3 mb-3">
-             <Text className="font-bold opacity-70 uppercase text-[11px]">Recent Transactions</Text>
-           <RecentTransactionsContainer refreshKey={refreshKey} />
+            <Text className="font-bold opacity-70 uppercase text-[11px]">
+              Recent Transactions
+            </Text>
+            <RecentTransactionsContainer refreshKey={refreshKey} />
           </View>
 
           <View className="px-3 mb-3">
-            <Text className="mb-1 ml-2 font-bold opacity-70 uppercase text-[11px]">Services</Text>
+            <Text className="mb-1 ml-2 font-bold opacity-70 uppercase text-[11px]">
+              Services
+            </Text>
             <ServicesContainer />
           </View>
         </ScrollView>
@@ -245,7 +255,10 @@ export default function Index() {
           />
         </BottomSheet>
 
-      <NetworkRequestErrorSheet visible={networkErrorSheetVisible} onDismiss={setNetworkErrorSheetVisible} />
+        <NetworkRequestErrorSheet
+          visible={networkErrorSheetVisible}
+          onDismiss={setNetworkErrorSheetVisible}
+        />
         <StatusBar key={1} style="light" />
       </EaseView>
       <Portal>

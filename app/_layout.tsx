@@ -37,8 +37,8 @@ SplashScreen.hideAsync();
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    "JosefinSansVariableFont": require("../assets/fonts/JosefinSans-VariableFont_wght.ttf"),
-    "ArchivoBlackRegular": require("../assets/fonts/ArchivoBlack-Regular.ttf"),
+    JosefinSansVariableFont: require("../assets/fonts/JosefinSans-VariableFont_wght.ttf"),
+    ArchivoBlackRegular: require("../assets/fonts/ArchivoBlack-Regular.ttf"),
     ...FontAwesome.font,
   });
 
@@ -157,6 +157,15 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
+
+            <Stack.Screen
+              name="passwordreset/PasswordReset"
+              options={{
+                presentation: "containedTransparentModal",
+                title: "Password Reset",
+                headerShown: false,
+              }}
+            />
             {/** end logins */}
 
             {/** protected screens */}
@@ -170,7 +179,7 @@ function RootLayoutNav() {
               }}
             />
 
-             <Stack.Screen
+            <Stack.Screen
               name="PinManagement/CreateTransactionPin"
               options={{
                 presentation: "containedModal",
@@ -345,6 +354,7 @@ function RootLayoutNav() {
         <StatusBar style={getTheme().dark ? "light" : "dark"} />
         <FlashMessage
           style={{ borderRadius: 12 }}
+          duration={5000}
           position={{
             top:
               RNStatusBar.currentHeight != undefined

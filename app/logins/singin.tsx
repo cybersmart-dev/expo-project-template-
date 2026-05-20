@@ -108,7 +108,7 @@ const PhoneLoginComponent = () => {
     if (response.token != undefined) {
       setShowProcessing(false);
       Toast.success({ title: "Login Success", body: "Welcome back!" });
-      saveLoginState(response.token);
+      await saveLoginState(response.token);
       router.push("/(tabs)");
     }
 
@@ -129,6 +129,8 @@ const PhoneLoginComponent = () => {
   const saveLoginState = async (token: string) => {
     try {
       await AsyncStorage.setItem("token", token);
+      const response = await requests.get({ url: "/networks/" });
+      await Storage.SecureStore("networks", JSON.stringify(response));
     } catch (error) {}
   };
 
@@ -207,7 +209,7 @@ const PhoneLoginComponent = () => {
         <Appbar.Content
           title={
             <MaskedView
-              maskElement={<Text className="text-3xl font-bold">MYPock</Text>}
+              maskElement={<Text className="text-3xl font-bold">Zaffy</Text>}
             >
               <LinearGradient
                 colors={[
@@ -217,7 +219,7 @@ const PhoneLoginComponent = () => {
                 start={{ x: 1, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text className="text-3xl font-bold opacity-0">MYPock</Text>
+                <Text className="text-3xl font-bold opacity-0">Zaffy</Text>
               </LinearGradient>
             </MaskedView>
           }

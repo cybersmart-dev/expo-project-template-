@@ -101,7 +101,9 @@ export default class requests {
 
   static getUrl(path: string) {
     if (__DEV__) {
-      return "http://192.168.43.69:8000/api" + path;
+
+      return "http://10.211.171.71:8000/api".concat(path)
+      // return "http://192.168.43.1:8000/api" + path;
     }
     return "https://mypock.vercel.app/api" + path;
   }
@@ -123,6 +125,7 @@ export default class requests {
   static async clearToken() {
     try {
       await Storage.secureRemove("auth");
+      await AsyncStorage.clear()
       router.push("/logins/emailLogin");
     } catch (error) {}
   }

@@ -20,8 +20,6 @@ export const useCounter = ({ count = 30 }: useCounterProps) => {
       count -= 1;
       setResendCount(count);
 
-      console.log(count);
-
       if (count <= 0) {
         clearInterval(intervalRef.current);
         intervalRef.current = 0;

@@ -29,6 +29,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
+import BottomLayout from "@/components/Containers/BottomLayout";
 
 const Index = () => {
   const theme = useTheme();
@@ -36,7 +37,7 @@ const Index = () => {
   const [bounceState, setBounceState] = useState(0);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [loginCheckFinished, setLoginCheckFinished] = useState(false)
+  const [loginCheckFinished, setLoginCheckFinished] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,11 +76,11 @@ const Index = () => {
   const checkLoginState = async () => {
     try {
       const token = await requests.getToken();
-      
+
       if (token) {
         router.push("/logins/singin");
       }
-      setLoginCheckFinished(true)
+      setLoginCheckFinished(true);
     } catch (error) {}
   };
 
@@ -90,7 +91,7 @@ const Index = () => {
           <ActivityIndicator size={50} />
         </View>
       </PaperSafeView>
-    )
+    );
   }
 
   return (
@@ -99,7 +100,11 @@ const Index = () => {
         <Appbar.Content
           title={
             <MaskedView
-              maskElement={<Text className="text-3xl font-bold">MYPock</Text>}
+              maskElement={
+                <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
+                  Zaffy
+                </Text>
+              }
             >
               <LinearGradient
                 colors={[
@@ -109,7 +114,7 @@ const Index = () => {
                 start={{ x: 1, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text className="text-3xl font-bold opacity-0">MYPock</Text>
+                <Text className="text-3xl font-bold opacity-0">Zaffy</Text>
               </LinearGradient>
             </MaskedView>
           }
@@ -163,7 +168,7 @@ const Index = () => {
                 fontSize: 20,
               }}
             >
-              Welcome To <Text className="font-bold">T-Pay</Text>
+              Welcome To <Text className="font-bold">Zaffy</Text>
             </Text>
           </EaseView>
 
@@ -186,93 +191,75 @@ const Index = () => {
           </EaseView>
         </View>
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto pt-7 w-screen justify-center rounded-t-[20px]"
-        style={{
-          position: "absolute",
-          bottom: 0,
-        }}
-      >
-        <EaseView
-          style={{
-            backgroundColor: theme.colors.surfaceVariant,
-            marginTop: 50,
-            paddingBottom: 30,
-            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
-          }}
-          className="rounded-t-[30px] h-full justify-center "
-          animate={{ translateY: loaded ? 0 : 100 }}
-          transition={{ type: "timing", duration: 500, easing: "linear" }}
-        >
-          <View className="space-y-5 px-7 shadow-2xl">
-            <EaseView
-              animate={{ opacity: loaded ? 1 : 0 }}
-              transition={{ type: "timing", duration: 500 }}
-            >
-              <Button
-                onPress={() => router.push("/logins/emailLogin")}
-                icon={({ color }) => (
-                  <Fontisto name="email" size={24} color={color} />
-                )}
-                className="p-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-                mode="contained"
-              >
-                Login With Email
-              </Button>
-            </EaseView>
-            <EaseView
-              animate={{ opacity: loaded ? 1 : 0 }}
-              transition={{ type: "timing", duration: 500 }}
-            >
-              <Button
-                onPress={() => router.push("/logins/phoneLogin")}
-                icon={({ color }) => (
-                  <AntDesign name="mobile" size={24} color={color} />
-                )}
-                mode="contained"
-                className="p-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-              >
-                Login with phone
-              </Button>
-            </EaseView>
 
-            <EaseView
-              animate={{ opacity: loaded ? 1 : 0 }}
-              transition={{ type: "timing", duration: 500 }}
+      <BottomLayout>
+        <View className="px-5 space-y-5 mt-5">
+          <EaseView
+            animate={{ opacity: loaded ? 1 : 0 }}
+            transition={{ type: "timing", duration: 500 }}
+          >
+            <Button
+              onPress={() => router.push("/logins/emailLogin")}
+              icon={({ color }) => (
+                <Fontisto name="email" size={24} color={color} />
+              )}
+              className="p-1"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+              mode="contained"
             >
-              <Button
-                onPress={() =>
-                  showMessage({
-                    message: "Login",
-                    description:
-                      "Social login not avilable. login with email instead",
-                    type: "info",
-                    icon: "info",
-                  })
-                }
-                mode="contained"
-                icon={({ color }) => (
-                  <AntDesign name="google" size={24} color={color} />
-                )}
-                className="p-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-              >
-                Login With Google
-              </Button>
-              <View className="flex-row items-center justify-center mt-3">
-                <Text className="">I Don't have an account</Text>
-                <Button onPress={() => router.push("/singup")}>Sing up</Button>
-              </View>
-            </EaseView>
-          </View>
-        </EaseView>
-      </KeyboardAvoidingView>
+              Login With Email
+            </Button>
+          </EaseView>
+          <EaseView
+            animate={{ opacity: loaded ? 1 : 0 }}
+            transition={{ type: "timing", duration: 500 }}
+          >
+            <Button
+              onPress={() => router.push("/logins/phoneLogin")}
+              icon={({ color }) => (
+                <AntDesign name="mobile" size={24} color={color} />
+              )}
+              mode="contained"
+              className="p-1"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+            >
+              Login with phone
+            </Button>
+          </EaseView>
+
+          <EaseView
+            animate={{ opacity: loaded ? 1 : 0 }}
+            transition={{ type: "timing", duration: 500 }}
+          >
+            <Button
+              onPress={() =>
+                showMessage({
+                  message: "Login",
+                  description:
+                    "Social login not avilable. login with email instead",
+                  type: "info",
+                  icon: "info",
+                })
+              }
+              mode="contained"
+              icon={({ color }) => (
+                <AntDesign name="google" size={24} color={color} />
+              )}
+              className="p-1"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+            >
+              Login With Google
+            </Button>
+            <View className="flex-row items-center justify-center mt-3">
+              <Text className="">I Don't have an account</Text>
+              <Button onPress={() => router.push("/singup")}>Sing up</Button>
+            </View>
+          </EaseView>
+        </View>
+      </BottomLayout>
 
       <Portal>
         <Dialog

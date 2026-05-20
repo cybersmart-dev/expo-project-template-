@@ -7,6 +7,7 @@ export class Toast {
       description: body,
       type: "danger",
       icon: "danger",
+      duration: 8000
     });
   }
   static success({ title = "", body = "" }) {

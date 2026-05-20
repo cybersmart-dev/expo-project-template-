@@ -43,31 +43,50 @@ export const HomeQuickActionsContainer = () => {
       ],
     };
   });
+
+  const goToBuyData = useCallback(() => {
+    router.push("/buy-data");
+  }, []);
+
+  const goToBuyAirtime = useCallback(() => {
+    router.push("/buy-airtime");
+  }, []);
+
+  const goToSellAirtime = useCallback(() => {
+    router.push("/airtime2cash/airtime2cash");
+  }, []);
+
+  const SignalIcon = React.memo(({ color }) => (
+    <FontAwesome name="signal" size={24} color={color} />
+  ));
+
+  const MobileIcon = React.memo(({ color }) => (
+    <FontAwesome name="mobile" size={24} color={color} />
+  ));
+
+  const CashIcon = React.memo(({ color }) => (
+    <Ionicons name="cash-outline" size={24} color={color} />
+  ));
+
   return (
     <Card>
       <View className="flex-row items-center justify-around p-2">
         <ActionButton
-          label="  Data  "
-          onPress={() => router.push("/buy-data")}
-          icon={({ color, size }) => (
-            <FontAwesome name="signal" size={24} color={color} />
-          )}
+          label="Data"
+          onPress={goToBuyData}
+          icon={({ color }) => <SignalIcon color={color} />}
         />
 
         <ActionButton
           label="Airtime"
-          onPress={() => router.push("/buy-airtime")}
-          icon={({ color }) => (
-            <FontAwesome name="mobile" size={24} color={color} />
-          )}
+          onPress={goToBuyAirtime}
+          icon={({ color }) => <MobileIcon color={color} />}
         />
 
         <ActionButton
-          icon={({ color }) => (
-            <Ionicons name="cash-outline" size={24} color={color} />
-          )}
-          onPress={() => router.push("/airtime2cash/airtime2cash")}
           label="Sell Airtime"
+          onPress={goToSellAirtime}
+          icon={({ color }) => <CashIcon color={color} />}
         />
       </View>
     </Card>

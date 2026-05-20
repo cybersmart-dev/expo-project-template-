@@ -6,6 +6,7 @@ import {
   TextInput,
   View,
   StatusBar as RNStatusBar,
+  Image,
 } from "react-native";
 import {
   Avatar,
@@ -17,19 +18,24 @@ import {
   useTheme,
 } from "react-native-paper";
 import BottomSheet from "../models/BottomSheet";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React,{ useCallback, useEffect, useRef, useState } from "react";
 import { NetworksType } from "@/constants/Types";
 import * as Contacts from "expo-contacts";
-import { isValidMobileNumber } from "@/constants/Utils";
+import {
+  getNetworkByName,
+  getNetworkImageByNumber,
+  isValidMobileNumber,
+} from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { Networks } from "@/constants/DemoList";
 import { Storage } from "@/constants/Storage";
 import { useFocusEffect } from "expo-router";
+import { parse, isValid } from "phoneng";
 
 interface SelectNetworkComponentProps {
   onChangeText: (text: string) => void;
   showNetworksSheet?: boolean;
-  onSelectNetwork: (data: typeof Networks[0]) => void;
+  onSelectNetwork: (data: (typeof Networks)[0]) => void;
 }
 const SelectNetworkComponent = ({
   onSelectNetwork,
@@ -38,13 +44,14 @@ const SelectNetworkComponent = ({
 }: SelectNetworkComponentProps) => {
   const [selectNetworkVisible, setselectNetworkVisible] = useState(false);
   const theme = useTheme();
-  const [selectedNetwork, setSelectedNetwork] = useState<typeof Networks[0]>();
+  const [selectedNetwork, setSelectedNetwork] =
+    useState<(typeof Networks)[0]>();
   const mobileNumberRef = useRef<TextInput>(null);
   const [mobileNumber, setMobileNumber] = useState("");
   const [contactsSheetVisible, setContactsSheetVisible] = useState(false);
   const [usersearchInputText, setUsersearchInputText] = useState("");
   const [contacts, setContacts] = useState<Contacts.ExistingContact[]>();
-  const [networks, setNetworks] = useState<Array<typeof Networks[0]>>([]);
+  const [networks, setNetworks] = useState<Array<(typeof Networks)[0]>>([]);
   const [searchContacts, setSearchContacts] =
     useState<Contacts.ExistingContact[]>();
 
@@ -55,13 +62,13 @@ const SelectNetworkComponent = ({
   );
 
   useEffect(() => {
-    if (isValidMobileNumber(mobileNumber)) {
-      if (!selectedNetwork) {
-        let network = networks[0];
-        if (network) {
-          setSelectedNetwork(network);
-          onSelectNetwork(network);
-        }
+    const result = parse(mobileNumber);
+
+    if (result.valid) {
+      let network = getNetworkByName(result.network, networks);
+      if (network) {
+        setSelectedNetwork(network);
+        onSelectNetwork(network);
       }
     }
   }, [mobileNumber]);
@@ -114,10 +121,13 @@ const SelectNetworkComponent = ({
 
   const handleSelectNumber = (number: string | undefined) => {
     if (number) {
-      if (isValidMobileNumber(number)) {
-        if (number.trim().length == 14 && number.startsWith("+234")) {
-          number = "0".concat(number.replace("+234", ""));
-        }
+      const result = parse(number);
+
+      if (result.valid) {
+        number = result.national;
+
+        console.log(result.network);
+
         setMobileNumber(number);
         onChangeText(number);
         setContactsSheetVisible(false);
@@ -169,6 +179,49 @@ const SelectNetworkComponent = ({
     });
   };
 
+  const ContactItem = React.memo(({ item, networks, handleSelectNumber }) => {
+    const number = getNumber(item?.phoneNumbers);
+
+    if (!number) return null;
+
+    const networkImage = getNetworkImageByNumber(number, networks);
+
+    return (
+      <View className="px-5">
+        <List.Item
+          onPress={() => handleSelectNumber(number)}
+          left={() => (
+            <List.Icon
+              icon={() => (
+                <Image
+                  className="rounded-full h-[30px] w-[30px]"
+                  source={
+                    networkImage
+                      ? { uri: networkImage }
+                      : require("@/assets/images/icon.png")
+                  }
+                />
+              )}
+            />
+          )}
+          title={getName(item)}
+          description={number}
+        />
+      </View>
+    );
+  });
+
+  const renderItem = useCallback(
+    ({ item }) => (
+      <ContactItem
+        item={item}
+        networks={networks}
+        handleSelectNumber={handleSelectNumber}
+      />
+    ),
+    [networks],
+  );
+
   return (
     <View className="px-5">
       <View
@@ -180,8 +233,9 @@ const SelectNetworkComponent = ({
             onPress={() => setselectNetworkVisible(true)}
             className="w-[30px] h-[30px] rounded-full bg-slate-600"
           >
-            <Avatar.Image
-              size={30}
+            <Image
+              className="rounded-full"
+              resizeMode={"stretch"}
               source={{ uri: selectedNetwork?.icon, height: 30, width: 30 }}
             />
           </Pressable>
@@ -292,24 +346,14 @@ const SelectNetworkComponent = ({
           </View>
           <FlatList
             data={searchContacts}
-            renderItem={({ item }) => (
-              <View>
-                {!getNumber(item.phoneNumbers) ? (
-                  ""
-                ) : (
-                  <View className="px-5">
-                    <List.Item
-                      onPress={() =>
-                        handleSelectNumber(getNumber(item?.phoneNumbers))
-                      }
-                      left={() => <List.Icon icon={"account-circle-outline"} />}
-                      title={getName(item)}
-                      description={`${getNumber(item?.phoneNumbers) ?? ""}`}
-                    />
-                  </View>
-                )}
-              </View>
-            )}
+            renderItem={renderItem}
+            keyExtractor={(item, index) =>
+              item?.id?.toString() || index.toString()
+            }
+            initialNumToRender={15}
+            maxToRenderPerBatch={50}
+            windowSize={5}
+            removeClippedSubviews
           />
         </View>
       </BottomSheet>

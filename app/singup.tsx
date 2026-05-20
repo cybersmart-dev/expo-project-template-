@@ -1,3 +1,4 @@
+import BottomLayout from "@/components/Containers/BottomLayout";
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import { PaperSafeView, PaperView } from "@/components/PaperView";
 import requests from "@/Network/HttpRequest";
@@ -189,28 +190,12 @@ const Singup = () => {
           </EaseView>
         </View>
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto pt-7 w-screen justify-center rounded-t-[20px]"
-        style={{
-          position: "absolute",
-          bottom: 0,
-        }}
-      >
-        <EaseView
-          onLayout={handleOnLayout}
-          style={{
-            backgroundColor: theme.colors.surfaceVariant,
-            marginTop: 50,
-            paddingBottom: 30,
-            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow
-          }}
-          className="rounded-t-[30px] h-full justify-center "
-          animate={{ translateY: loaded ? 0 : 100 }}
-          transition={{ type: "timing", duration: 500, easing: "linear" }}
-        >
-          <View className="space-y-7 px-7 shadow-2xl">
-            <TextInput
+    
+           
+      
+      <BottomLayout onLayout={handleOnLayout}>
+        <View className="px-5 space-y-5 mt-5">
+           <TextInput
               placeholder="Full Name"
               keyboardType={"default"}
               className="bg-transparent"
@@ -281,9 +266,9 @@ const Singup = () => {
                 <Button onPress={() => router.back()}>Sing in</Button>
               </View>
             </View>
-          </View>
-        </EaseView>
-      </KeyboardAvoidingView>
+        </View>
+      </BottomLayout>
+          
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

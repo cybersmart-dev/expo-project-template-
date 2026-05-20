@@ -1,5 +1,5 @@
-import { Alert, View } from "react-native";
-import React, { useState } from "react";
+import { Alert, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import BottomSheet from "./BottomSheet";
 import OtpInput from "../Inputs/OtpInput";
 import {
@@ -13,6 +13,7 @@ import { router } from "expo-router";
 import * as LocalAuthentication from "expo-local-authentication";
 import { showMessage } from "react-native-flash-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCounter } from "@/constants/Hooks";
 
 interface TransactionPinSheetProps {
   title?: string;
@@ -24,6 +25,8 @@ interface TransactionPinSheetProps {
   isTransactionPinSheet?: boolean;
   digits?: number;
   sheetMode?: "center" | "full-width" | "dailog" | undefined;
+  sheetType?: "transactionPin" | "otpVerification";
+  onOtpResend?: () => void;
 }
 const TransactionPinSheet = ({
   title = "Verify Your Pin",
@@ -35,8 +38,11 @@ const TransactionPinSheet = ({
   isTransactionPinSheet = true,
   digits = 4,
   sheetMode = "center",
+  sheetType = "transactionPin",
+  onOtpResend,
 }: TransactionPinSheetProps) => {
   const [cancelProcessing, setCancelProcessing] = useState(false);
+  const { resendCount, startCounter } = useCounter({ count: 30 });
 
   const handleCancel = async () => {
     onCancel();
@@ -71,9 +77,9 @@ const TransactionPinSheet = ({
     });
 
     if (result.success) {
-      const pin = await getUserPin()
+      const pin = await getUserPin();
       console.log("User Pin", pin);
-      
+
       onComplate(pin);
     } else {
       showMessage({
@@ -88,15 +94,20 @@ const TransactionPinSheet = ({
 
   const getUserPin = async () => {
     try {
-      const userInfoString = await AsyncStorage.getItem("userInfo")
+      const userInfoString = await AsyncStorage.getItem("userInfo");
       if (userInfoString) {
-        const userInfo = JSON.parse(userInfoString)
-        return userInfo.transaction_pin
+        const userInfo = JSON.parse(userInfoString);
+        return userInfo.transaction_pin;
       }
-    } catch (error) {
-      
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    if (sheetType === "otpVerification") {
+      startCounter();
     }
-  }
+  }, [visible]);
+
   return (
     <BottomSheet
       outterChildrenStyle={{ paddingBottom: 50 }}
@@ -139,6 +150,31 @@ const TransactionPinSheet = ({
 
           <View className="mt-5 px-5">
             <OtpInput autoFocus length={digits} onComplete={onComplate} />
+            {sheetType === "otpVerification" && (
+              <View className="mt-3 flex-row items-center space-x-2">
+                <Text className="text-[12px] opacity-75">
+                  Didn't receive code?
+                </Text>
+                {resendCount <= 0 ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (onOtpResend) {
+                        onOtpResend();
+                        startCounter();
+                      }
+                    }}
+                  >
+                    <Text className="text-[12px] text-blue-500">
+                      Resend Code
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Text className="text-[12px] opacity-75">
+                    Resend code in {resendCount}s
+                  </Text>
+                )}
+              </View>
+            )}
             <View className="mt-5 flex-row items-center justify-between">
               {isTransactionPinSheet && (
                 <Button

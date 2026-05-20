@@ -1,3 +1,6 @@
+import { NetworksType } from "./Types";
+import { parse } from "phoneng";
+
 export function isValidMobileNumber(mobileNumber: string) {
   if (!mobileNumber) {
     return false;
@@ -82,3 +85,30 @@ export class Interval {
     }
   }
 }
+
+export const getNetworkByName = (
+  name: string | undefined,
+  netWorks: NetworksType,
+) => {
+  const netWork = netWorks.find((netWork) => netWork.name === name);
+  return netWork;
+};
+
+export const getNetworkImageByNumber = (
+  number: string | undefined,
+  netWorks: NetworksType,
+) => {
+  if (!number) {
+    return;
+  }
+  const result = parse(number);
+  if (result.valid) {
+    const network = getNetworkByName(result.network, netWorks);
+    if (network) {
+      return network.icon;
+    } else {
+      return "";
+    }
+  }
+  return "";
+};

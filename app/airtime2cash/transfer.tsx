@@ -5,7 +5,7 @@ import {
   Linking,
   Pressable,
   BackHandler,
-  Image
+  Image,
 } from "react-native";
 import React, { useCallback, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
@@ -28,7 +28,7 @@ import { toNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import { StatusBar } from "expo-status-bar";
 import * as IntentLauncher from "expo-intent-launcher";
-import {  } from "expo-image";
+import {} from "expo-image";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
 import BottomSheet from "@/components/models/BottomSheet";
@@ -49,16 +49,16 @@ const transfer = () => {
 
   const [airtimeBalance, setAirtimeBalance] = useState(0);
   const [fetchingBalance, setFetchingBalance] = useState(false);
-  const [networks, setNetworks] = useState<Array<(typeof Networks[0])>>([]);
+  const [networks, setNetworks] = useState<Array<(typeof Networks)[0]>>([]);
   const [fetchBalaceFailed, setFetchBalaceFailed] = useState(false);
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
   const [showBackBottomSheet, setShowBackBottomSheet] = useState(false);
   const [processingTransfer, setProcessingTransfer] = useState(false);
-  const [networkData, setNetworkData] = useState({})
+  const [networkData, setNetworkData] = useState({});
 
   useFocusEffect(
-    useCallback( () => {
-     loadData()
+    useCallback(() => {
+      loadData();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setShowBackBottomSheet(true);
         return true;
@@ -68,15 +68,15 @@ const transfer = () => {
   );
 
   const loadData = async () => {
-      fetchBalance();
-      getNetworkData()
-  }
+    fetchBalance();
+    getNetworkData();
+  };
 
   const getNetworkData = async () => {
-    const networks = await loadNetworks()
-    const network: any = networks.find((network:any ) => network?.id === 1)
-    setNetworkData(network)
-  }
+    const networks = await loadNetworks();
+    const network: any = networks.find((network: any) => network?.id === 1);
+    setNetworkData(network);
+  };
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
@@ -101,7 +101,10 @@ const transfer = () => {
   const fetchBalance = async () => {
     setFetchingBalance(true);
     setNetworkRequestFailed(false);
-    const response = await requests.post({ url: "/sell-airtime/balance/" });
+    const response = await requests.post({
+      url: "/sell-airtime/balance/",
+      data: { number: number, network_id: network_id, token: token },
+    });
     setFetchingBalance(false);
 
     if (response.status == 1) {
@@ -133,22 +136,21 @@ const transfer = () => {
         req_type: "transfer",
         amount: amount,
         pin: pin,
-        share_pin: sharePin
+        share_pin: sharePin,
       },
     });
 
     setProcessingTransfer(false);
     setTransferSheetVisible(false);
 
-    console.log(response)
+    console.log(response);
 
     if (response.status == 0) {
-      Toast.danger({title:"Transaction failed", body: response.message})
+      Toast.danger({ title: "Transaction failed", body: response.message });
     }
 
     if (response.status == 1) {
-
-      Toast.success({title: "Successful", body: response.message})
+      Toast.success({ title: "Successful", body: response.message });
       router.push({
         pathname: "/modals/transfer_response",
         params: {
@@ -161,22 +163,20 @@ const transfer = () => {
     }
 
     if (response.status == undefined) {
-       Toast.danger({title:"Transaction failed", body: response.message})
+      Toast.danger({ title: "Transaction failed", body: response.message });
     }
-
-    
   };
 
-   const loadNetworks = async () => {
-      try {
-        const networksString = await Storage.secureGet("networks");
-        if (networksString) {
-          const networks = JSON.parse(networksString)
-          setNetworks(networks);
-          return networks
-        }
-      } catch (error) {}
-    };
+  const loadNetworks = async () => {
+    try {
+      const networksString = await Storage.secureGet("networks");
+      if (networksString) {
+        const networks = JSON.parse(networksString);
+        setNetworks(networks);
+        return networks;
+      }
+    } catch (error) {}
+  };
 
   const handleCreatePin = async () => {
     if (Platform.OS === "android") {
@@ -251,7 +251,10 @@ const transfer = () => {
                     />
                   </Pressable>
                   <Pressable onPress={fetchBalance}>
-                    <EaseView animate={{rotate: fetchingBalance ? 0 : 360}} transition={{duration: 500, type:"timing"}}>
+                    <EaseView
+                      animate={{ rotate: fetchingBalance ? 0 : 360 }}
+                      transition={{ duration: 500, type: "timing" }}
+                    >
                       <Icon color="black" size={20} source={"sync"} />
                     </EaseView>
                   </Pressable>
@@ -282,8 +285,13 @@ const transfer = () => {
 
               <View className="items-center justify-center">
                 <View className="w-full flex-row items-center justify-center space-x-2">
-                  <Text className="text-lg font-bold text-black">{new String(networkData?.name)?.toUpperCase()}</Text>
-                  <Image className="h-6 w-6 rounded-full" source={{uri: networkData?.icon}} />
+                  <Text className="text-lg font-bold text-black">
+                    {new String(networkData?.name)?.toUpperCase()}
+                  </Text>
+                  <Image
+                    className="h-6 w-6 rounded-full"
+                    source={{ uri: networkData?.icon }}
+                  />
                 </View>
                 <Text className="text-black">{number}</Text>
               </View>
