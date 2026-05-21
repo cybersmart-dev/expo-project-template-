@@ -2,8 +2,6 @@ import React, { useCallback, useState } from "react";
 import {
   View,
   Image,
-  KeyboardAvoidingView,
-  Platform,
   BackHandler,
 } from "react-native";
 import {
@@ -14,25 +12,24 @@ import {
   Dialog,
   Portal,
   ActivityIndicator,
+  IconButton,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
-import { showMessage } from "react-native-flash-message";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import { PaperSafeView } from "@/components/PaperView";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import { Timer } from "@/constants/Utils";
 import Fontisto from "@expo/vector-icons/Fontisto";
 
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import requests from "@/Network/HttpRequest";
-import BottomLayout from "@/components/Containers/BottomLayout";
+import { DarkTheme } from "./_layout";
+import * as WebBrowser from "expo-web-browser";
 
 const Index = () => {
-  const theme = useTheme();
+  const theme = useTheme<typeof DarkTheme>();
   const [loginOption, setLoginOption] = useState("");
   const [bounceState, setBounceState] = useState(0);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
@@ -99,24 +96,30 @@ const Index = () => {
       <Appbar style={{ backgroundColor: "transparent" }}>
         <Appbar.Content
           title={
-            <MaskedView
-              maskElement={
-                <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
-                  Zaffy
-                </Text>
-              }
-            >
-              <LinearGradient
-                colors={[
-                  theme.colors.onPrimaryContainer,
-                  theme.colors.surfaceVariant,
-                ]}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 1, y: 1 }}
+            <View className="flex-row items-center">
+              <Image
+                className="h-[60px] w-[50px] mr-[-5px]  rounded-full"
+                source={require("@/assets/images/icon_trans.png")}
+              />
+              <MaskedView
+                maskElement={
+                  <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
+                    affy
+                  </Text>
+                }
               >
-                <Text className="text-3xl font-bold opacity-0">Zaffy</Text>
-              </LinearGradient>
-            </MaskedView>
+                <LinearGradient
+                  colors={[
+                    theme.colors.onPrimaryContainer,
+                    theme.colors?.accent,
+                  ]}
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text className="text-3xl font-bold opacity-0">affy</Text>
+                </LinearGradient>
+              </MaskedView>
+            </View>
           }
           mode="small"
           style={{ alignItems: "flex-start" }}
@@ -126,7 +129,7 @@ const Index = () => {
           transition={{ type: "timing", duration: 1000 }}
         >
           <Button mode={"contained-tonal"} className="mr-2">
-            Help
+            Skip
           </Button>
         </EaseView>
       </Appbar>
@@ -150,7 +153,7 @@ const Index = () => {
           transition={{ duration: 1000, type: "timing", easing: "easeInOut" }}
           style={{
             backgroundColor: theme.colors.elevation.level0,
-            boxShadow: "0 0px 10px 10px rgba(0, 0, 0, 0.20)",
+            boxShadow: "0 0px 20px 10px rgba(0, 0, 0, 0.20)",
           }}
           className="bg-transparent rounded-full h-0 w-[200px]"
         ></EaseView>
@@ -168,7 +171,13 @@ const Index = () => {
                 fontSize: 20,
               }}
             >
-              Welcome To <Text className="font-bold">Zaffy</Text>
+              Welcome To{" "}
+              <Text
+                style={{ color: theme.colors.accent }}
+                className="font-bold"
+              >
+                Zaffy
+              </Text>
             </Text>
           </EaseView>
 
@@ -186,80 +195,59 @@ const Index = () => {
                 opacity: 0.5,
               }}
             >
-              App description here
+              Fast. Secure. Reliable.
             </Text>
           </EaseView>
         </View>
       </View>
 
-      <BottomLayout>
-        <View className="px-5 space-y-5 mt-5">
-          <EaseView
-            animate={{ opacity: loaded ? 1 : 0 }}
-            transition={{ type: "timing", duration: 500 }}
+      <View className="px-4  w-screen space-y-7 absolute bottom-0 mb-20">
+        <View className="flex-row w-full space-x-2 items-center justify-between">
+          <Button
+            onPress={() => router.push("/logins/emailLogin")}
+            icon={({ color }) => (
+              <Fontisto name="email" size={24} color={color} />
+            )}
+            className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
+            style={{ borderRadius: 15,boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)"  }}
+            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+            mode="outlined"
           >
-            <Button
-              onPress={() => router.push("/logins/emailLogin")}
-              icon={({ color }) => (
-                <Fontisto name="email" size={24} color={color} />
-              )}
-              className="p-1"
-              style={{ borderRadius: 15 }}
-              labelStyle={{ fontSize: 16 }}
-              mode="contained"
-            >
-              Login With Email
-            </Button>
-          </EaseView>
-          <EaseView
-            animate={{ opacity: loaded ? 1 : 0 }}
-            transition={{ type: "timing", duration: 500 }}
-          >
-            <Button
-              onPress={() => router.push("/logins/phoneLogin")}
-              icon={({ color }) => (
-                <AntDesign name="mobile" size={24} color={color} />
-              )}
-              mode="contained"
-              className="p-1"
-              style={{ borderRadius: 15 }}
-              labelStyle={{ fontSize: 16 }}
-            >
-              Login with phone
-            </Button>
-          </EaseView>
+            Login
+          </Button>
 
-          <EaseView
-            animate={{ opacity: loaded ? 1 : 0 }}
-            transition={{ type: "timing", duration: 500 }}
+          <Button
+            onPress={() => router.push("/singup")}
+            icon={({ color }) => (
+              <AntDesign name="mobile" size={24} color={color} />
+            )}
+            mode={"outlined"}
+            className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
+            style={{ borderRadius: 15, borderColor: theme.colors.accent, boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)" }}
+            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
           >
-            <Button
-              onPress={() =>
-                showMessage({
-                  message: "Login",
-                  description:
-                    "Social login not avilable. login with email instead",
-                  type: "info",
-                  icon: "info",
-                })
-              }
-              mode="contained"
-              icon={({ color }) => (
-                <AntDesign name="google" size={24} color={color} />
-              )}
-              className="p-1"
-              style={{ borderRadius: 15 }}
-              labelStyle={{ fontSize: 16 }}
-            >
-              Login With Google
-            </Button>
-            <View className="flex-row items-center justify-center mt-3">
-              <Text className="">I Don't have an account</Text>
-              <Button onPress={() => router.push("/singup")}>Sing up</Button>
-            </View>
-          </EaseView>
+            SingUp
+          </Button>
         </View>
-      </BottomLayout>
+        <View>
+          <Button
+            onPress={async (e) => {
+              e.preventDefault();
+              await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
+            }}
+            icon={() => (
+              <IconButton icon={"face-agent"} />
+  )}
+          
+            mode={"outlined"}
+            className="p-1 py-0"
+            style={{ borderRadius: 15, boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)" }}
+            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+          >
+            Contact Support
+          </Button>
+        </View>
+      </View>
 
       <Portal>
         <Dialog

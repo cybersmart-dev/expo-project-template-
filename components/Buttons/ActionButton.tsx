@@ -1,3 +1,4 @@
+import { DarkTheme } from "@/app/_layout";
 import { Timer } from "@/constants/Utils";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -22,7 +23,7 @@ export interface ActionButtonProps {
   onPress?: ((event: GestureResponderEvent) => void) | undefined;
 }
 const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
-  const theme = useTheme();
+  const theme = useTheme<typeof DarkTheme>();
    const [loaded, setLoaded] = useState(false);
     const bounce = useSharedValue(0);
   
@@ -38,9 +39,9 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
     );
   const getColor = () => {
     if (theme.dark) {
-      return theme.colors.onBackground;
+      return "#9a9af888";
     }
-    return theme.colors.surfaceVariant;
+    return "#0000ff2a";
   };
 
   const bounceBuuton = async () => {
@@ -51,7 +52,7 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
 
   const getIconColor = () => {
     if (theme.dark) {
-      return theme.colors.surface;
+      return theme.colors.onBackground;
     }
     return theme.colors.onBackground;
   };
@@ -64,7 +65,7 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
     };
   });
   return (
-    <Animated.View style={[actionButtonAnimetedStyle]} className="space-y-1 justify-center items-center w-auto">
+    <Animated.View style={[actionButtonAnimetedStyle]} className="space-y-1 justify-center items-center w-[40px]">
       <TouchableOpacity onPress={onPress}>
         <Avatar.Icon
           size={45}
@@ -73,7 +74,7 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
           icon={icon}
         />
       </TouchableOpacity>
-      <Text numberOfLines={1}>{label}</Text>
+      <Text numberOfLines={4} className="text-center text-[11px]">{label}</Text>
     </Animated.View>
   );
 };

@@ -1,6 +1,8 @@
+import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
 import BottomLayout from "@/components/Containers/BottomLayout";
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import { PaperSafeView, PaperView } from "@/components/PaperView";
+import { Toast } from "@/constants/Toast";
 import requests from "@/Network/HttpRequest";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -80,6 +82,7 @@ const Singup = () => {
         description,
         type: "danger",
       });
+      Toast.dangerHapticsAsync({title: message, body: description})
       return;
     }
 
@@ -148,10 +151,7 @@ const Singup = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-          <Image
-            className="h-[100px] w-[150px]  rounded-full"
-            source={require("@/assets/images/man_working.png")}
-          />
+          <AnimatedTransLogo />
         </EaseView>
         <View className="items-center">
           <EaseView

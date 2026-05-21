@@ -141,7 +141,7 @@ const RecentTransactionsContainer = ({
 
   return (
     <View>
-      <View className=" rounded-lg mt-0">
+      <View className="px-3 rounded-lg mt-0">
         {transactions.map((item: any) => (
           <RecentTransactionsListComponent
             key={item?.id}

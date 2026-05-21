@@ -34,9 +34,12 @@ import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import { Toast } from "@/constants/Toast";
 import { Storage } from "@/constants/Storage";
+import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
+import { LightTheme } from "../_layout";
+import BottomLayout from "@/components/Containers/BottomLayout";
 
 const PhoneLoginComponent = () => {
-  const theme = useTheme();
+  const theme = useTheme<typeof LightTheme>();
 
   const [password, setPassword] = useState("");
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -65,8 +68,8 @@ const PhoneLoginComponent = () => {
       getUserInfo();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         if (showProcessing) {
-          Toast.warning({title:"Please wait while Processing..."})
-          return true
+          Toast.warning({ title: "Please wait while Processing..." });
+          return true;
         }
         setExitDialogVisible(true);
         return true;
@@ -76,7 +79,10 @@ const PhoneLoginComponent = () => {
   );
   const validateInput = () => {
     if (!password) {
-      Toast.danger({title:"Password Error", body:"Please Enter Your Password"})
+      Toast.danger({
+        title: "Password Error",
+        body: "Please Enter Your Password",
+      });
       return;
     }
     login(userInfo?.email, password);
@@ -136,7 +142,7 @@ const PhoneLoginComponent = () => {
 
   const removeAccount = async () => {
     try {
-      await requests.clearToken()
+      await requests.clearToken();
     } catch (error) {}
   };
 
@@ -208,20 +214,30 @@ const PhoneLoginComponent = () => {
       <Appbar className="bg-transparent">
         <Appbar.Content
           title={
-            <MaskedView
-              maskElement={<Text className="text-3xl font-bold">Zaffy</Text>}
-            >
-              <LinearGradient
-                colors={[
-                  theme.colors.onBackground,
-                  theme.colors.inversePrimary,
-                ]}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 1, y: 1 }}
+            <View className="flex-row items-center">
+              <Image
+                className="h-[60px] w-[50px] mr-[-5px]  rounded-full"
+                source={require("@/assets/images/icon_trans.png")}
+              />
+              <MaskedView
+                maskElement={
+                  <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
+                    affy
+                  </Text>
+                }
               >
-                <Text className="text-3xl font-bold opacity-0">Zaffy</Text>
-              </LinearGradient>
-            </MaskedView>
+                <LinearGradient
+                  colors={[
+                    theme.colors.onPrimaryContainer,
+                    theme.colors?.accent,
+                  ]}
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text className="text-3xl font-bold opacity-0">affy</Text>
+                </LinearGradient>
+              </MaskedView>
+            </View>
           }
           mode="small"
           style={{ alignItems: "flex-start" }}
@@ -236,10 +252,7 @@ const PhoneLoginComponent = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-          <Image
-            className="h-[60px] w-[60px]  rounded-full"
-            source={require("@/assets/images/profile_avatar.png")}
-          />
+          <AnimatedTransLogo />
         </EaseView>
         <View className="items-center pt-3">
           <EaseView
@@ -281,26 +294,8 @@ const PhoneLoginComponent = () => {
           </EaseView>
         </View>
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS == "android" ? "padding" : "height"}
-        className="h-auto min-h-[40%]  w-screen"
-        style={{
-          position: "absolute",
-          bottom: 0,
-        }}
-      >
-        <EaseView
-          style={{
-            backgroundColor: theme.colors.surfaceVariant,
-            marginTop: 50,
-            paddingBottom: 30,
-            boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
-          }}
-          className="rounded-t-[30px] h-full justify-center "
-          animate={{ translateY: loaded ? 0 : 100 }}
-          transition={{ type: "timing", duration: 500, easing: "linear" }}
-        >
-          <View className="space-y-7 px-7 shadow-2xl">
+     <BottomLayout>
+          <View className="space-y-7 px-7">
             {biometricAvailable && (
               <View className="items-center">
                 <TouchableOpacity
@@ -358,10 +353,13 @@ const PhoneLoginComponent = () => {
               {!showProcessing && (
                 <Button
                   onPress={() => validateInput()}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
+                  mode={"outlined"}
+                  className="p-1 bg-[#ffa60042]"
+                  style={{ borderRadius: 15, borderColor: theme.colors.accent }}
+                  labelStyle={{
+                    fontSize: 16,
+                    color: theme.colors.onBackground,
+                  }}
                 >
                   Login
                 </Button>
@@ -369,12 +367,16 @@ const PhoneLoginComponent = () => {
 
               <View className="flex-row items-center justify-center pt-0 pb-2">
                 <Text>Not my account?</Text>
-                <Button disabled={showProcessing} onPress={() => removeAccount()}>Logout</Button>
+                <Button
+                  disabled={showProcessing}
+                  onPress={() => removeAccount()}
+                >
+                  Logout
+                </Button>
               </View>
             </View>
           </View>
-        </EaseView>
-      </KeyboardAvoidingView>
+        </BottomLayout>
 
       <Portal>
         <Dialog

@@ -28,6 +28,8 @@ import { Storage } from "@/constants/Storage";
 import EyesAnimation from "../Animations/EyesAnimation";
 import Processing from "../models/Processing";
 import BottomLayout from "../Containers/BottomLayout";
+import * as Haptics from "expo-haptics";
+import AnimatedTransLogo from "../Animations/AnimatedTransLogo";
 
 const EmailLoginComponent = () => {
   const theme = useTheme();
@@ -56,18 +58,16 @@ const EmailLoginComponent = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email.trim())) {
-      showMessage({
-        message: "Email Error",
-        description: "Please Enter valid email Address",
-        type: "danger",
+      Toast.dangerHapticsAsync({
+        title: "Email Error",
+        body: "Please Enter valid email Address",
       });
       return;
     }
     if (!password) {
-      showMessage({
-        message: "Password Error",
-        description: "Please Enter Your Password",
-        type: "danger",
+      Toast.dangerHapticsAsync({
+        title: "Password Error",
+        body: "Please Enter Your Password",
       });
       return;
     }
@@ -89,7 +89,10 @@ const EmailLoginComponent = () => {
     });
 
     if (response.status == 0) {
-      Toast.danger({ title: "Login Failed", body: response.message });
+      Toast.dangerHapticsAsync({
+        title: "Login Failed",
+        body: response.message,
+      });
       setShowProcessing(false);
       return;
     }
@@ -166,10 +169,7 @@ const EmailLoginComponent = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-          <Image
-            className="h-[150px] w-[200px]  rounded-full"
-            source={require("@/assets/images/man_working.png")}
-          />
+         <AnimatedTransLogo />
         </EaseView>
         <View className="items-center">
           <EaseView

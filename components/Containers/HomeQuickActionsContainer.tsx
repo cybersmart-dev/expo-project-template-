@@ -69,8 +69,8 @@ export const HomeQuickActionsContainer = () => {
   ));
 
   return (
-    <Card>
-      <View className="flex-row items-center justify-around p-2">
+    <View className="px-4">
+      <View className="flex-row items-center justify-between  p-2">
         <ActionButton
           label="Data"
           onPress={goToBuyData}
@@ -89,6 +89,6 @@ export const HomeQuickActionsContainer = () => {
           icon={({ color }) => <CashIcon color={color} />}
         />
       </View>
-    </Card>
+    </View>
   );
 };

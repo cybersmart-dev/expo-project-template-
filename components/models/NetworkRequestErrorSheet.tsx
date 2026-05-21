@@ -1,9 +1,10 @@
 import { Platform, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { Image } from "expo-image";
 import { Button, Text } from "react-native-paper";
 import BottomSheet from "./BottomSheet";
 import * as IntentLauncher from "expo-intent-launcher";
+import * as Haptics from "expo-haptics";
 
 interface NetworkRequestErrorSheetProps {
   visible: boolean;
@@ -13,6 +14,15 @@ const NetworkRequestErrorSheet = ({
   visible,
   onDismiss = (value = false) => {},
 }: NetworkRequestErrorSheetProps) => {
+
+  useEffect( () => {
+    if (visible) {
+      (async function(){
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      })()
+    }
+  }, [visible])
+  
 
   const goToSetting = async () => {
       if (Platform.OS == "android") {

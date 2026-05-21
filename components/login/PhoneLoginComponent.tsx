@@ -29,6 +29,7 @@ import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
 import { Storage } from "@/constants/Storage";
 import BottomLayout from "../Containers/BottomLayout";
+import AnimatedTransLogo from "../Animations/AnimatedTransLogo";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -176,10 +177,7 @@ const PhoneLoginComponent = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-          <Image
-            className="h-[150px] w-[200px]  rounded-full"
-            source={require("@/assets/images/man_working.png")}
-          />
+         <AnimatedTransLogo />
         </EaseView>
         <View className="items-center">
           <EaseView

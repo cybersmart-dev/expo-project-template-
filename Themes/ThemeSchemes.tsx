@@ -1,5 +1,6 @@
 export const DarkScheme = {
   primary: "rgb(165, 200, 255)",
+  accent:"rgb(255,165,0)",
   onPrimary: "rgb(0, 49, 95)",
   primaryContainer: "rgb(0, 71, 134)",
   onPrimaryContainer: "rgb(212, 227, 255)",
@@ -42,6 +43,7 @@ export const DarkScheme = {
 };
 export const LightScheme = {
   primary: "rgb(10,57,134)", //"rgb(71, 84, 185)",
+  accent:"rgb(255,165,0)",
   onPrimary: "rgb(255, 255, 255)",
   primaryContainer: "rgb(223, 224, 255)",
   onPrimaryContainer: "rgb(0, 11, 98)",

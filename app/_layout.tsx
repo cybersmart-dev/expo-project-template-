@@ -12,11 +12,11 @@ import { useColorScheme, StatusBar as RNStatusBar } from "react-native";
 import FlashMessage from "react-native-flash-message";
 import { RootLayoutContext } from "@/contexts/RootLayoutContext";
 
-const DarkTheme = {
+export const DarkTheme = {
   ...MD3DarkTheme,
   colors: DarkScheme,
 };
-const LightTheme = {
+export const LightTheme = {
   ...MD3LightTheme,
   colors: LightScheme,
 };

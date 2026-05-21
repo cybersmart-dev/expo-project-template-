@@ -49,7 +49,7 @@ const BottomLayout = ({ children, onLayout }: BottomLayoutProps) => {
           backgroundColor: theme.colors.surfaceVariant,
           marginTop: 50,
           paddingBottom: 30,
-          boxShadow: theme.dark ? undefined : CustomLightTheme.boxShadow,
+          
         }}
         className="rounded-t-[30px] h-full justify-center"
         animate={{ translateY: loaded ? 0 : 100 }}

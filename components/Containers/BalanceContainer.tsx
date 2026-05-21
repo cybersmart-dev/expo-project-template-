@@ -1,3 +1,4 @@
+import { LightTheme } from "@/app/_layout";
 import { formatNumber } from "@/constants/Formats";
 import { Timer } from "@/constants/Utils";
 import { LinearGradient } from "expo-linear-gradient";
@@ -42,7 +43,7 @@ const BalanceContainer = ({
 }: BalanceContainerProps) => {
   const timerRef = useRef(0);
   const colorScheme = useColorScheme();
-  const theme = useTheme();
+  const theme = useTheme<typeof LightTheme>();
   const bounce = useSharedValue(0);
 
   let addMoneyWidthTimer = useRef(0);
@@ -71,45 +72,40 @@ const BalanceContainer = ({
       if (addMoneyWidthX.value >= 140) {
         clearInterval(addMoneyWidthTimer.current);
         addMoneyWidthTimer.current = 0;
-        bounceLoopAnimation()
+        bounceLoopAnimation();
       }
     }, 1);
   };
 
   const bounceLoopAnimation = () => {
     const loop = () => {
-      bounce.value = bounce.value + 1
+      bounce.value = bounce.value + 1;
       if (bounce.value >= 5) {
-        bounce.value = 0
+        bounce.value = 0;
       }
-      requestAnimationFrame(loop)
-    }
-    requestAnimationFrame(loop)
-  }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  };
 
   const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
     if (theme.dark) {
-      return [theme.colors.primaryContainer, theme.colors.primaryContainer];
+      return [theme.colors.primaryContainer, "#ffa60042"];
     }
-    return [theme.colors.primary, theme.colors.primary];
+    return [theme.colors.primary, theme.colors.primary, theme.colors.accent];
   };
-
- 
 
   return (
     <LinearGradient
       colors={getColors()}
-      style={{
-        backgroundColor: theme.dark
-          ? theme.colors.primaryContainer
-          : theme.colors.primary,
-      }}
-      className="relative h-[190px] w-full rounded-b-lg mt-0  p-4"
+      start={{ x: 1, y: 0.5 }}
+      end={{ x: -0.2, y: 1.2 }}
+      className="relative h-[150px] w-full rounded-lg py-5 mt-0  p-4 "
     >
       <View>
         <View className="flex-row items-center">
           <Text className="opacity-75 text-[15px] mr-0 text-white">
-            Account Balance
+            Total Assets
           </Text>
           <IconButton
             className="opacity-75"
@@ -131,9 +127,9 @@ const BalanceContainer = ({
             </Text>
           )}
         </View>
-        <View className="mt-5">
+        <View className="mt-1">
           <Text className="text-white opacity-75 text-[12px]">Cashback</Text>
-          <View className="mt-2 flex-row items-center">
+          <View className="mt-1 flex-row items-center">
             {hideBalance ? (
               <Text className="text text-white font-[ArchivoBlackRegular] items-center">
                 ₦******{" "}
@@ -163,7 +159,6 @@ const BalanceContainer = ({
             onPress={() => router.push("/add_money")}
             icon="plus"
             textColor={"black"}
-            
             buttonColor={
               theme.dark ? theme.colors.primary : theme.colors.primaryContainer
             }

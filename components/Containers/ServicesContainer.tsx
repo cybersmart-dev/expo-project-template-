@@ -12,9 +12,9 @@ import * as WebBrowser from "expo-web-browser";
 const ServicesContainer = () => {
   const [showMoreBottomSheet, setshowMoreBottomSheet] = useState(false);
   return (
-    <Card>
+    <View>
       <View className="space-y-5 items-center p-5">
-        <View className="flex-row items-center justify-between w-[95%] ml-4">
+        <View className="flex-row items-center justify-between w-[100%]">
           <ActionButton
             label="Betting"
             onPress={() => router.push("/betting")}
@@ -40,7 +40,7 @@ const ServicesContainer = () => {
           />
         </View>
 
-        <View className="flex-row w-full items-center justify-between">
+        <View className="flex-row items-center justify-between w-[100%]">
           <ActionButton
             onPress={() => router.push("/result-chacker")}
             label="Result Check"
@@ -121,7 +121,7 @@ const ServicesContainer = () => {
           </View>
         </BottomSheet>
       </View>
-    </Card>
+    </View>
   );
 };
 

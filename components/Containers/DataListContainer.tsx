@@ -14,6 +14,7 @@ import { EaseView } from "react-native-ease";
 import { Timer } from "@/constants/Utils";
 import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
+import * as Haptics from "expo-haptics";
 
 const BundlesList = {
   mtn: {
@@ -154,6 +155,7 @@ const DataPackComponent = ({
     setClied(true);
     await new Timer().postDelayedAsync({ sec: 300 });
     setClied(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   };
   return (
     <View className="p-1 mt-2">

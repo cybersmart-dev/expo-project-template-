@@ -28,6 +28,7 @@ import { EaseView } from "react-native-ease";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import { Toast } from "@/constants/Toast";
+import * as Haptics from "expo-haptics";
 
 const SuggestAmounts = [
   {
@@ -76,10 +77,12 @@ const BuyAirtimeSuggestAmountCard = ({
   const [clied, setClied] = useState(false);
 
   const handlePress = async (amount: number) => {
+    
     onPress(amount);
     setClied(true);
     await new Timer().postDelayedAsync({ sec: 300 });
     setClied(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   };
   return (
     <View className="p-1">
@@ -135,7 +138,7 @@ const buyairtime = () => {
   const [pinSheetVisible, setPinSheetVisible] = useState(false);
   const [beneficiarySheetVisible, setBeneficiarySheetVisible] = useState(false);
   const [transactionProcessing, setTransactionProcessing] = useState(false);
-  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false)
+  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false);
   const theme = useTheme();
   const [buyAirtimePreviewVisible, setbuyAirtimePreviewVisible] =
     useState(false);
@@ -150,22 +153,16 @@ const buyairtime = () => {
     }
   }, [mobileNumber]);
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
     if (!selectedNetwork) {
-      showMessage({
-        message: "Please Select Network",
-        type: "danger",
-        icon: "danger",
-      });
+      Toast.danger({ title: "Please Select Network" });
       return;
     }
 
     if (!isValidMobileNumber(mobileNumber)) {
-      showMessage({
-        message: "Invalid Number",
-        description: "Please Enter Valid Mobile Number",
-        icon: "danger",
-        type: "danger",
+      Toast.danger({
+        title: "Invalid Number",
+        body: "Please Enter Valid Mobile Number",
       });
       return;
     }
@@ -187,12 +184,14 @@ const buyairtime = () => {
     setTransactionProcessing(true);
 
     const response = await requests.post({
-      url: "/buy-airtime/", data: {
+      url: "/buy-airtime/",
+      data: {
         amount: toNumber(amount),
         network_id: selectedNetwork?.id,
         number: mobileNumber,
-        pin:pin
-    } });
+        pin: pin,
+      },
+    });
 
     setTransactionProcessing(false);
     setPinSheetVisible(false);
@@ -211,12 +210,12 @@ const buyairtime = () => {
     }
 
     if (response.status == 0) {
-      Toast.danger({title: "Transaction Failed", body: response.message})
+      Toast.danger({ title: "Transaction Failed", body: response.message });
       return;
     }
 
     if (response.status == undefined) {
-      setNetWorkErrorVisible(true)
+      setNetWorkErrorVisible(true);
       return;
     }
   };
@@ -352,7 +351,10 @@ const buyairtime = () => {
           </View>
         </View>
       </BottomSheet>
-      <NetworkRequestErrorSheet visible={netWorkErrorVisible} onDismiss={setNetWorkErrorVisible}/>
+      <NetworkRequestErrorSheet
+        visible={netWorkErrorVisible}
+        onDismiss={setNetWorkErrorVisible}
+      />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

@@ -58,7 +58,7 @@ const transfer = () => {
 
   useFocusEffect(
     useCallback(() => {
-      loadData();
+      getNetworkData();
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setShowBackBottomSheet(true);
         return true;
@@ -67,16 +67,21 @@ const transfer = () => {
     }, []),
   );
 
-  const loadData = async () => {
-    fetchBalance();
-    getNetworkData();
-  };
-
   const getNetworkData = async () => {
     const networks = await loadNetworks();
-    const network: any = networks.find((network: any) => network?.id === 1);
+    const network: any = networks.find(
+      (network: any) => network?.id == network_id,
+    );
+
     setNetworkData(network);
+
+    await fetchBalance();
   };
+
+
+  const transferAirtime = async () => {
+    
+  }
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
@@ -277,22 +282,25 @@ const transfer = () => {
                     </Button>
                   </View>
                 ) : (
-                  <Text className="text-3xl text-black">
+                  <Text className="text-3xl text-black w-[160px]">
                     ₦{hideBalance ? "*****" : formatNumber(airtimeBalance)}
                   </Text>
                 )}
               </View>
 
               <View className="items-center justify-center">
-                <View className="w-full flex-row items-center justify-center space-x-2">
-                  <Text className="text-lg font-bold text-black">
-                    {new String(networkData?.name)?.toUpperCase()}
-                  </Text>
-                  <Image
-                    className="h-6 w-6 rounded-full"
-                    source={{ uri: networkData?.icon }}
-                  />
-                </View>
+                {networkData?.name && (
+                  <View className="w-full flex-row items-center justify-center space-x-2">
+                    <Text className="text-lg font-bold text-black">
+                      {new String(networkData?.name)?.toUpperCase()}
+                    </Text>
+                    <Image
+                      className="h-6 w-6 rounded-full"
+                      source={{ uri: networkData?.icon }}
+                    />
+                  </View>
+                )}
+
                 <Text className="text-black">{number}</Text>
               </View>
             </View>

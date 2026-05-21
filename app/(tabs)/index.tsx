@@ -36,6 +36,7 @@ import requests from "@/Network/HttpRequest";
 import { showMessage } from "react-native-flash-message";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import RecentTransactionsContainer from "@/components/Containers/RecentTransactionsContainer";
+import { PaperSafeView } from "@/components/PaperView";
 
 export default function Index() {
   const theme = useTheme();
@@ -145,25 +146,17 @@ export default function Index() {
   };
 
   return (
-    <LinearGradient
-      colors={[theme.colors.secondaryContainer, theme.colors.background]}
-      className="flex-1"
-    >
+    <PaperSafeView>
       <EaseView
         animate={{
           scale: loaded ? 1 : 1.2,
         }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
-        style={{ backgroundColor: theme.colors.background }}
+        // style={{ backgroundColor: theme.colors.background }}
         className="flex flex-1"
       >
         <Appbar
-          style={{
-            backgroundColor: theme.dark
-              ? theme.colors.primaryContainer
-              : theme.colors.primary,
-            paddingTop: RNStatusBar.currentHeight,
-          }}
+         className="bg-transparent"
         >
           <Appbar.Content
             title={
@@ -175,9 +168,9 @@ export default function Index() {
                   className="h-7 w-7 rounded-full"
                   source={require("@/assets/images/profile_avatar.png")}
                 />
-                <Text className="text-white">
+                <Text className="">
                   Hi{" "}
-                  <Text className="font-bold text-white">
+                  <Text className="font-bold">
                     {userInfo?.username || <Button>Refresh</Button>}!
                   </Text>
                 </Text>
@@ -186,14 +179,14 @@ export default function Index() {
           />
           <Appbar.Action
             onPress={() => router.push("/notifications")}
-            color="white"
+            
             icon={"bell-outline"}
           />
           <Appbar.Action
             onPress={async () => {
               await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
             }}
-            color="white"
+           
             icon={"face-agent"}
           />
         </Appbar>
@@ -211,7 +204,7 @@ export default function Index() {
           }
           className="pb-5 flex-1"
         >
-          <View className="">
+          <View className="px-5 rounded-lg mt-3">
             <BalanceContainer
               theme={theme}
               fetchingInfo={fetchingInfo}
@@ -222,22 +215,22 @@ export default function Index() {
             />
           </View>
 
-          <View className="px-3 mb-3">
-            <Text className="mb-1 mt-2 font-bold opacity-70 uppercase text-[11px]">
+          <View className="px-3 mt-3">
+            <Text className="mb-1 ml-4 mt-4 font-bold opacity-70 uppercase text-[11px]">
               Quick Actions
             </Text>
             <HomeQuickActionsContainer />
           </View>
 
-          <View className="px-3 mb-3">
-            <Text className="font-bold opacity-70 uppercase text-[11px]">
+          <View className="px-3 mt-5">
+            <Text className="font-bold ml-4 opacity-70 uppercase text-[11px]">
               Recent Transactions
             </Text>
             <RecentTransactionsContainer refreshKey={refreshKey} />
           </View>
 
-          <View className="px-3 mb-3">
-            <Text className="mb-1 ml-2 font-bold opacity-70 uppercase text-[11px]">
+          <View className="px-3 mt-5">
+            <Text className="mb-1 ml-5 font-bold opacity-70 uppercase text-[11px]">
               Services
             </Text>
             <ServicesContainer />
@@ -259,7 +252,7 @@ export default function Index() {
           visible={networkErrorSheetVisible}
           onDismiss={setNetworkErrorSheetVisible}
         />
-        <StatusBar key={1} style="light" />
+        <StatusBar style={theme.dark ? "light" : "dark"} />
       </EaseView>
       <Portal>
         <Dialog
@@ -295,6 +288,6 @@ export default function Index() {
           </Dialog.Actions>
         </Dialog>
       </Portal>
-    </LinearGradient>
+    </PaperSafeView>
   );
 }
