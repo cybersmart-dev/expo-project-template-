@@ -69,7 +69,7 @@ export const HomeQuickActionsContainer = () => {
   ));
 
   return (
-    <View className="px-4">
+    <View className="px-7">
       <View className="flex-row items-center justify-between  p-2">
         <ActionButton
           label="Data"

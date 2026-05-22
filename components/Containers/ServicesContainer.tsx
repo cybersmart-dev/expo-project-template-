@@ -14,7 +14,7 @@ const ServicesContainer = () => {
   return (
     <View>
       <View className="space-y-5 items-center p-5">
-        <View className="flex-row items-center justify-between w-[100%]">
+        <View className="flex-row items-center justify-between w-[90%]">
           <ActionButton
             label="Betting"
             onPress={() => router.push("/betting")}
@@ -40,7 +40,7 @@ const ServicesContainer = () => {
           />
         </View>
 
-        <View className="flex-row items-center justify-between w-[100%]">
+        <View className="flex-row items-center justify-between w-[90%]">
           <ActionButton
             onPress={() => router.push("/result-chacker")}
             label="Result Check"

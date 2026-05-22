@@ -1,7 +1,7 @@
-import { View, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Pressable, BackHandler } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   Appbar,
   Button,
@@ -35,6 +35,17 @@ const transfer_response = () => {
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
+
+  useFocusEffect(
+      useCallback(() => {
+        const back = BackHandler.addEventListener("hardwareBackPress", () => {
+          router.push("/(tabs)");
+          return true;
+        });
+        return () => back.remove();
+      }, []),
+    );
+
   useEffect(() => {
     getTransferData();
     return () => {};
@@ -60,7 +71,7 @@ const transfer_response = () => {
     <PaperSafeView className="flex-1">
       <Appbar className="bg-transparent">
         <Appbar.Content title="" />
-        <Button onPress={() => router.back()}>Done</Button>
+        <Button onPress={() => router.push("/(tabs)")}>Done</Button>
       </Appbar>
       <View>
         <View className="items-center space-y-4 mt-5">

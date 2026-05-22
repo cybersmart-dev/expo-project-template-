@@ -142,6 +142,7 @@ const transfer = () => {
         amount: amount,
         pin: pin,
         share_pin: sharePin,
+        token: token
       },
     });
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "701309251338",
+    "project_id": "nowtimes",
+    "storage_bucket": "nowtimes.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701309251338:android:a8ac7e232b299ceff714f3",
+        "android_client_info": {
+          "package_name": "com.zaffy.wallet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgOOD_0NgYXkTAagrN1JtDfA9mtaEuNSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

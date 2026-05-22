@@ -20,9 +20,10 @@ import Animated, {
 export interface ActionButtonProps {
   icon: IconSource;
   label?: string;
+  width?: number
   onPress?: ((event: GestureResponderEvent) => void) | undefined;
 }
-const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
+const ActionButton = ({ icon, label, width=60, onPress }: ActionButtonProps) => {
   const theme = useTheme<typeof DarkTheme>();
    const [loaded, setLoaded] = useState(false);
     const bounce = useSharedValue(0);
@@ -65,7 +66,7 @@ const ActionButton = ({ icon, label, onPress }: ActionButtonProps) => {
     };
   });
   return (
-    <Animated.View style={[actionButtonAnimetedStyle]} className="space-y-1 justify-center items-center w-[40px]">
+    <Animated.View style={[actionButtonAnimetedStyle, {width: width}]} className="space-y-1 justify-center items-center">
       <TouchableOpacity onPress={onPress}>
         <Avatar.Icon
           size={45}
