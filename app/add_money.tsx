@@ -9,7 +9,7 @@ import {
   PaperProvider,
   TextInput,
   useTheme,
-  Text
+  Text,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -19,6 +19,7 @@ import { EaseView } from "react-native-ease";
 import { showMessage } from "react-native-flash-message";
 import * as Clipboard from "expo-clipboard";
 import { Toast } from "@/constants/Toast";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const add_money = () => {
   const theme = useTheme();
@@ -40,7 +41,7 @@ const add_money = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -59,7 +60,7 @@ const add_money = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="flex-row items-center justify-around">
           <Button
@@ -68,8 +69,9 @@ const add_money = () => {
               borderBottomColor:
                 activeTab == "1" ? theme.colors.primary : "transparent",
               borderWidth: 1,
+              borderRadius: 0,
             }}
-            className="rounded-none"
+            className="rounded-0"
           >
             Bank Transfer
           </Button>
@@ -79,6 +81,7 @@ const add_money = () => {
               borderBottomColor:
                 activeTab == "2" ? theme.colors.primary : "transparent",
               borderWidth: 1,
+              borderRadius: 0,
             }}
             className="rounded-none"
           >
@@ -120,7 +123,7 @@ const add_money = () => {
                     <DataTable.Cell numeric>
                       <Pressable
                         onPress={() => handleCopy("080")}
-                        className="flex-row items-center space-x-2"
+                        className="flex-row items-center gap-x-2"
                       >
                         <Text>{7026426738}</Text>
                         <Pressable>
@@ -161,7 +164,7 @@ const add_money = () => {
                       {" "}
                       <Pressable
                         onPress={() => handleCopy("080")}
-                        className="flex-row items-center space-x-2"
+                        className="flex-row items-center gap-x-2"
                       >
                         <Text>{7026426738}</Text>
                         <Pressable>
@@ -192,26 +195,29 @@ const add_money = () => {
           style={{ display: activeTab == "2" ? "flex" : "none" }}
         >
           <View className="p-3 mt-5">
-            <Text className="text-center text-[16px] font-light">
+            <Text style={{textAlign: "center"}} className="text-center text-[16px] font-light">
               Found Your wallet with one-time virtual account number
             </Text>
 
-            <View className="px-3 mt-5 space-y-5">
+            <View className="px-3 mt-5 gap-y-5">
               <TextInput
                 mode={"outlined"}
                 placeholder={"Amount"}
-                className="bg-transparent"
+                style={{ backgroundColor: "transparent" }}
                 outlineStyle={{ borderRadius: 15 }}
-                keyboardType={'number-pad'}
+                keyboardType={"number-pad"}
               />
 
               <View>
                 <Button
                   onPress={() => {
-                    Toast.warning({title:"Dynamic founding", body: "not available currently please try again later"})
+                    Toast.warning({
+                      title: "Dynamic founding",
+                      body: "not available currently please try again later",
+                    });
                   }}
                   labelStyle={{ fontSize: 17 }}
-                  className="p-1 text-lg"
+                  className="py-1 text-lg"
                   mode={"contained"}
                 >
                   Next

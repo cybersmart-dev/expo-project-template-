@@ -16,6 +16,7 @@ import Keypad from "@/components/Buttons/Keypad";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const CreateTransactionPin = () => {
   const theme = useTheme();
@@ -82,7 +83,7 @@ const CreateTransactionPin = () => {
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <Appbar.Action
           onPress={() => router.back()}
           icon={() => (
@@ -95,9 +96,9 @@ const CreateTransactionPin = () => {
         />
 
         <Appbar.Content title="Transaction Pin" />
-      </Appbar>
+      </CustomAppbar>
       <View>
-        <Text className="text-center mt-5 text-lg font-bold uppercase">
+        <Text style={{textAlign: "center"}} className="text-center mt-5 text-lg font-bold uppercase">
           Create Your Transaction Pin
         </Text>
 
@@ -108,7 +109,7 @@ const CreateTransactionPin = () => {
         <View className="p-5">
           <View className="rounded-lg" style={{}}>
             <View className="px-5 mt-5">
-              <View className="flex-row items-center space-x-2 mb-2">
+              <View className="flex-row items-center gap-x-2 mb-2">
                 <Text className="mb-2 ml-2">Enter your transaction pin</Text>
                 <Pressable onPress={() => setShowPin(!showPin)}>
                   <Icon size={20} source={showPin ? "eye" : "eye-off"} />
@@ -143,7 +144,7 @@ const CreateTransactionPin = () => {
               <Button
                 disabled
                 onPress={handleConfirm}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
@@ -158,7 +159,7 @@ const CreateTransactionPin = () => {
             {!showProcessing && (
               <Button
                 onPress={handleConfirm}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"

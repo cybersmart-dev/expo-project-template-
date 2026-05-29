@@ -1,5 +1,5 @@
-import { Alert, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import { Alert, BackHandler, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import BottomSheet from "./BottomSheet";
 import OtpInput from "../Inputs/OtpInput";
 import {
@@ -9,12 +9,11 @@ import {
   IconButton,
   Text,
 } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as LocalAuthentication from "expo-local-authentication";
 import { showMessage } from "react-native-flash-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCounter } from "@/constants/Hooks";
-
 
 interface TransactionPinSheetProps {
   title?: string;
@@ -49,7 +48,6 @@ const TransactionPinSheet = ({
     onCancel();
   };
 
-  
   const fingerprintLogin = async () => {
     // Check if biometric hardware is available
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
@@ -114,23 +112,20 @@ const TransactionPinSheet = ({
     <BottomSheet
       outterChildrenStyle={{ paddingBottom: 50 }}
       outterChildrenSpace={70}
-      outterChildren={
-        <View className="w-auto items-end">
-          {!processingTransaction && (
-            <IconButton
-              onPress={onCancel}
-              className="bg-red"
-              icon={"close"}
-              iconColor="white"
-              size={30}
-            />
-          )}
-        </View>
-      }
       style={{}}
       mode={sheetMode}
       visible={visible}
       height={"auto"}
+      onDismiss={() =>
+        Alert.alert(
+          "Close",
+          "Are you sure do you want to close current transaction",
+          [
+            { text: "Yes", onPress: () => onCancel() },
+            { text: "NO", onPress: () => null },
+          ],
+        )
+      }
     >
       {processingTransaction && (
         <View

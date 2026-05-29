@@ -30,6 +30,7 @@ import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { formatNumber, toNumber } from "@/constants/Formats";
 import { Timer } from "@/constants/Utils";
 import { StatusBar } from "expo-status-bar";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const electricity = () => {
   const theme = useTheme()
@@ -144,7 +145,7 @@ const electricity = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -163,18 +164,19 @@ const electricity = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
         <View>
-          <View className="px-5 space-y-3">
-            <View className="space-y-2 mt-4">
+          <View className="px-5 gap-y-3">
+            <View className="gap-y-2 mt-4">
               <Text className="text-[15px] ml-2">Biller</Text>
               <Pressable onPress={() => setProviderSelectSheetVisible(true)}>
                 <TextInput
                   mode="outlined"
                   editable={false}
-                  className="rounded-lg bg-transparent"
+                  className="rounded-lg "
                   placeholder="Select Provider"
                   outlineStyle={{ borderRadius: 15 }}
+                  style={{backgroundColor: "transparent"}}
                   
                   value={selectedProvider ? selectedProvider.name : ""}
                   left={
@@ -207,7 +209,7 @@ const electricity = () => {
                 />
               </Pressable>
             </View>
-            <View className="flex-row items-center space-x-2">
+            <View className="flex-row items-center gap-x-2">
               <Chip
                 onPress={() => setSelectedMeterType("postpaid")}
                 selected={selectedMeterType == "postpaid"}
@@ -221,20 +223,21 @@ const electricity = () => {
                 PrePaid
               </Chip>
             </View>
-            <View className="space-y-2">
+            <View className="gap-y-2">
               <Text>Meter Number</Text>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg "
                 keyboardType="numeric"
                 placeholder="Enter Meter Numer"
+                style={{backgroundColor: "transparent"}}
                 onChangeText={setMeterNumber}
                 outlineStyle={{ borderRadius: 15 }}
               />
               <View className="flex-row items-center justify-between">
                 <View>
                   {idVerified && (
-                    <View className="items-center flex-row space-x-1">
+                    <View className="items-center flex-row gap-x-1">
                       <Icon source={"check-circle"} color="green" size={20} />
                       <Text>{meterNumber}</Text>
                     </View>
@@ -259,14 +262,15 @@ const electricity = () => {
               </View>
             </View>
 
-            <View className="space-y-2">
+            <View className="gap-y-2">
               <Text>Amount</Text>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg "
                 keyboardType="numeric"
                 onChangeText={setAmount}
                 placeholder="Enter Meter Amount"
+                style={{backgroundColor: "transparent"}}
                 outlineStyle={{ borderRadius: 15 }}
               />
             </View>
@@ -274,7 +278,7 @@ const electricity = () => {
             <View className="px-5 pt-5">
               <Button
                 onPress={handleNext}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
@@ -293,7 +297,7 @@ const electricity = () => {
         height={"70%"}
       >
         <View className="h-full">
-          <View className="p-3 px-5 space-y-5">
+          <View className="p-3 px-5 gap-y-5">
             <Text className="text-[17px] font-bold text-center">
               Select Provider
             </Text>

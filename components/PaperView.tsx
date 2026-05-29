@@ -62,7 +62,7 @@ export const PaperSafeView: React.FC<PaperSafeViewProps> = ({
     <SafeAreaView
       className="flex-1"
       edges={["bottom"]}
-      style={[{ backgroundColor: theme.colors.background }, style]}
+      style={[{ backgroundColor: theme.colors.background, flex: 1 }, style]}
     >
       <EaseView
         animate={{
@@ -70,13 +70,14 @@ export const PaperSafeView: React.FC<PaperSafeViewProps> = ({
           scaleX: loaded ? 1 : 0.7,
           opacity: loaded ? 1 : 0,
         }}
+        style={{ flex: 1 }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
         className="flex-1"
       >
         <LinearGradient
           className="flex-1"
-          style={{paddingTop: RNStatusBar.currentHeight}}
-          colors={[theme.colors.secondaryContainer, theme.colors.background ]}
+          style={{paddingTop: RNStatusBar.currentHeight, flex: 1}}
+          colors={[theme.colors.secondaryContainer, theme.colors.background, ]}
         >
           <Pressable onPress={onPress} className={className || "flex-1"}>
             {children}

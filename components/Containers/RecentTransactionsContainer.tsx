@@ -51,7 +51,7 @@ const RecentTransactionsListComponent = ({
       <List.Item
         onPress={onPress}
         title={
-          <View className="flex-row items-center space-x-1">
+          <View className="flex-row items-center gap-x-1">
             <Text className="font-bold">{title}</Text>
             <Text className="text-[10px]">{status}</Text>
           </View>

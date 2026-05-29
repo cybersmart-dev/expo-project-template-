@@ -22,6 +22,7 @@ import requests from "@/Network/HttpRequest";
 import { getUserInfo } from "@/constants/UserInfo";
 import { maskEmail } from "@/constants/Formats";
 import { Toast } from "@/constants/Toast";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const resetpin = () => {
   const theme = useTheme();
@@ -123,7 +124,7 @@ const resetpin = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar >
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -137,7 +138,7 @@ const resetpin = () => {
           />
 
           <Appbar.Content title="Reset Pin" />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="">
           {!otpValidated && (

@@ -16,7 +16,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = useTheme();
   return (
-    <SafeAreaView edges={["bottom", "left", "right"]} className="flex-1">
+    <SafeAreaView edges={["bottom", "left", "right"]} style={{flex: 1}}>
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: theme.colors.primary,

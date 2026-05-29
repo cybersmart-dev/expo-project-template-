@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import Processing from "@/components/models/Processing";
 import { Timer } from "@/constants/Utils";
 import requests from "@/Network/HttpRequest";
+import { Toast } from "@/constants/Toast";
 
 const setupPassword = () => {
   const { fullName, email, phoneNumber, state } = useLocalSearchParams();
@@ -23,7 +24,7 @@ const setupPassword = () => {
 
       return;
     }
-    
+
     registerUser(pass1);
   };
 
@@ -38,15 +39,14 @@ const setupPassword = () => {
         email: email,
         phone_number: phoneNumber,
         state: state,
-        password:password
+        password: password,
       },
     });
-    
-    
+
     //console.log(response);
-    
+
     setProcessing(false);
-     
+
     if (response.status == 1) {
       showMessage({
         message: "Registered",
@@ -64,9 +64,14 @@ const setupPassword = () => {
         type: "danger",
         icon: "danger",
       });
-       
-    };
-  }
+    }
+    if (response.status == undefined) {
+      Toast.dangerHapticsAsync({
+        title: "Registration Failed",
+        body: "Network Disconnected",
+      });
+    }
+  };
   return (
     <View className="flex-1">
       <SingupPasswordSetup onComfirm={handleConfirm} />

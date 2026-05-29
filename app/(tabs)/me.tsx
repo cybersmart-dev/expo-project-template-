@@ -210,7 +210,7 @@ const Me = () => {
     useState(false);
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   const [activeTab, setActiveTab] = useState(1);
-  const { activeTheme, setActiveTheme } = useContext(RootLayoutContext);
+ 
 
   useFocusEffect(
     useCallback(() => {
@@ -222,10 +222,6 @@ const Me = () => {
       };
     }, []),
   );
-
-  useEffect(() => {
-    setActiveTheme(isSwitchOn ? "dark" : colorScheme);
-  }, [isSwitchOn]);
 
   const checkLoginState = async () => {
     try {
@@ -427,7 +423,7 @@ const Me = () => {
                       <List.Icon
                         icon={() => (
                           <View>
-                            <Text>{`${activeTheme}`.toUpperCase()}</Text>
+                            <Text>{`$System`.toUpperCase()}</Text>
                           </View>
                         )}
                       />

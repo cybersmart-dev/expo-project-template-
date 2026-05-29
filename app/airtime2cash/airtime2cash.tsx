@@ -28,6 +28,7 @@ import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
 import { Storage } from "@/constants/Storage";
 import { Networks } from "@/constants/DemoList";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const airtime2cash = () => {
   const [selectedNetwork, setSelectedNetwork] = useState("");
@@ -165,7 +166,7 @@ const airtime2cash = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar style={{ backgroundColor: "transparent" }} collapsable={true}>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -184,14 +185,14 @@ const airtime2cash = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="p-5">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
-            className="space-x-5 py-2"
+            className="gap-x-5 py-2"
           >
             {networks.map((item) => (
               <TouchableOpacity
@@ -207,7 +208,7 @@ const airtime2cash = () => {
                   handleNetworkSelect(item.name);
                   setSelectedNetworkId(item.id);
                 }}
-                className=" p-3 rounded-lg"
+                className="ml-5 p-3 rounded-lg"
               >
                 <Image
                     resizeMode={"stretch"}
@@ -218,7 +219,7 @@ const airtime2cash = () => {
             ))}
           </ScrollView>
         </View>
-        <View className="px-5">
+        <View className="px-8">
           <Text className="text-lg hidden font-bold">
             {selectedNetwork.toUpperCase()}
           </Text>
@@ -227,7 +228,7 @@ const airtime2cash = () => {
               onChangeText={setPhoneNumber}
               placeholder="Sender Phone Number"
               keyboardType="numeric"
-              className="bg-transparent"
+              style={{ backgroundColor: "transparent" }}
               error={phoneErrorVisible}
               left={<TextInput.Icon icon={"phone"} />}
               mode="outlined"
@@ -247,7 +248,7 @@ const airtime2cash = () => {
             <Button
               onPress={handleSell}
               mode="contained"
-              className="p-1"
+              className="py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
             >

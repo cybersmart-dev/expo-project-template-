@@ -18,6 +18,7 @@ import {
   ActivityIndicator,
   Dialog,
   Portal,
+  Icon,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { showMessage } from "react-native-flash-message";
@@ -37,6 +38,7 @@ import { Storage } from "@/constants/Storage";
 import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
 import { LightTheme } from "../_layout";
 import BottomLayout from "@/components/Containers/BottomLayout";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme<typeof LightTheme>();
@@ -53,9 +55,11 @@ const PhoneLoginComponent = () => {
     useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [fingerPrintIconColor, setFingerPrintIconColor] = useState("");
 
   useFocusEffect(
     useCallback(() => {
+      setFingerPrintIconColor(theme.colors.onBackground);
       setLoaded(true);
       return () => {
         setLoaded(false);
@@ -191,12 +195,14 @@ const PhoneLoginComponent = () => {
     });
 
     if (result.success) {
+      setFingerPrintIconColor("lightgreen")
       const auth = await Storage.secureGet("auth");
       if (auth) {
         const password = JSON.parse(auth)?.password;
         login(userInfo?.email, password);
       }
     } else {
+      setFingerPrintIconColor("red")
       showMessage({
         message: "Failed",
         description: "Authentication failed: " + result.error,
@@ -211,7 +217,7 @@ const PhoneLoginComponent = () => {
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
-      <Appbar className="bg-transparent">
+      <CustomAppbar className="">
         <Appbar.Content
           title={
             <View className="flex-row items-center">
@@ -242,7 +248,7 @@ const PhoneLoginComponent = () => {
           mode="small"
           style={{ alignItems: "flex-start" }}
         />
-      </Appbar>
+      </CustomAppbar>
 
       <View className="absolute top-[120px] space-y-0 w-full items-center justify-center">
         <EaseView
@@ -294,89 +300,85 @@ const PhoneLoginComponent = () => {
           </EaseView>
         </View>
       </View>
-     <BottomLayout>
-          <View className="space-y-7 px-7">
-            {biometricAvailable && (
-              <View className="items-center">
-                <TouchableOpacity
-                  disabled={showProcessing}
-                  onPress={fingerprintLogin}
-                  style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
-                  className="p-4 rounded-full"
-                >
-                  <Entypo
-                    name="fingerprint"
-                    size={40}
-                    color={theme.colors.onBackground}
-                  />
-                </TouchableOpacity>
-                <Text className="font-bold  mt-2">Use FingerPrint</Text>
-              </View>
+      <BottomLayout>
+        <View className="gap-y-7 px-7 mt-5">
+          {biometricAvailable && (
+            <View className="items-center">
+              <TouchableOpacity
+                disabled={showProcessing}
+                onPress={fingerprintLogin}
+                style={{ boxShadow: "0 0px 10px 5px rgba(0, 0, 0, 0.15)" }}
+                className="p-4 rounded-full"
+              >
+                <Icon
+                  source="fingerprint"
+                  size={40}
+                  color={fingerPrintIconColor || theme.colors.onBackground}
+                />
+              </TouchableOpacity>
+              <Text className="font-bold  mt-2">Use FingerPrint</Text>
+            </View>
+          )}
+
+          <TextInput
+            placeholder="Password"
+            style={{ backgroundColor: "transparent" }}
+            secureTextEntry={showPassword ? false : true}
+            left={<TextInput.Icon size={20} icon="key" />}
+            onChangeText={setPassword}
+            disabled={showProcessing}
+            onSubmitEditing={() => validateInput()}
+            right={
+              <TextInput.Icon
+                size={20}
+                onPress={() => setShowPassword(!showPassword)}
+                icon={showPassword ? "eye-off" : "eye"}
+              />
+            }
+            mode="outlined"
+            outlineStyle={{ borderRadius: 15 }}
+          />
+
+          <View className="">
+            {showProcessing && (
+              <Button
+                disabled
+                onPress={() => validateInput()}
+                className="text-lg py-1"
+                style={{ borderRadius: 15 }}
+                labelStyle={{ fontSize: 16 }}
+                mode="contained"
+              >
+                <View className="flex-row">
+                  <Text> </Text>
+                  <ActivityIndicator size={25} />
+                </View>
+              </Button>
             )}
 
-            <TextInput
-              placeholder="Password"
-              className="bg-transparent"
-              secureTextEntry={showPassword ? false : true}
-              left={<TextInput.Icon size={20} icon="key" />}
-              onChangeText={setPassword}
-              disabled={showProcessing}
-              onSubmitEditing={() => validateInput()}
-              right={
-                <TextInput.Icon
-                  size={20}
-                  onPress={() => setShowPassword(!showPassword)}
-                  icon={showPassword ? "eye-off" : "eye"}
-                />
-              }
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-            />
+            {!showProcessing && (
+              <Button
+                onPress={() => validateInput()}
+                mode={"contained"}
+                className="py-1"
+                style={{ borderRadius: 15 }}
+                labelStyle={{
+                  fontSize: 16,
+                }}
+              >
+                Login
+              </Button>
+            )}
 
-            <View className="">
-              {showProcessing && (
-                <Button
-                  disabled
-                  onPress={() => validateInput()}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  <View className="flex-row">
-                    <Text> </Text>
-                    <ActivityIndicator size={25} />
-                  </View>
-                </Button>
-              )}
-
-              {!showProcessing && (
-                <Button
-                  onPress={() => validateInput()}
-                  mode={"outlined"}
-                  className="p-1 bg-[#ffa60042]"
-                  style={{ borderRadius: 15, borderColor: theme.colors.accent }}
-                  labelStyle={{
-                    fontSize: 16,
-                    color: theme.colors.onBackground,
-                  }}
-                >
-                  Login
-                </Button>
-              )}
-
-              <View className="flex-row items-center justify-center pt-0 pb-2">
-                <Text>Not my account?</Text>
-                <Button
-                  disabled={showProcessing}
-                  onPress={() => removeAccount()}
-                >
-                  Logout
-                </Button>
-              </View>
+            <View className="flex-row items-center justify-center pt-0 pb-2">
+              <Text>Not my account?</Text>
+              <Button disabled={showProcessing} onPress={() => removeAccount()}>
+                Logout
+              </Button>
             </View>
           </View>
-        </BottomLayout>
+        </View>
+      </BottomLayout>
 
       <Portal>
         <Dialog

@@ -1,9 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  View,
-  Image,
-  BackHandler,
-} from "react-native";
+import { View, Image, BackHandler } from "react-native";
 import {
   Text,
   useTheme,
@@ -201,47 +197,49 @@ const Index = () => {
         </View>
       </View>
 
-      <View className="px-4  w-screen space-y-7 absolute bottom-0 mb-20">
-        <View className="flex-row w-full space-x-2 items-center justify-between">
-          <Button
-            onPress={() => router.push("/logins/emailLogin")}
-            icon={({ color }) => (
-              <Fontisto name="email" size={24} color={color} />
-            )}
-            className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
-            style={{ borderRadius: 15,boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)"  }}
-            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-            mode="outlined"
-          >
-            Login
-          </Button>
+      <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-20">
+        <Button
+          onPress={() => router.push("/logins/emailLogin")}
+          // icon={({ color }) => (
+          //   <Fontisto name="email" size={24} color={color} />
+          // )}
+          className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
+          style={{
+            borderRadius: 15,
+          }}
+          labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+          mode="outlined"
+        >
+          Login
+        </Button>
 
-          <Button
-            onPress={() => router.push("/singup")}
-            icon={({ color }) => (
-              <AntDesign name="mobile" size={24} color={color} />
-            )}
-            mode={"outlined"}
-            className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
-            style={{ borderRadius: 15, borderColor: theme.colors.accent, boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)" }}
-            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-          >
-            SingUp
-          </Button>
-        </View>
+        <Button
+          onPress={() => router.push("/singup")}
+          // icon={({ color }) => (
+          //   <AntDesign name="mobile" size={24} color={color} />
+          // )}
+          mode={"outlined"}
+          className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
+          style={{
+            borderRadius: 15,
+          }}
+          labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+        >
+          SingUp
+        </Button>
+
         <View>
           <Button
             onPress={async (e) => {
               e.preventDefault();
               await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
             }}
-            icon={() => (
-              <IconButton icon={"face-agent"} />
-  )}
-          
+            // icon={() => <IconButton icon={"face-agent"} />}
             mode={"outlined"}
             className="p-1 py-0"
-            style={{ borderRadius: 15, boxShadow:"0 0px 5px 1px rgba(0, 0, 0, 0.20)" }}
+            style={{
+              borderRadius: 15,
+            }}
             labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
           >
             Contact Support

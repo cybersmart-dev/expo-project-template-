@@ -37,6 +37,7 @@ import { showMessage } from "react-native-flash-message";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import RecentTransactionsContainer from "@/components/Containers/RecentTransactionsContainer";
 import { PaperSafeView } from "@/components/PaperView";
+import CustomAppbar from "@/components/CustomAppbar";
 
 export default function Index() {
   const theme = useTheme();
@@ -153,16 +154,15 @@ export default function Index() {
         }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
         // style={{ backgroundColor: theme.colors.background }}
-        className="flex flex-1"
+        style={{flex: 1}}
       >
-        <Appbar
-         className="bg-transparent"
+        <CustomAppbar
         >
           <Appbar.Content
             title={
               <TouchableOpacity
                 onPress={() => router.push("/me")}
-                className="flex-row items-center space-x-2"
+                className="flex-row items-center gap-x-2"
               >
                 <Image
                   className="h-7 w-7 rounded-full"
@@ -171,7 +171,7 @@ export default function Index() {
                 <Text className="">
                   Hi{" "}
                   <Text className="font-bold">
-                    {userInfo?.username || <Button>Refresh</Button>}!
+                    {userInfo?.username || "..."}!
                   </Text>
                 </Text>
               </TouchableOpacity>
@@ -189,7 +189,7 @@ export default function Index() {
            
             icon={"face-agent"}
           />
-        </Appbar>
+        </CustomAppbar>
 
         <ScrollView
           showsVerticalScrollIndicator={false}

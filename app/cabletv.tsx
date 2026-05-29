@@ -32,6 +32,7 @@ import { showMessage } from "react-native-flash-message";
 import { Timer } from "@/constants/Utils";
 import CableTvPreview from "@/components/Previews/CableTvPreview";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 interface CableSelectInputProps {
   onSelect: (data: (typeof CableTVSubscription)[0]) => void;
@@ -227,7 +228,7 @@ const cabletv = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -246,9 +247,9 @@ const cabletv = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
-        <View className="p-2 space-y-5 mt-3">
-          <View className="px-5 space-y-2 ">
+        </CustomAppbar>
+        <View className="p-2 gap-y-5 mt-3">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Enter IUC</Text>
             <View className="mt-2">
               <CableSelectInput
@@ -259,7 +260,7 @@ const cabletv = () => {
             <View className="flex-row items-center justify-between">
               <View>
                 {IUCVerified && (
-                  <View className="items-center flex-row space-x-1">
+                  <View className="items-center flex-row gap-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
                     <Text>{iuc}</Text>
                   </View>
@@ -284,7 +285,7 @@ const cabletv = () => {
             </View>
           </View>
 
-          <View className="px-5 space-y-2">
+          <View className="px-5 gap-y-2">
             <Text className="text-[130x] font-bold">Plan</Text>
             <Pressable
               onPress={() => {
@@ -297,7 +298,8 @@ const cabletv = () => {
             >
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg "
+                style={{backgroundColor: "transparent"}}
                 value={selectedPlan ? selectedPlan?.name : ""}
                 placeholder="Select Plan"
                 outlineStyle={{ borderRadius: 15 }}
@@ -328,7 +330,7 @@ const cabletv = () => {
             <Button
               onPress={handleNext}
               disabled={verifyingIUC}
-              className="text-lg p-1"
+              className="text-lg py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"

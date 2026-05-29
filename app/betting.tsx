@@ -27,6 +27,7 @@ import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import {Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const betting = () => {
   const theme = useTheme();
@@ -164,7 +165,7 @@ const betting = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent">
+        <CustomAppbar>
           <Appbar.Action
             onPress={() => router.back()}
             icon={() => (
@@ -177,15 +178,16 @@ const betting = () => {
           />
 
           <Appbar.Content title="Betting" />
-        </Appbar>
+        </CustomAppbar>
 
-        <View className="p-2 space-y-5 mt-5">
-          <View className="px-5 space-y-2 ">
+        <View className="p-2 gap-y-5 mt-5">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Betting Provider</Text>
             <Pressable onPress={handleShowProviders}>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg"
+                style={{backgroundColor: "transparent"}}
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -221,12 +223,13 @@ const betting = () => {
             </Pressable>
           </View>
 
-          <View className="px-5 space-y-2 ">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Customer ID</Text>
             <Pressable>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg"
+                style={{backgroundColor: "transparent"}}
                 keyboardType="numeric"
                 editable={!idVerified}
                 placeholder={"Customer ID"}
@@ -251,7 +254,7 @@ const betting = () => {
             <View className="flex-row items-center justify-between">
               <View>
                 {idVerified && (
-                  <View className="items-center flex-row space-x-1">
+                  <View className="items-center flex-row gap-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
                     <Text>{customerId}</Text>
                   </View>
@@ -276,12 +279,13 @@ const betting = () => {
             </View>
           </View>
 
-          <View className="px-5 space-y-2 ">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Amount</Text>
             <Pressable>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg"
+                style={{backgroundColor: "transparent"}}
                 keyboardType="numeric"
                 placeholder="Amount"
                 value={amount}
@@ -294,7 +298,7 @@ const betting = () => {
           <View className="px-5 pt-5">
             <Button
               onPress={handleNext}
-              className="text-lg p-1"
+              className="text-lg py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"
@@ -312,7 +316,7 @@ const betting = () => {
         height={"70%"}
       >
         <View>
-          <View className="p-3 px-5 space-y-5">
+          <View className="p-3 px-5 gap-y-5">
             <Text className="text-[17px] font-bold text-center">
               Select Betting Company
             </Text>
@@ -344,7 +348,7 @@ const betting = () => {
               ListEmptyComponent={
                 <View>
                   {fetchingProcessing && (
-                    <View className="items-center justify-center space-y-3 mt-5">
+                    <View className="items-center justify-center gap-y-3 mt-5">
                       <ActivityIndicator size={30} />
                       <Text>Loading Providers...</Text>
                     </View>

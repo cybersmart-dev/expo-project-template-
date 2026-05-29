@@ -24,6 +24,7 @@ import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import requests from "@/Network/HttpRequest";
 import NoConnectionModal from "@/components/models/NoConnectionModal";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const buydata = () => {
   const theme = useTheme();
@@ -135,7 +136,7 @@ const buydata = () => {
   return (
     <PaperSafeView className="flex-1">
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -154,10 +155,10 @@ const buydata = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
       </View>
 
-      <View className="flex-1">
+      <View  className="flex-1">
         <View className="mt-2">
           <Pressable
             onPress={() => setBeneficiarySheetVisible(true)}
@@ -205,7 +206,7 @@ const buydata = () => {
         <View className="px-5 pt-5">
           <Button
             onPress={handleBuy}
-            className="text-lg p-1"
+            className="text-lg py-1"
             style={{ borderRadius: 15 }}
             labelStyle={{ fontSize: 16 }}
             mode="contained"

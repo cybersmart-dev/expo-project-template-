@@ -13,8 +13,8 @@ const ServicesContainer = () => {
   const [showMoreBottomSheet, setshowMoreBottomSheet] = useState(false);
   return (
     <View>
-      <View className="space-y-5 items-center p-5">
-        <View className="flex-row items-center justify-between w-[90%]">
+      <View className="gap-y-8 items-center p-5">
+        <View className="flex-row items-center justify-between w-[100%]">
           <ActionButton
             label="Betting"
             onPress={() => router.push("/betting")}
@@ -40,7 +40,7 @@ const ServicesContainer = () => {
           />
         </View>
 
-        <View className="flex-row items-center justify-between w-[90%]">
+        <View className="flex-row items-center justify-between w-[100%]">
           <ActionButton
             onPress={() => router.push("/result-chacker")}
             label="Result Check"
@@ -75,11 +75,11 @@ const ServicesContainer = () => {
           mode={"full-width"}
           onDismiss={() => setshowMoreBottomSheet(false)}
         >
-          <View className="px-2 mt-1 p-2 space-y-5 h-full">
-            <Text className="text-lg font-bold">More Services</Text>
+          <View className="px-2 mt-1 p-2 gap-y-5 h-full">
+            <Text className="text-lg font-bold ml-4">More Services</Text>
 
-            <View className="space-y-2 px-1">
-              <Card className="p-3">
+            <View className="gap-y-2 px-1">
+              <View className="p-3 px-5">
                 <View className="flex-row w-full items-center justify-between">
                   <ActionButton
                     onPress={() => router.push("/widthdraw")}
@@ -107,7 +107,7 @@ const ServicesContainer = () => {
                     )}
                   />
                 </View>
-              </Card>
+              </View>
             </View>
 
             <View className="bottom-0 hidden w-full pt-10 px-5">

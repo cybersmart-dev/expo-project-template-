@@ -22,6 +22,7 @@ import { Timer, toNumber } from "@/constants/Utils";
 import { showMessage } from "react-native-flash-message";
 import BottomSheet from "@/components/models/BottomSheet";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const resultchacker = () => {
   const theme = useTheme();
@@ -92,7 +93,7 @@ const resultchacker = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -111,7 +112,7 @@ const resultchacker = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
         <View className="mt-5">
           <View className="flex-row items-center justify-evenly">
             <TouchableOpacity
@@ -148,9 +149,9 @@ const resultchacker = () => {
             </TouchableOpacity>
           </View>
 
-          <View className="px-5 space-y-10 mt-10">
+          <View className="px-5 gap-y-10 mt-10">
             <TextInput
-              className="bg-transparent"
+              style={{backgroundColor: "transparent"}}
               placeholder="Quantity"
               keyboardType={"numeric"}
               onChangeText={setQuantity}
@@ -160,7 +161,7 @@ const resultchacker = () => {
             <View className="">
               <Button
                 onPress={handleNext}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
@@ -217,7 +218,7 @@ const resultchacker = () => {
           </View>
           <View className="absolute bottom-10 w-full mb-5 px-5 mt-5">
             <Button
-              className="text-lg p-1 w-full"
+              className="text-lg py-1 w-full"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"

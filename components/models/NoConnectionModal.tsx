@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import * as IntentLauncher from "expo-intent-launcher";
 import { router } from "expo-router";
 import BottomLayout from "../Containers/BottomLayout";
+import CustomAppbar from "../CustomAppbar";
 
 interface NoConnectionModalProps {
   visible: boolean;
@@ -26,14 +27,15 @@ const NoConnectionModal = ({ visible, title="Conntect to the internet", descript
   return (
     <Modal visible={visible} onRequestClose={() => router.back()}>
       <PaperSafeView>
-        <Appbar className="bg-transparent">
+        <CustomAppbar>
           <Appbar.BackAction onPress={() => router.back()} />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="flex-1 h-screen ">
           <View className="w-full items-center">
             <Image
-              className="h-[200px] w-32 rounded-full"
+              style={{height:200, width: 100}}
+              className="rounded-full"
               source={require("@/assets/images/gif/no_connection_anim2.gif")}
             />
           </View>
@@ -43,10 +45,10 @@ const NoConnectionModal = ({ visible, title="Conntect to the internet", descript
           </View>
          
             <BottomLayout>
-              <View className="px-5 pt-5 space-y-5">
+              <View className="px-8 gap-y-5 mt-5">
                 <Button
                   onPress={onRetry}
-                  className="text-lg p-1"
+                  className="text-lg py-1"
                   style={{ borderRadius: 15 }}
                   labelStyle={{ fontSize: 16 }}
                   mode="contained"
@@ -55,7 +57,7 @@ const NoConnectionModal = ({ visible, title="Conntect to the internet", descript
                 </Button>
                 <Button
                   onPress={goToSetting}
-                  className="text-lg p-1"
+                  className="text-lg py-1"
                   style={{ borderRadius: 15 }}
                   labelStyle={{ fontSize: 16 }}
                   mode="outlined"

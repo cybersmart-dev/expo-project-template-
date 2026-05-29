@@ -28,11 +28,13 @@ export default function Root({ children }: { children: React.ReactNode }) {
 }
 
 const responsiveBackground = `
+/* Keep body background transparent so native-style backgrounds show through.
+   Avoid forcing a white background after migrating to Uniwind. */
 body {
-  background-color: #fff;
+  background-color: transparent;
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000;
+    background-color: transparent;
   }
 }`;

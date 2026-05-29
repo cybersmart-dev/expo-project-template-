@@ -33,6 +33,7 @@ import { Image } from "expo-image";
 import NoConnectionModal from "@/components/models/NoConnectionModal";
 import * as Clipboard from "expo-clipboard";
 import { Toast } from "@/constants/Toast";
+import CustomAppbar from "@/components/CustomAppbar";
 
 //type TransactionsType = Transactions
 
@@ -210,20 +211,22 @@ const TransactionDetails = () => {
   };
 
   const getTransactionStatusIcon = () => {
-    return (
-      <View className="h-[50px] w-[50px] bg-green-600 items-center justify-center rounded-full mb-2">
-        <Icon source={"check"} size={30} color={"white"} />
-      </View>
-    );
+    if (transaction?.status == "Success".toUpperCase()) {
+      return (
+        <View className="h-[50px] w-[50px] bg-green-600 items-center justify-center rounded-full mb-2">
+          <Icon source={"check"} size={30} color={"white"} />
+        </View>
+      );
+    }
   };
 
   const handleCopy = async (text: string) => {
     await Clipboard.setStringAsync(text);
-    Toast.success({title:"Copied", body:"ID Copied"})
+    Toast.success({ title: "Copied", body: "ID Copied" });
   };
   return (
     <PaperSafeView>
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <Appbar.Action
           isLeading
           icon={({ color, size }) => (
@@ -238,11 +241,11 @@ const TransactionDetails = () => {
           )}
           onPress={() => setMenuSheetVisible(true)}
         />
-      </Appbar>
+      </CustomAppbar>
 
       {fetching && (
         <View className="flex-1 items-center justify-center">
-          <View className="items-center justify-center space-y-5">
+          <View className="items-center justify-center gap-y-5">
             <ActivityIndicator size={35} />
             <Text>Loading Transaction...</Text>
           </View>
@@ -265,8 +268,10 @@ const TransactionDetails = () => {
 
               <Text className="text font-bold">{transaction?.status}</Text>
             </View>
-            <View className="w-full px-5 mt-2">
-              <Text className="text-center">{transaction?.description}</Text>
+            <View className="w-full px-5 mt-2 items-center">
+              <Text style={{ textAlign: "center" }} className="text-center">
+                {transaction?.description}
+              </Text>
             </View>
           </View>
 
@@ -280,19 +285,20 @@ const TransactionDetails = () => {
                   <Text className="font-bold">Transaction ID</Text>
                 </DataTable.Cell>
                 <DataTable.Cell numeric>
-                   <Tooltip title={transaction?.id}>
-                  <Pressable
-                    onPress={() => handleCopy(transaction?.id)}
-                    className="flex-row items-center space-x-0 mr-2"
-                  >
-                    <Text ellipsizeMode={'middle'} numberOfLines={1}>{transaction?.id}</Text>
-                   
+                  <Tooltip title={transaction?.id}>
+                    <Pressable
+                      onPress={() => handleCopy(transaction?.id)}
+                      className="flex-row items-center space-x-0 mr-2"
+                    >
+                      <Text ellipsizeMode={"middle"} numberOfLines={1}>
+                        {transaction?.id}
+                      </Text>
+
                       <Pressable onPress={() => handleCopy(transaction?.id)}>
-                      <Icon source={"content-copy"} size={17} />
+                        <Icon source={"content-copy"} size={17} />
+                      </Pressable>
                     </Pressable>
-                    
-                    </Pressable>
-                    </Tooltip>
+                  </Tooltip>
                 </DataTable.Cell>
               </DataTable.Row>
 
@@ -394,17 +400,18 @@ const TransactionDetails = () => {
       </BottomSheet>
 
       {!fetching && (
-        <View className="absolute bottom-0 w-full mb-10 px-5 space-x-5 flex-row">
+        <View className="absolute bottom-0 w-full mb-10 px-5 gap-y-3">
           <Button
             onPress={handleShareTransactionRecipt}
             mode="outlined"
-            className=""
+            className="py-1"
           >
             Share Recipt
           </Button>
           <Button
             onPress={() => setDownloadOptionSheetVisible(true)}
             mode="contained"
+            className="py-1"
           >
             Download Recipt
           </Button>

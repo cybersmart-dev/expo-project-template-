@@ -35,7 +35,6 @@ const BottomLayout = ({ children, onLayout }: BottomLayoutProps) => {
   );
   return (
     <KeyboardAvoidingView
-      
       behavior={Platform.OS == "android" ? "padding" : "height"}
       className="h-auto min-h-[40%]  w-screen "
       style={{
@@ -49,13 +48,15 @@ const BottomLayout = ({ children, onLayout }: BottomLayoutProps) => {
           backgroundColor: theme.colors.surfaceVariant,
           marginTop: 50,
           paddingBottom: 30,
+          borderTopRightRadius: 30,
+          borderTopLeftRadius:30
           
         }}
-        className="rounded-t-[30px] h-full justify-center"
+        className="rounded-t-5 h-full justify-center"
         animate={{ translateY: loaded ? 0 : 100 }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
       >
-        <View   className="space-y-7 px-0 shadow-2xl">{children}</View>
+        <View >{children}</View>
       </EaseView>
     </KeyboardAvoidingView>
   );

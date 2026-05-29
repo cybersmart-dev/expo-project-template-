@@ -18,6 +18,7 @@ import { Timer } from "@/constants/Utils";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const chanepin = () => {
   const theme = useTheme();
@@ -116,7 +117,7 @@ const chanepin = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -130,10 +131,10 @@ const chanepin = () => {
           />
 
           <Appbar.Content title="Change Pin" />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="px-5">
-          <View className="space-y-5  px-5 mt-3">
+          <View className="gap-y-5  px-5 mt-3">
             <Text className="mb-3 font-bold text-[12px] uppercase">
               Enter your current pin
             </Text>
@@ -146,7 +147,7 @@ const chanepin = () => {
             />
           </View>
 
-          <View className="space-y-5 px-5 mt-5">
+          <View className="gap-y-5 px-5 mt-5">
             <View className="mb-5">
               <Text className="font-bold text-[12px] uppercase">
                 Enter your new pin
@@ -178,7 +179,7 @@ const chanepin = () => {
           <View className="mt-8">
             <Button
               onPress={handleChange}
-              className="text-lg p-1"
+              className="text-lg py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"
@@ -190,7 +191,7 @@ const chanepin = () => {
       </View>
 
       <BottomSheet visible={processingVisible}>
-        <View className="p-14">
+        <View className="py-14">
           <View className="items-center justify-center gap-2">
             <ActivityIndicator size={30} />
             <Text>Please wait...</Text>

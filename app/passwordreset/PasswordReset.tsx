@@ -29,6 +29,8 @@ import requests from "@/Network/HttpRequest";
 import OtpInput from "@/components/Inputs/OtpInput";
 import Processing from "@/components/models/Processing";
 import { useCounter } from "@/constants/Hooks";
+import CustomAppbar from "@/components/CustomAppbar";
+import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
 
 const PasswordReset = () => {
   const theme = useTheme();
@@ -136,7 +138,7 @@ const PasswordReset = () => {
       data: {
         token: otpVerifyToken,
         otp: otp,
-        email: email
+        email: email,
       },
     });
     setResendOtpProcessing(false);
@@ -182,10 +184,10 @@ const PasswordReset = () => {
       add_header_token: false,
       data: {
         password: newPassword,
-        token: passwordResetToken
-      }
+        token: passwordResetToken,
+      },
     });
-    setShowProcessing(false)
+    setShowProcessing(false);
 
     if (response.status == 0) {
       Toast.danger({ title: response?.message });
@@ -193,7 +195,7 @@ const PasswordReset = () => {
 
     if (response.status == 1) {
       Toast.success({ title: response.message });
-      router.back()
+      router.back();
     }
     if (response.status == undefined) {
       Toast.danger({ title: response?.message });
@@ -201,7 +203,7 @@ const PasswordReset = () => {
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <Appbar.Action
           icon={({ color, size }) => (
             <MaterialIcons
@@ -218,9 +220,9 @@ const PasswordReset = () => {
         <Button mode={"contained-tonal"} className="mr-2">
           Help
         </Button>
-      </Appbar>
+      </CustomAppbar>
 
-      <View className="absolute top-[150px] space-y-0 w-full items-center justify-center">
+      <View className="absolute top-[150px] gap-y-0 px-5 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -228,10 +230,7 @@ const PasswordReset = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-          <Image
-            className="h-[70px] w-[70px]  rounded-full"
-            source={require("@/assets/images/profile_avatar.png")}
-          />
+          <AnimatedTransLogo />
         </EaseView>
         <View className="items-center">
           <EaseView
@@ -270,7 +269,7 @@ const PasswordReset = () => {
                   marginBottom: 30,
                   opacity: 0.5,
                 }}
-                className="text-center "
+                className="text-center place-items-center grid"
               >
                 Please Provide your email address to reset your password
               </Text>
@@ -313,7 +312,12 @@ const PasswordReset = () => {
           translateX: otpSended ? -10 : 0,
           opacity: otpSended ? 1 : 0,
         }}
-        style={{ marginBottom: bottomLayoutHeight }}
+        style={{
+          marginBottom: bottomLayoutHeight,
+          position: "absolute",
+          bottom: 0,
+          marginLeft: 3,
+        }}
         className="absolute bottom-0 ml-3"
       >
         <Button
@@ -328,170 +332,175 @@ const PasswordReset = () => {
       </EaseView>
       <BottomLayout
         onLayout={(event: LayoutChangeEvent) => {
-          const height = event.nativeEvent.layout.height - 40;
+          const height = event.nativeEvent.layout.height;
           setBottomLayoutHeight(height);
         }}
       >
-        {!otpSended && !otpVerified && (
-          <View className="space-y-5 px-3">
-            <View className="space-y-5 px-5 shadow-2xl">
+        <View className="mt-12">
+          {!otpSended && !otpVerified && (
+            <View className="gap-y-5 px-3">
+              <View className="gap-y-5 px-5">
+                <TextInput
+                  placeholder="Email Address"
+                  keyboardType={"email-address"}
+                  style={{ backgroundColor: "transparent" }}
+                  mode="outlined"
+                  outlineStyle={{ borderRadius: 15 }}
+                  onChangeText={setEmail}
+                  autoFocus={true}
+                  focusable={true}
+                  left={<TextInput.Icon size={20} icon="email" />}
+                />
+              </View>
+              <View className="px-5">
+                {showProcessing && (
+                  <Button
+                    disabled
+                    onPress={() => null}
+                    className="text-lg py-1"
+                    style={{ borderRadius: 15 }}
+                    labelStyle={{ fontSize: 16 }}
+                    mode="contained"
+                  >
+                    <View className="flex-row">
+                      <Text> </Text>
+                      <ActivityIndicator size={25} />
+                    </View>
+                  </Button>
+                )}
+
+                {!showProcessing && (
+                  <Button
+                    onPress={validateInput}
+                    className="text-lg py-1"
+                    style={{ borderRadius: 15 }}
+                    labelStyle={{ fontSize: 16 }}
+                    mode="contained"
+                  >
+                    Continue
+                  </Button>
+                )}
+
+                <View className="flex-row items-center justify-center pt-3 pb-3">
+                  <Text>I Remember my password</Text>
+                  <Button
+                    disabled={showProcessing}
+                    onPress={() => router.back()}
+                  >
+                    Login
+                  </Button>
+                </View>
+              </View>
+            </View>
+          )}
+          {otpSended && !otpVerified && (
+            <EaseView className="gap-y-7 mb-3 ">
+              <View className="px-5 ml-5">
+                <Text className="font-bold">Enter OTP Blow</Text>
+              </View>
+              <View className="px-10 mt-7">
+                <OtpInput onChange={setOtp} length={4} height={50} width={50} />
+              </View>
+              <View className="px-10 mt-7">
+                <Button
+                  onPress={verifyOtp}
+                  disabled={otp.length == 4 ? false : true}
+                  className="text-lg py-1"
+                  style={{ borderRadius: 15 }}
+                  labelStyle={{ fontSize: 16 }}
+                  mode="contained"
+                >
+                  Continue
+                </Button>
+              </View>
+              <View className="items-center w-full mt-7">
+                <View
+                  style={{ borderColor: theme.colors.primary }}
+                  className="flex-row rounded items-center justify-center border border-dotted w-[50%]"
+                >
+                  <Button
+                    className=""
+                    disabled={resendCount <= 0 ? false : true}
+                    onPress={handleResend}
+                  >
+                    Resend OTP
+                  </Button>
+                  {resendCount <= 0 ? "" : <Text>in {resendCount}s</Text>}
+                </View>
+              </View>
+            </EaseView>
+          )}
+
+          {/* Change Password Fields */}
+
+          {otpSended && otpVerified && (
+            <View className="px-7 gap-y-5">
               <TextInput
-                placeholder="Email Address"
-                keyboardType={"email-address"}
-                className="bg-transparent"
+                placeholder="Password"
+                onChangeText={setNewPassword}
+                secureTextEntry={showPassword ? false : true}
+                left={<TextInput.Icon size={20} icon="lock" />}
+                disabled={showProcessing}
                 mode="outlined"
-                disabled={false}
                 outlineStyle={{ borderRadius: 15 }}
-                onChangeText={setEmail}
-                autoFocus={true}
-                focusable={true}
-                left={<TextInput.Icon size={20} icon="email" />}
+                style={{ backgroundColor: "transparent" }}
+                right={
+                  <TextInput.Icon
+                    size={20}
+                    onPress={() => setShowPassword(!showPassword)}
+                    icon={showPassword ? "eye-off" : "eye"}
+                  />
+                }
               />
-            </View>
-            <View className="px-5">
-              {showProcessing && (
-                <Button
-                  disabled
-                  onPress={() => null}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  <View className="flex-row">
-                    <Text> </Text>
-                    <ActivityIndicator size={25} />
-                  </View>
-                </Button>
-              )}
+              <TextInput
+                placeholder="Confirm Password"
+                onChangeText={setNewPassword2}
+                secureTextEntry={showPassword ? false : true}
+                left={<TextInput.Icon size={20} icon="lock" />}
+                disabled={showProcessing}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+                style={{ backgroundColor: "transparent" }}
+                right={
+                  <TextInput.Icon
+                    size={20}
+                    onPress={() => setShowPassword(!showPassword2)}
+                    icon={showPassword2 ? "eye-off" : "eye"}
+                  />
+                }
+              />
+              <View>
+                {showProcessing && (
+                  <Button
+                    disabled
+                    onPress={() => null}
+                    className="text-lg py-1"
+                    style={{ borderRadius: 15 }}
+                    labelStyle={{ fontSize: 16 }}
+                    mode="contained"
+                  >
+                    <View className="flex-row">
+                      <Text> </Text>
+                      <ActivityIndicator size={25} />
+                    </View>
+                  </Button>
+                )}
 
-              {!showProcessing && (
-                <Button
-                  onPress={validateInput}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  Continue
-                </Button>
-              )}
-
-              <View className="flex-row items-center justify-center pt-3 pb-3">
-                <Text>I Remember my password</Text>
-                <Button disabled={showProcessing} onPress={() => router.back()}>
-                  Login
-                </Button>
+                {!showProcessing && (
+                  <Button
+                    onPress={handleChangePassword}
+                    className="text-lg py-1"
+                    style={{ borderRadius: 15 }}
+                    labelStyle={{ fontSize: 16 }}
+                    mode="contained"
+                  >
+                    Continue
+                  </Button>
+                )}
               </View>
             </View>
-          </View>
-        )}
-        {otpSended && !otpVerified && (
-          <EaseView className="space-y-7 mb-3 ">
-            <View className="px-5 ml-5">
-              <Text className="font-bold">Enter OTP Blow</Text>
-            </View>
-            <View className="px-10">
-              <OtpInput onChange={setOtp} length={4} height={50} width={50} />
-            </View>
-            <View className="px-10">
-              <Button
-                onPress={verifyOtp}
-                disabled={otp.length == 4 ? false : true}
-                className="text-lg p-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-                mode="contained"
-              >
-                Continue
-              </Button>
-            </View>
-            <View className="items-center w-full">
-              <View
-                style={{ borderColor: theme.colors.primary }}
-                className="flex-row rounded items-center justify-center border border-dotted w-[50%]"
-              >
-                <Button
-                  disabled={resendCount <= 0 ? false : true}
-                  onPress={handleResend}
-                >
-                  Resend OTP
-                </Button>
-                {resendCount <= 0 ? "" : <Text>in {resendCount}s</Text>}
-              </View>
-            </View>
-          </EaseView>
-        )}
-
-        {/* Change Password Fields */}
-
-        {otpSended && otpVerified && (
-          <View className="px-7 space-y-5">
-            <TextInput
-              placeholder="Password"
-              onChangeText={setNewPassword}
-              secureTextEntry={showPassword ? false : true}
-              left={<TextInput.Icon size={20} icon="lock" />}
-              disabled={showProcessing}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-              className="bg-transparent"
-              right={
-                <TextInput.Icon
-                  size={20}
-                  onPress={() => setShowPassword(!showPassword)}
-                  icon={showPassword ? "eye-off" : "eye"}
-                />
-              }
-            />
-            <TextInput
-              placeholder="Confirm Password"
-              onChangeText={setNewPassword2}
-              secureTextEntry={showPassword ? false : true}
-              left={<TextInput.Icon size={20} icon="lock" />}
-              disabled={showProcessing}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-              className="bg-transparent"
-              right={
-                <TextInput.Icon
-                  size={20}
-                  onPress={() => setShowPassword(!showPassword2)}
-                  icon={showPassword2 ? "eye-off" : "eye"}
-                />
-              }
-            />
-            <View>
-              {showProcessing && (
-                <Button
-                  disabled
-                  onPress={() => null}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  <View className="flex-row">
-                    <Text> </Text>
-                    <ActivityIndicator size={25} />
-                  </View>
-                </Button>
-              )}
-
-              {!showProcessing && (
-                <Button
-                  onPress={handleChangePassword}
-                  className="text-lg p-1"
-                  style={{ borderRadius: 15 }}
-                  labelStyle={{ fontSize: 16 }}
-                  mode="contained"
-                >
-                  Continue
-                </Button>
-              )}
-            </View>
-          </View>
-        )}
+          )}
+        </View>
       </BottomLayout>
       <NetworkRequestErrorSheet
         visible={networkErrorSheetVisible}

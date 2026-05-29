@@ -7,6 +7,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { EaseView } from "react-native-ease";
 import { Image } from "expo-image";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const notifications = () => {
   const theme = useTheme();
@@ -15,7 +16,7 @@ const notifications = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -34,16 +35,18 @@ const notifications = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
 
         <View className="p-2 flex-row items-center justify-around">
           <Button
             onPress={() => setActiveTab("1")}
             className="rounded-none"
+          
             style={{
               borderBottomColor:
                 activeTab == "1" ? theme.colors.primary : "transparent",
               borderWidth: 1,
+              borderRadius:0
             }}
           >
             All
@@ -54,6 +57,7 @@ const notifications = () => {
               borderBottomColor:
                 activeTab == "2" ? theme.colors.primary : "transparent",
               borderWidth: 1,
+              borderRadius:0
             }}
             onPress={() => setActiveTab("2")}
           >
@@ -65,6 +69,7 @@ const notifications = () => {
               borderBottomColor:
                 activeTab == "3" ? theme.colors.primary : "transparent",
               borderWidth: 1,
+              borderRadius:0
             }}
             onPress={() => setActiveTab("3")}
           >
@@ -85,7 +90,8 @@ const notifications = () => {
           <View className="h-full items-center mt-20">
             <View>
               <Image
-                className="h-[80px] w-[80px] self-center "
+                style={{height: 80, width: 80}}
+                className="self-center "
                 source={require("@/assets/images/gif/no_transactions_anim.webp")}
               />
               <Text className="text-center text-lg mt-2">
@@ -106,7 +112,8 @@ const notifications = () => {
           <View className="flex-1 items-center mt-20">
               <View>
               <Image
-                className="h-[80px] w-[80px] self-center "
+                style={{height: 80, width: 80}}
+                className="self-center "
                 source={require("@/assets/images/gif/no_transactions_anim.webp")}
               />
               <Text className="text-center text-lg mt-2">
@@ -126,8 +133,9 @@ const notifications = () => {
         >
           <View className="flex-1 items-center mt-20">
               <View>
-              <Image
-                className="h-[80px] w-[80px] self-center "
+             <Image
+                style={{height: 80, width: 80}}
+                className="self-center "
                 source={require("@/assets/images/gif/no_transactions_anim.webp")}
               />
               <Text className="text-center text-lg mt-2">

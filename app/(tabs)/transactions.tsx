@@ -17,6 +17,7 @@ import { formatNumber, getTransactionSideFormat } from "@/constants/Formats";
 import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
 import { Toast } from "@/constants/Toast";
+import CustomAppbar from "@/components/CustomAppbar";
 
 interface TransactionsListComponentProps {
   id?: number;
@@ -43,7 +44,7 @@ const TransactionsListComponent = ({
   return (
     <List.Item
       title={
-        <View className="flex-row items-center space-x-1">
+        <View className="flex-row items-center gap-x-1">
           <Text className="font-bold">{title}</Text>
           <Text className="text-[10px]">{status}</Text>
         </View>
@@ -83,7 +84,7 @@ const transactions = () => {
   const [networkDisconnected, setNetworkDisconnected] = useState(false);
   const [selectedService, setSelectedService] = useState(services[0]);
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
-  const [spens, setSpens] = useState<any>({})
+  const [spens, setSpens] = useState<any>({});
 
   useFocusEffect(
     useCallback(() => {
@@ -102,7 +103,7 @@ const transactions = () => {
 
     if (response.status == 1) {
       setTransactions(response?.data);
-      setSpens(response?.spens)
+      setSpens(response?.spens);
     }
 
     if (response.status == 0) {
@@ -115,10 +116,10 @@ const transactions = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar className="bg-transparent">
+        <CustomAppbar>
           <Appbar.Content title="Transactions" />
           <Appbar.Action icon={"face-agent"} onPress={() => null} />
-        </Appbar>
+        </CustomAppbar>
       </View>
       <View className="space-x-4">
         <FlatList
@@ -138,17 +139,22 @@ const transactions = () => {
           )}
         />
       </View>
-      <View className="flex-row items-center justify-around px-5 my-3 space-x-2">
+      <View className="flex-row items-center justify-around px-5 my-3 gap-x-2">
         <View className="h-10 flex-1 rounded-lg bg-[#83ec963a] items-center justify-center">
           <Text className="flex-row  w-full items-center px-2">
-            <Text className="flex-1  text-[15px]">IN</Text>{"  "}
-            <Text className="flex-0 text-[12px]">₦{formatNumber(spens?.in)}</Text>
+            <Text className="flex-1  text-[15px]">IN</Text>
+            {"  "}
+            <Text className="flex-0 text-[12px]">
+              ₦{formatNumber(spens?.in)}
+            </Text>
           </Text>
         </View>
         <View className="h-10 flex-1 rounded-lg bg-[#ec94833a] items-center justify-center">
           <Text className="flex-row  w-full items-center px-2">
             <Text className="flex-1  text-[15px]">OUT</Text>
-            <Text className="flex-0 text-[12px]">{"  "}₦{formatNumber(spens?.out)}</Text>
+            <Text className="flex-0 text-[12px]">
+              {"  "}₦{formatNumber(spens?.out)}
+            </Text>
           </Text>
         </View>
       </View>
@@ -184,14 +190,15 @@ const transactions = () => {
           ListEmptyComponent={() => (
             <View className="flex-1 items-center justify-center mt-10">
               {fetching ? (
-                <View className="items-center justify-center space-y-3 mt-5">
+                <View className="items-center justify-center gap-y-3 mt-5">
                   <ActivityIndicator size={30} />
                   <Text>Loading Transactions...</Text>
                 </View>
               ) : networkRequestFailed ? (
                 <View className="px-10 items-center">
                   <Image
-                    className="h-[70px] w-[70px] self-center "
+                    style={{ height: 70, width: 70 }}
+                    className="self-center "
                     source={require("@/assets/images/gif/failed_anim.webp")}
                   />
                   <Text className="text-center text-lg mt-2 font-bold font-mono">
@@ -211,7 +218,7 @@ const transactions = () => {
               ) : (
                 <View>
                   <Image
-                    className="h-[70px] w-[70px] self-center "
+                    style={{ height: 70, width: 70, alignSelf: "center" }}
                     source={require("@/assets/images/gif/no_transactions_anim.webp")}
                   />
                   <Text className="text-center text-[12px] mt-2">

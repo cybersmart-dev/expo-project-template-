@@ -29,6 +29,7 @@ import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import { Toast } from "@/constants/Toast";
 import * as Haptics from "expo-haptics";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const SuggestAmounts = [
   {
@@ -221,7 +222,7 @@ const buyairtime = () => {
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()} className="flex-1 ">
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <Appbar.Action
           isLeading
           icon={() => (
@@ -244,7 +245,7 @@ const buyairtime = () => {
             />
           )}
         />
-      </Appbar>
+      </CustomAppbar>
       <View className="flex-1 space-y-0 mt-5">
         <View>
           <Pressable
@@ -273,7 +274,7 @@ const buyairtime = () => {
             mode="outlined"
             keyboardType="numeric"
             outlineStyle={{ borderRadius: 15 }}
-            className="bg-transparent"
+            style={{ backgroundColor: "transparent" }}
             error={amountErrorVisible}
           />
           <HelperText
@@ -306,7 +307,7 @@ const buyairtime = () => {
         <View className="px-5 pt-5">
           <Button
             onPress={handleBuy}
-            className="text-lg p-1"
+            className="text-lg py-1"
             style={{ borderRadius: 15 }}
             labelStyle={{ fontSize: 16 }}
             mode="contained"

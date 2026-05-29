@@ -66,7 +66,7 @@ const ActionButton = ({ icon, label, width=60, onPress }: ActionButtonProps) => 
     };
   });
   return (
-    <Animated.View style={[actionButtonAnimetedStyle, {width: width}]} className="space-y-1 justify-center items-center">
+    <Animated.View style={[actionButtonAnimetedStyle, {width: width}]} className="gap-y-1 justify-center items-center">
       <TouchableOpacity onPress={onPress}>
         <Avatar.Icon
           size={45}
@@ -75,7 +75,9 @@ const ActionButton = ({ icon, label, width=60, onPress }: ActionButtonProps) => 
           icon={icon}
         />
       </TouchableOpacity>
-      <Text numberOfLines={4} className="text-center text-[11px]">{label}</Text>
+      <View className="items-center">
+         <Text numberOfLines={1} className="text-center items-center text-[11px]">{label}</Text>
+     </View>
     </Animated.View>
   );
 };

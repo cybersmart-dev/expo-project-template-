@@ -38,7 +38,7 @@ export default function Keypad({ onChange, onDelete, onClear }: KeypadProps) {
       {/* Display */}
 
       {/* Keypad */}
-      <View className="w-full space-y-20">
+      <View className="w-full gap-y-20">
         {keys.map((row, i) => (
           <View key={i} className="flex-row  justify-between mb-4">
             {row.map((key) => (

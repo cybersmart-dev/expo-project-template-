@@ -35,6 +35,7 @@ import BottomSheet from "@/components/models/BottomSheet";
 import { Networks } from "@/constants/DemoList";
 import { Storage } from "@/constants/Storage";
 import { EaseView } from "react-native-ease";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const transfer = () => {
   const { number, token, network_id } = useLocalSearchParams();
@@ -213,7 +214,7 @@ const transfer = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -232,7 +233,7 @@ const transfer = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
 
         <View>
           <View className="px-5 my-5">
@@ -242,11 +243,11 @@ const transfer = () => {
                   ? theme.colors.primary
                   : theme.colors.primaryContainer,
               }}
-              className="items-center space-y-2 rounded-lg flex-row p-5 justify-around"
+              className="items-center gap-y-2 rounded-lg flex-row p-5 justify-around"
             >
               <View>
-                <View className="flex-row items-center space-x-2 mb-2">
-                  <Text className="font-bold text-[11px] text-black ">
+                <View className="flex-row items-center gap-x-2 mb-2">
+                  <Text style={{color: "black"}} className="font-bold text-[11px]">
                     Airtime Balance
                   </Text>
                   <Pressable onPress={() => setHideBalance(!hideBalance)}>
@@ -266,9 +267,9 @@ const transfer = () => {
                   </Pressable>
                 </View>
                 {fetchingBalance ? (
-                  <View className="space-y-2">
+                  <View className="gap-y-2">
                     <ActivityIndicator color={"black"} />
-                    <Text className="text-[10px] text-center text-black">
+                    <Text style={{color: "black"}} className="text-[10px] text-center">
                       Loading balance...
                     </Text>
                   </View>
@@ -283,7 +284,7 @@ const transfer = () => {
                     </Button>
                   </View>
                 ) : (
-                  <Text className="text-3xl text-black w-[160px]">
+                  <Text style={{color: "black"}} className="text-3xl w-[160px]">
                     ₦{hideBalance ? "*****" : formatNumber(airtimeBalance)}
                   </Text>
                 )}
@@ -291,8 +292,8 @@ const transfer = () => {
 
               <View className="items-center justify-center">
                 {networkData?.name && (
-                  <View className="w-full flex-row items-center justify-center space-x-2">
-                    <Text className="text-lg font-bold text-black">
+                  <View className="w-full flex-row items-center justify-center gap-x-2">
+                    <Text style={{color: "black"}} className="text-lg font-bold ">
                       {new String(networkData?.name)?.toUpperCase()}
                     </Text>
                     <Image
@@ -302,18 +303,18 @@ const transfer = () => {
                   </View>
                 )}
 
-                <Text className="text-black">{number}</Text>
+                <Text style={{color: "black"}}>{number}</Text>
               </View>
             </View>
           </View>
-          <View className="px-5 space-y-4">
-            <View className="space-y-2">
+          <View className="px-5 gap-y-4">
+            <View className="gap-y-2">
               <Text>Amount To Send</Text>
               <TextInput
                 onChangeText={setAmount}
                 keyboardType={"number-pad"}
                 mode="outlined"
-                className="bg-transparent"
+                style={{backgroundColor: "transparent"}}
                 value={amount}
                 outlineStyle={{ borderRadius: 15 }}
                 placeholder={"Amount"}
@@ -328,24 +329,24 @@ const transfer = () => {
                 }
               />
             </View>
-            <View className="space-y-2">
+            <View className="gap-y-2">
               <Text>Amount To Receive</Text>
               <TextInput
                 editable={false}
                 value={`${getReceveAmount()}`}
                 placeholder={`${formatNumber(0)}`}
-                className="bg-transparent"
+                style={{backgroundColor: "transparent"}}
                 mode="outlined"
                 outlineStyle={{ borderRadius: 15 }}
               />
             </View>
 
-            <View className="space-y-2">
+            <View className="gap-y-2">
               <Text>Share Pin</Text>
               <TextInput
                 placeholder={`Enter your pin`}
                 mode="outlined"
-                className="bg-transparent"
+                style={{backgroundColor: "transparent"}}
                 secureTextEntry={showPassword ? false : true}
                 keyboardType="numeric"
                 onChangeText={setSharePin}
@@ -359,7 +360,7 @@ const transfer = () => {
                 }
               />
 
-              <View className="flex-row items-center space-x-0">
+              <View className="flex-row items-center gap-x-0">
                 <Text>I dont have share pin</Text>
                 <Button
                   onPress={() => handleCreatePin()}
@@ -375,7 +376,7 @@ const transfer = () => {
               <Button
                 onPress={handleContinue}
                 mode="contained"
-                className="p-1"
+                className="py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
               >
@@ -392,7 +393,7 @@ const transfer = () => {
         onComplate={handleConvert}
       />
 
-      <BottomSheet visible={showBackBottomSheet} height={"auto"}>
+      <BottomSheet onDismiss={setShowBackBottomSheet} visible={showBackBottomSheet} height={"auto"}>
         <View className="p-2 px-3">
           <Text className="font-bold text-lg">GO BACK</Text>
           <Divider />
@@ -415,7 +416,7 @@ const transfer = () => {
               className="text-lg p-0 flex-1"
               buttonColor="lightgreen"
               style={{ borderRadius: 15 }}
-              labelStyle={{ fontSize: 16 }}
+              labelStyle={{ fontSize: 16, color: "black" }}
               mode={"contained-tonal"}
             >
               No

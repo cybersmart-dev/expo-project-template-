@@ -10,7 +10,7 @@ import {
   StatusBar as RNStatusBar,
   ColorValue,
   LayoutChangeEvent,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import React, { SetStateAction, useState, useEffect } from "react";
 import { FAB, useTheme } from "react-native-paper";
@@ -23,7 +23,7 @@ import {
 import { EaseView } from "react-native-ease";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const screen = Dimensions.get('screen')
+const screen = Dimensions.get("screen");
 
 const AnimatedKeyboardAvoidingView =
   createAnimatedComponent(KeyboardAvoidingView);
@@ -31,9 +31,9 @@ const AnimatedKeyboardAvoidingView =
 interface BottomSheetProps {
   visible?: boolean;
   children: React.ReactNode;
-  outterChildren?: React.ReactNode
-  outterChildrenStyle?: ViewStyle
-  outterChildrenSpace?: number
+  outterChildren?: React.ReactNode;
+  outterChildrenStyle?: ViewStyle;
+  outterChildrenSpace?: number;
   height?: DimensionValue | undefined;
   onDismiss?: (value: SetStateAction<boolean>) => void;
   dismissable?: boolean;
@@ -55,17 +55,17 @@ const BottomSheet = ({
   backgroundColor,
   outterChildren,
   outterChildrenStyle,
-  outterChildrenSpace = 70
+  outterChildrenSpace = 70,
 }: BottomSheetProps) => {
   const theme = useTheme();
   const [formHeight, setFormHeight] = useState(0);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", (e) => {
       setKeyboardHeight(e.endCoordinates.height);
     });
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
       setKeyboardHeight(0);
     });
     return () => {
@@ -104,37 +104,59 @@ const BottomSheet = ({
       shape: "",
     };
   };
-   const handleOnLayout = (event: LayoutChangeEvent): void => {
-     const height = event.nativeEvent.layout.height;
-      setFormHeight(height);
-    };
+  const handleOnLayout = (event: LayoutChangeEvent): void => {
+    const height = event.nativeEvent.layout.height;
+    setFormHeight(height);
+  };
   return (
     <Modal
       animationType={animationType}
       onDismiss={dismiss}
       visible={visible}
       style={style}
-      
+      onRequestClose={() => onDismiss(false)}
       transparent
-      
     >
-      <SafeAreaView edges={['bottom', 'left', 'right']} className="bg-[#1818189a] flex-1">
-        <View pointerEvents="box-none" style={[{ transform:[{translateY: screen.height - formHeight - outterChildrenSpace}] }, outterChildrenStyle]} className="px-5 block w-auto z-50">
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: "#1818189a" }}
+        edges={["bottom", "left", "right"]}
+        
+      >
+        <View
+          pointerEvents="box-none"
+          style={[
+            {
+              transform: [
+                {
+                  translateY: screen.height - formHeight - outterChildrenSpace,
+                },
+              ],
+            },
+            outterChildrenStyle,
+          ]}
+          className="px-5 block w-auto z-50"
+        >
           {outterChildren}
         </View>
         <Pressable
-           
           style={{
             marginTop: mode == "dailog" ? RNStatusBar.currentHeight : 0,
           }}
           onPress={dismiss}
           className="flex-1"
-         // pointerEvents="box-none"
+          // pointerEvents="box-none"
         >
           <EaseView
             animate={{ opacity: visible ? 1 : 0 }}
             transition={{ duration: 4000, type: "timing" }}
-            style={{ height: height, bottom: keyboardHeight }}
+            style={{
+              height: height,
+              bottom: keyboardHeight,
+              position: "absolute",
+              width: "100%",
+              paddingHorizontal: mode == "center" ? 15 : 0,
+              paddingBottom: 15,
+            }}
             className={getModeStyle().main}
           >
             <Pressable

@@ -1,5 +1,6 @@
 import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
 import BottomLayout from "@/components/Containers/BottomLayout";
+import CustomAppbar from "@/components/CustomAppbar";
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import { PaperSafeView, PaperView } from "@/components/PaperView";
 import { Toast } from "@/constants/Toast";
@@ -109,7 +110,7 @@ const Singup = () => {
 
   return (
     <PaperSafeView>
-      <Appbar className="bg-transparent">
+      <CustomAppbar style={{ backgroundColor: "transparent" }}>
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -139,10 +140,10 @@ const Singup = () => {
             Help
           </Button>
         </EaseView>
-      </Appbar>
+      </CustomAppbar>
       <View
         style={{ bottom: 0, marginBottom: formHeight }}
-        className="absolute space-y-1 w-full items-center justify-center"
+        className="absolute gap-y-1 w-full items-center justify-center"
       >
         <EaseView
           animate={{
@@ -194,11 +195,11 @@ const Singup = () => {
            
       
       <BottomLayout onLayout={handleOnLayout}>
-        <View className="px-5 space-y-5 mt-5">
+        <View className="px-5 gap-y-5 mt-5">
            <TextInput
               placeholder="Full Name"
               keyboardType={"default"}
-              className="bg-transparent"
+              style={{ backgroundColor: "transparent" }}
               error={fullnameErrorShow}
               onChangeText={(value) => {
                 setFullName(value);
@@ -212,7 +213,7 @@ const Singup = () => {
             <TextInput
               placeholder="Email Address"
               keyboardType={"email-address"}
-              className="bg-transparent"
+              style={{ backgroundColor: "transparent" }}
               error={emailErrorShow}
               onChangeText={(value) => {
                 setEmail(value);
@@ -226,7 +227,7 @@ const Singup = () => {
             <TextInput
               placeholder="Phone Number"
               keyboardType={"numeric"}
-              className="bg-transparent"
+              style={{ backgroundColor: "transparent" }}
               error={phoneNumberErrorShow}
               onChangeText={(value) => {
                 setPhoneNumber(value);
@@ -240,7 +241,7 @@ const Singup = () => {
             <TextInput
               placeholder="State"
               keyboardType={"default"}
-              className="bg-transparent"
+              style={{ backgroundColor: "transparent" }}
               error={stateErrorShow}
               onChangeText={(value) => {
                 setState(value);
@@ -255,7 +256,7 @@ const Singup = () => {
               <Button
                 onPress={validateInputs}
                 mode="contained"
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
               >

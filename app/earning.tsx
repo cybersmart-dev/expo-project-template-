@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { showMessage } from "react-native-flash-message";
 import { shareAsync } from "expo-sharing";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const earning = () => {
   const theme = useTheme();
@@ -29,7 +30,7 @@ const earning = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar >
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -48,13 +49,13 @@ const earning = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
+        </CustomAppbar>
         <View>
           <View className="px-5 pt-5 mt-5">
             <Button
               icon={"share-variant"}
               onPress={shareLink}
-              className="text-lg p-1"
+              className="text-lg py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"

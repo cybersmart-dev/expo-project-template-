@@ -294,7 +294,8 @@ const DataListContainer = ({
             !fetchingPlans && !networkRequestFailed && (
               <View className="h-full items-center justify-center w-full pt-5">
                 <Image
-                  className="h-20 w-20 rounded-full"
+                  style={{height: 50, width:50}}
+                  className="rounded-full"
                   source={require("@/assets/images/gif/no_transactions_anim.webp")}
                 />
 
@@ -315,7 +316,8 @@ const DataListContainer = ({
         {networkRequestFailed && (
           <View className="h-full items-center justify-center w-full">
             <Image
-              className="h-28 w-24 rounded-full"
+              style={{height: 50, width:50}}
+              className="rounded-full"
               source={require("@/assets/images/gif/no_connection_anim2.gif")}
             />
 
@@ -341,8 +343,8 @@ const DataListContainer = ({
 
         {!network && (
           <View className="h-full items-center justify-center w-full">
-            <View className="space-y-3 items-center w-full">
-              <Text className="font-bold w-full text-center uppercase">Select network first!</Text>
+            <View className="gap-y-3 items-center w-full">
+              <Text style={{textAlign:"center"}} className="font-bold w-full text-center uppercase">Select network first!</Text>
               <Button onPress={onPressSelectNetwork} mode={"contained-tonal"}>
                 Select Now
               </Button>

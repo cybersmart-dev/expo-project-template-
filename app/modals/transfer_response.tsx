@@ -2,25 +2,17 @@ import { View, Pressable, BackHandler } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
-import {
-  Appbar,
-  Button,
-  Icon,
-  List,
-  useTheme,
-  Text
-} from "react-native-paper";
+import { Appbar, Button, Icon, List, useTheme, Text } from "react-native-paper";
 import BottomSheet from "@/components/models/BottomSheet";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import {
-  createAnimatedComponent,
-} from "react-native-reanimated";
+import { createAnimatedComponent } from "react-native-reanimated";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image } from "expo-image";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{olj[ayj[j[cbj[ayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
-  
+
 const AnimatedIcon = createAnimatedComponent(Icon);
 
 const transfer_response = () => {
@@ -35,16 +27,15 @@ const transfer_response = () => {
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
-
   useFocusEffect(
-      useCallback(() => {
-        const back = BackHandler.addEventListener("hardwareBackPress", () => {
-          router.push("/(tabs)");
-          return true;
-        });
-        return () => back.remove();
-      }, []),
-    );
+    useCallback(() => {
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        router.push("/(tabs)");
+        return true;
+      });
+      return () => back.remove();
+    }, []),
+  );
 
   useEffect(() => {
     getTransferData();
@@ -69,16 +60,16 @@ const transfer_response = () => {
 
   return (
     <PaperSafeView className="flex-1">
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <Appbar.Content title="" />
         <Button onPress={() => router.push("/(tabs)")}>Done</Button>
-      </Appbar>
+      </CustomAppbar>
       <View>
-        <View className="items-center space-y-4 mt-5">
+        <View className="items-center gap-y-4 mt-5">
           <View className="items-center ">
             {transferData?.statusCode == 1 && (
               <Image
-                className="h-16 w-16"
+                style={{ height: 70, width: 70 }}
                 placeholder={{ blurhash }}
                 contentFit="cover"
                 transition={1000}
@@ -88,7 +79,7 @@ const transfer_response = () => {
 
             {transferData?.statusCode == 0 && (
               <Image
-                className="h-16 w-16"
+                style={{ height: 70, width: 70 }}
                 placeholder={{ blurhash }}
                 contentFit="cover"
                 transition={1000}
@@ -96,10 +87,22 @@ const transfer_response = () => {
               />
             )}
 
-            <Text className="text font-bold">{response?.status}</Text>
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 20,
+                textTransform: "uppercase",
+                textAlign:"center"
+              }}
+              className="w-screen"
+            >
+              {response?.status}
+            </Text>
           </View>
           <View className="w-full px-5">
-            <Text className="text-center">{transferData?.message}</Text>
+            <Text style={{ textAlign: "center" }} className="text-center">
+              {transferData?.message}
+            </Text>
           </View>
         </View>
       </View>
@@ -127,12 +130,11 @@ const transfer_response = () => {
               />
             </Pressable>
           </View>
-         
         </View>
       )}
 
       {transferData?.statusCode == 1 && (
-        <View className="absolute bottom-0 mb-10 justify-around flex-row items-center w-full">
+        <View className="absolute bottom-0 mb-10 gap-y-5 items-center w-full px-10">
           <Button
             onPress={() => {
               router.push({
@@ -141,14 +143,14 @@ const transfer_response = () => {
               });
             }}
             mode="outlined"
-            className=""
+            className="w-full"
           >
             Share Recipt
           </Button>
           <Button
             onPress={() => setDownloadOptionSheetVisible(true)}
             mode="contained"
-            className=""
+            className="w-full"
           >
             Download Recipt
           </Button>
@@ -156,11 +158,7 @@ const transfer_response = () => {
       )}
       {transferData?.statusCode != 1 && (
         <View className="absolute bottom-0 mb-10 justify-around flex-row items-center w-full px">
-          <Button
-            onPress={() => null}
-            mode="contained"
-            className=""
-          >
+          <Button onPress={() => null} mode="contained" className="">
             Contact Support
           </Button>
 
@@ -168,11 +166,10 @@ const transfer_response = () => {
             onPress={() => router.back()}
             mode="outlined"
             className=""
-            icon={'sync'}
+            icon={"sync"}
           >
             Try Again
           </Button>
-        
         </View>
       )}
       <BottomSheet

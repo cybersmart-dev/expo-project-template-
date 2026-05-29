@@ -30,6 +30,7 @@ import Processing from "../models/Processing";
 import BottomLayout from "../Containers/BottomLayout";
 import * as Haptics from "expo-haptics";
 import AnimatedTransLogo from "../Animations/AnimatedTransLogo";
+import CustomAppbar from "../CustomAppbar";
 
 const EmailLoginComponent = () => {
   const theme = useTheme();
@@ -134,7 +135,7 @@ const EmailLoginComponent = () => {
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -159,9 +160,9 @@ const EmailLoginComponent = () => {
             Help
           </Button>
         </EaseView>
-      </Appbar>
+      </CustomAppbar>
 
-      <View className="absolute top-[70px] space-y-0 w-full items-center justify-center">
+      <View className="absolute top-[70px] gap-y-0 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -210,7 +211,7 @@ const EmailLoginComponent = () => {
       </View>
 
       <BottomLayout>
-        <View className="px-5 space-y-5 mt-5">
+        <View className="px-5 gap-y-5 mt-5">
           <TextInput
             placeholder="Email Address"
             keyboardType={"email-address"}
@@ -219,6 +220,7 @@ const EmailLoginComponent = () => {
             disabled={showProcessing}
             outlineStyle={{ borderRadius: 15 }}
             onChangeText={setEmail}
+            style={{backgroundColor: "transparent"}}
             left={<TextInput.Icon size={20} icon="email" />}
           />
 
@@ -231,7 +233,7 @@ const EmailLoginComponent = () => {
               disabled={showProcessing}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
-              className="bg-transparent"
+              style={{backgroundColor: "transparent"}}
               right={
                 <TextInput.Icon
                   size={20}
@@ -257,7 +259,7 @@ const EmailLoginComponent = () => {
               <Button
                 disabled
                 onPress={() => validateInput()}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
@@ -272,7 +274,7 @@ const EmailLoginComponent = () => {
             {!showProcessing && (
               <Button
                 onPress={() => validateInput()}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"

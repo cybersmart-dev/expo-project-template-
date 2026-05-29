@@ -100,11 +100,12 @@ const BalanceContainer = ({
       colors={getColors()}
       start={{ x: 1, y: 0.5 }}
       end={{ x: -0.2, y: 1.2 }}
-      className="relative h-[150px] w-full rounded-lg py-5 mt-0  p-4 "
+      style={{borderRadius: 12}}
+      className="relative h-[170px] w-full rounded-lg py-5 mt-0  p-4 "
     >
       <View>
         <View className="flex-row items-center">
-          <Text className="opacity-75 text-[15px] mr-0 text-white">
+          <Text  style={{color: "white"}} className="opacity-75 text-[15px] mr-0 text-white">
             Total Assets
           </Text>
           <IconButton
@@ -118,24 +119,24 @@ const BalanceContainer = ({
 
         <View className="mt-0 flex-row items-center">
           {hideBalance ? (
-            <Text className="text-3xl text-white font-[ArchivoBlackRegular] items-center ">
+            <Text  style={{color: "white"}} className="text-3xl font-[ArchivoBlackRegular] items-center ">
               ₦******{" "}
             </Text>
           ) : (
-            <Text className="text-3xl text-white font-[ArchivoBlackRegular]">
+            <Text style={{color: "white"}} className="text-3xl font-[ArchivoBlackRegular]">
               ₦{formatNumber(userInfo?.wallet?.balance) || "0.00"}{" "}
             </Text>
           )}
         </View>
         <View className="mt-1">
-          <Text className="text-white opacity-75 text-[12px]">Cashback</Text>
+          <Text  style={{color: "white"}} className="text-white opacity-75 text-[12px]">Cashback</Text>
           <View className="mt-1 flex-row items-center">
             {hideBalance ? (
-              <Text className="text text-white font-[ArchivoBlackRegular] items-center">
+              <Text  style={{color: "white"}} className="text text-white font-[ArchivoBlackRegular] items-center">
                 ₦******{" "}
               </Text>
             ) : (
-              <Text className="text-[15px] text-white font-[ArchivoBlackRegular]">
+              <Text  style={{color: "white"}} className="text-[15px] text-white font-[ArchivoBlackRegular]">
                 ₦{formatNumber(userInfo?.wallet?.cashback) || "0.00"}{" "}
               </Text>
             )}
@@ -143,11 +144,12 @@ const BalanceContainer = ({
         </View>
       </View>
 
-      <View className="absolute p-3 bottom-0 right-0 space-y-3 items-center">
+      <View className="absolute p-3 flex bottom-0 right-0 gap-y-3 items-center">
         <EaseView
           animate={{ rotate: fetchingInfo ? 360 : 0 }}
           transition={{ duration: 2000, type: "timing" }}
-          className="self-end mr-3"
+          style={{alignSelf: "flex-end"}}
+          className="mr-3 right-0"
         >
           <Pressable onPress={fetchInfo}>
             <Icon size={24} color="white" source={"sync"} />

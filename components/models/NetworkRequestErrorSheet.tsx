@@ -34,9 +34,9 @@ const NetworkRequestErrorSheet = ({
     };
   return (
     <BottomSheet visible={visible} onDismiss={onDismiss} mode={"center"}>
-      <View className="items-center p-5 px-5">
+      <View className="items-center p-5 px-5 mb-5">
         <Image
-          className="h-[70px] w-[70px]"
+          style={{height:70, width: 70}}
           source={require("@/assets/images/gif/failed_anim.webp")}
         />
         <Text className="text-center text-lg mt-2 font-bold font-mono">
@@ -46,11 +46,11 @@ const NetworkRequestErrorSheet = ({
           Please check your network and try again
         </Text>
       </View>
-      <View className="p-3 px-10">
+      <View className="p-3 px-10 mb-5">
         <Button
           onPress={() => onDismiss(false)}
           mode={"contained"}
-          className="text-lg p-1"
+          className="text-lg py-1"
           style={{ borderRadius: 15 }}
           labelStyle={{ fontSize: 16 }}
         >
@@ -58,7 +58,7 @@ const NetworkRequestErrorSheet = ({
         </Button>
         <Button
           onPress={goToSetting}
-          className="text-lg p-1 mt-5"
+          className="text-lg py-1 mt-5"
           style={{ borderRadius: 15 }}
           labelStyle={{ fontSize: 16 }}
           mode="outlined"

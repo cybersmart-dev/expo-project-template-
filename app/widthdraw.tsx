@@ -26,6 +26,7 @@ import { showMessage } from "react-native-flash-message";
 import { Timer, toNumber } from "@/constants/Utils";
 import BottomSheet from "@/components/models/BottomSheet";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
+import CustomAppbar from "@/components/CustomAppbar";
 
 const banks = [
   {
@@ -144,7 +145,7 @@ const widthdraw = () => {
   return (
     <PaperSafeView>
       <View>
-        <Appbar className="bg-transparent" collapsable={true}>
+        <CustomAppbar >
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -163,15 +164,16 @@ const widthdraw = () => {
               <MaterialIcons name="contact-support" size={24} color={color} />
             )}
           />
-        </Appbar>
-        <View className="p-2 space-y-5 mt-5">
-          <View className="px-5 space-y-2 ">
+        </CustomAppbar>
+        <View className="p-2 gap-y-5 mt-5">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Bank</Text>
             <Pressable onPress={handleShowProviders}>
               <TextInput
                 mode="outlined"
                 error={bankSelectError}
                 className="rounded-lg bg-transparent"
+                style={{backgroundColor: "transparent"}}
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -205,12 +207,13 @@ const widthdraw = () => {
             </Pressable>
           </View>
 
-          <View className="px-5 space-y-2 ">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Account Number</Text>
             <Pressable>
               <TextInput
                 mode="outlined"
-                className="rounded-lg bg-transparent"
+                className="rounded-lg"
+                style={{backgroundColor: "transparent"}}
                 error={accountNumberError}
                 keyboardType="numeric"
                 editable={!idVerified}
@@ -236,7 +239,7 @@ const widthdraw = () => {
             <View className="flex-row items-center justify-between">
               <View>
                 {idVerified && (
-                  <View className="items-center flex-row space-x-1">
+                  <View className="items-center flex-row gap-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
                     <Text>{"Mustapha Aminu"}</Text>
                   </View>
@@ -261,7 +264,7 @@ const widthdraw = () => {
             </View>
           </View>
 
-          <View className="px-5 space-y-2 ">
+          <View className="px-5 gap-y-2 ">
             <Text className="text-[130x] font-bold">Amount</Text>
             <Pressable>
               <TextInput
@@ -270,6 +273,7 @@ const widthdraw = () => {
                 className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 placeholder="Amount"
+                style={{backgroundColor: "transparent"}}
                 value={amount}
                 onChangeText={(text) => setAmount(text)}
                 outlineStyle={{ borderRadius: 15 }}
@@ -281,7 +285,7 @@ const widthdraw = () => {
             <Button
               onPress={handleNext}
               disabled={verifyingID}
-              className="text-lg p-1"
+              className="text-lg py-1"
               style={{ borderRadius: 15 }}
               labelStyle={{ fontSize: 16 }}
               mode="contained"
@@ -299,7 +303,7 @@ const widthdraw = () => {
         height={"70%"}
       >
         <View>
-          <View className="p-3 px-5 space-y-5">
+          <View className="p-3 px-5 gap-y-5">
             <Text className="text-[17px] font-bold text-center">
               Select Bank
             </Text>
