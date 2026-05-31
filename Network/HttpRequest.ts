@@ -103,7 +103,7 @@ export default class requests {
     if (__DEV__) {
 
       // return "http://10.211.171.71:8000/api".concat(path)
-      return "http://192.168.43.69:8000/api" + path;
+      return "http://10.68.118.71:8000/api" + path;
     }
     return "https://mypock.vercel.app/api" + path;
   }

@@ -21,7 +21,7 @@ interface TransactionsListComponentProps {
   description: string;
   date: string;
   amount: number;
-  status?: string;
+  status: string;
   onPress?: () => void;
 }
 
@@ -33,7 +33,7 @@ type RecentTransactionsType = {
   description: string;
   date: string;
   amount: number;
-  status?: string;
+  status: string;
 };
 
 const RecentTransactionsListComponent = ({
@@ -62,11 +62,11 @@ const RecentTransactionsListComponent = ({
         right={() => (
           <View className="items-end justify-evenly">
             <Text
-              style={{ color: getTransactionSideFormat(side, amount).color }}
+              style={{ color: getTransactionSideFormat(side, amount, status).color }}
               className="text-green-600"
             >
               {" "}
-              {getTransactionSideFormat(side, amount).format}
+              {getTransactionSideFormat(side, amount, status).format}
             </Text>
             <Text className="text-[10px] opacity-75 mt-1">
               {new Date(date).toLocaleDateString()}

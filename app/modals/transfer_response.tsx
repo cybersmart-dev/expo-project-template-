@@ -87,6 +87,18 @@ const transfer_response = () => {
               />
             )}
 
+            {
+              transferData?.statusCode == 2 && (
+                <Image
+                  style={{ height: 70, width: 70 }}
+                  placeholder={{ blurhash }}
+                  contentFit="cover"
+                  transition={1000}
+                  source={require("@/assets/images/transaction_pending.png")}
+                />
+              )
+            }
+
             <Text
               style={{
                 fontWeight: "bold",
@@ -96,7 +108,7 @@ const transfer_response = () => {
               }}
               className="w-screen"
             >
-              {response?.status}
+              {transferData?.status}
             </Text>
           </View>
           <View className="w-full px-5">
@@ -107,7 +119,7 @@ const transfer_response = () => {
         </View>
       </View>
 
-      {transferData?.statusCode == 1 && (
+      
         <View className="absolute top-[50%] w-full px-10">
           <View className="">
             <Pressable
@@ -131,7 +143,7 @@ const transfer_response = () => {
             </Pressable>
           </View>
         </View>
-      )}
+      
 
       {transferData?.statusCode == 1 && (
         <View className="absolute bottom-0 mb-10 gap-y-5 items-center w-full px-10">

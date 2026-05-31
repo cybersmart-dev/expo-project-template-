@@ -218,6 +218,21 @@ const TransactionDetails = () => {
         </View>
       );
     }
+    if (transaction?.status == "Failed".toUpperCase()) {
+      return (
+        <View className="h-[50px] w-[50px] bg-red-600 items-center justify-center rounded-full mb-2">
+          <Icon source={"close"} size={30} color={"white"} />
+        </View>
+      );
+    }
+
+    if (transaction?.status == "Pending".toUpperCase()) {
+      return (
+        <View className="h-[50px] w-[50px] bg-yellow-600 items-center justify-center rounded-full mb-2">
+          <Icon source={"clock"} size={30} color={"white"} />
+        </View>
+      );
+    }
   };
 
   const handleCopy = async (text: string) => {
@@ -262,8 +277,8 @@ const TransactionDetails = () => {
           ref={viewRef}
           options={{ format: "png", quality: 1 }}
         >
-          <View className="items-center mt-5">
-            <View>
+          <View className="items-center mt-5 w-screen justify-around">
+            <View className="items-center justify-center gap-y-2">
               {getTransactionStatusIcon()}
 
               <Text className="text font-bold">{transaction?.status}</Text>
@@ -400,18 +415,18 @@ const TransactionDetails = () => {
       </BottomSheet>
 
       {!fetching && (
-        <View className="absolute bottom-0 w-full mb-10 px-5 gap-y-3">
+        <View className="absolute bottom-0 w-full mb-5 px-5 gap-y-2">
           <Button
             onPress={handleShareTransactionRecipt}
             mode="outlined"
-            className="py-1"
+            className="py-0"
           >
             Share Recipt
           </Button>
           <Button
             onPress={() => setDownloadOptionSheetVisible(true)}
             mode="contained"
-            className="py-1"
+            className="py-0"
           >
             Download Recipt
           </Button>

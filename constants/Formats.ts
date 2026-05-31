@@ -37,17 +37,41 @@ export const maskEmail = (email: string) => {
   return "";
 };
 
-export const getTransactionSideFormat = (side: string, amount: number) => {
+export const getTransactionSideFormat = (side: string, amount: number, status?: string) => {
   if (side.toUpperCase() == "DEBIT") {
+
+    if (status == "PENDING") {
+      return {
+        color: "orange",
+        format: `~ ₦${formatNumber(amount)}`,
+      };
+    }
+
     return {
       color: "red",
       format: `- ₦${formatNumber(amount)}`,
     };
   }
+
+  if (side.toUpperCase() == "CREDIT") {
+
+    if (status == "PENDING") {
+      return {
+        color: "orange",
+        format: `+ ₦${formatNumber(amount)}`,
+      };
+    }
  
-    return {
-      color: "green",
-      format: `+ ₦${formatNumber(amount)}`,
-    };
+      return {
+        color: "green",
+        format: `+ ₦${formatNumber(amount)}`,
+      };
+      
+  }
+  
+  return {
+    color: "black",
+    format: `₦${formatNumber(amount)}`,
+  };
   
 };

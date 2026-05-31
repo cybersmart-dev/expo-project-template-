@@ -55,11 +55,11 @@ const TransactionsListComponent = ({
       right={() => (
         <View className="items-end justify-evenly">
           <Text
-            style={{ color: getTransactionSideFormat(side, amount).color }}
+            style={{ color: getTransactionSideFormat(side, amount, status).color }}
             className="text-green-600"
           >
             {" "}
-            {getTransactionSideFormat(side, amount).format}
+            {getTransactionSideFormat(side, amount, status).format}
           </Text>
           <Text className="text-[10px] opacity-75">{date}</Text>
         </View>

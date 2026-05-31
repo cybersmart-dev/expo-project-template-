@@ -201,7 +201,6 @@ const buyairtime = () => {
       router.push({
         pathname: "/modals/transfer_response",
         params: {
-          status: "Success",
           type: "Airtime",
           amount: amount,
           data: JSON.stringify(response.data),
