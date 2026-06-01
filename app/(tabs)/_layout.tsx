@@ -81,8 +81,8 @@ export default function TabLayout() {
             ),
           }}
         />
-        <StatusBar style="auto" />
       </Tabs>
+      <StatusBar style="auto" />
     </SafeAreaView>
   );
 }

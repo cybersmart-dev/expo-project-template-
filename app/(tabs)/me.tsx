@@ -49,6 +49,11 @@ import Animated, {
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { PaperSafeView } from "@/components/PaperView";
+import CustomAppbar from "@/components/CustomAppbar";
+import { formatNumber } from "@/constants/Formats";
+import ActionButton from "@/components/Buttons/ActionButton";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const screen = Dimensions.get("screen");
 
@@ -147,16 +152,8 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
     return [theme.colors.primary, theme.colors.primary];
   };
   return (
-    <LinearGradient
-      colors={getColors()}
-      style={{
-        backgroundColor: theme.dark
-          ? theme.colors.primaryContainer
-          : theme.colors.primary,
-      }}
-      className="h-56 rounded-b-lg w-screen items-center justify-center"
-    >
-      <View className="items-center space-y-2">
+    <View className="rounded-b-lg w-screen px-5">
+      <View className="items-center flex-row gap-x-2">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -165,7 +162,7 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
           transition={{ duration: 300, type: "timing" }}
         >
           <Image
-            className="h-20 w-20 rounded-full"
+            className="h-13 w-13 rounded-full"
             source={require("@/assets/images/profile_avatar.png")}
           />
         </EaseView>
@@ -175,42 +172,32 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
             translateY: loaded ? 0 : -20,
           }}
           transition={{ duration: 300, type: "timing", delay: 200 }}
+          className="gap-y-5"
         >
-          <Text className="text-white  text-2xl font-[ArchivoBlackRegular]">
-            {userInfo?.full_name || (
-              <Button onPress={loadUserInfo} mode="outlined" textColor="white">
-                Load data failed tap to reload
-              </Button>
-            )}
+          <Text style={{fontFamily:"ArchivoBlackRegular", fontSize: 20}} className="text-white mb-2">
+            {userInfo?.full_name}
           </Text>
+          <View>
+            <View className="bg-green-500 w-18 rounded-full items-center py-px border-green-700 border">
+              <Text style={{ alignItems: "center", color: "white" }}>
+                ACTIVE
+              </Text>
+            </View>
+          </View>
         </EaseView>
-      
-       
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const Me = () => {
   const theme = useTheme();
-  const colorScheme = useColorScheme();
-  const [checked, setChecked] = useState(false);
+
   const [loaded, setLoaded] = useState(false);
-  const [isSwitchOn, setIsSwitchOn] = React.useState(false);
-  const [userInfo, setUserInfo] = useState<object | undefined>(undefined);
+
+  const [userInfo, setUserInfo] = useState<any>(undefined);
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
-  const [changeAvatarDialogVisible, setChangeAvatarDialogVisible] =
-    useState(false);
-  const [pinManagementSheetVisible, setPinManagementSheetVisible] =
-    useState(false);
-  const [deleteAccountDialogVisible, setDeleteAccountDialogVisible] =
-    useState(false);
-  const [themeSelectedSheetVisible, setThemeSelectedSheetVisible] =
-    useState(false);
-  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
-  const [activeTab, setActiveTab] = useState(1);
- 
 
   useFocusEffect(
     useCallback(() => {
@@ -268,358 +255,161 @@ const Me = () => {
     }
   };
 
+  const getColors = (): readonly [ColorValue, ColorValue, ...ColorValue[]] => {
+    if (theme.dark) {
+      return [theme.colors.primaryContainer, "#ffa60042"];
+    }
+    return [theme.colors.primary, theme.colors.primary, theme.colors.accent];
+  };
+
   return (
-    <LinearGradient
-      colors={[theme.colors.secondaryContainer, theme.colors.background]}
-      locations={[0, 1]}
-      start={{ x: 100, y: 0 }}
-      style={{ backgroundColor: theme.colors.background }}
-      className="px-3 flex flex-1 justify-center items-center"
-    >
-      <Appbar
-        className="w-screen"
-        style={{
-          backgroundColor: theme.dark
-            ? theme.colors.primaryContainer
-            : theme.colors.primary,
-          paddingTop: RNStatusBar.currentHeight,
-        }}
-      >
+    <PaperSafeView>
+      <CustomAppbar>
         <Appbar.Content
           color="white"
-          title={
-            <Text className="text-lg font-bold text-white">
-              Profile & Settings
-            </Text>
-          }
+          title={<Text className="text-lg font-bold">Profile</Text>}
         />
         <Appbar.Action
           onPress={() => router.push("/notifications")}
-          color="white"
           icon={"bell"}
         />
-      </Appbar>
+        <Appbar.Action onPress={() => router.push("/settings")} icon={"cog"} />
+      </CustomAppbar>
       <ScrollView className="flex-1 w-screen">
         <ProfileTop
           loadUserInfo={loadUserInfo}
           userInfo={userInfo}
           loaded={loaded}
         />
-        <View className="flex-1">
-          <View className="flex-row items-center mt-5 px-3 space-x-3">
-            <ProfileCustomTabs onSelectTab={setActiveTab} />
-          </View>
-
-          {activeTab == 1 && (
-            <View className="px-4 mt-2">
-              <List.Item
-                descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                titleStyle={{ opacity: 0.6 }}
-                title="Email Address"
-                description={userInfo?.email || "No email provided"}
-                left={({ color }) => (
-                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
-                    <Fontisto name="email" size={24} color={color} />
-                  </View>
-                )}
-              />
-
-              
-              <List.Item
-                title="Username"
-                description={userInfo?.username}
-                descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                titleStyle={{ opacity: 0.6 }}
-                left={({ color }) => (
-                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
-                    <List.Icon icon={'account'} />
-                  </View>
-                )}
-              />
-
-              <List.Item
-                descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                titleStyle={{ opacity: 0.6 }}
-                title="Date Joined"
-                description={
-                  userInfo?.date_joined
-                    ? new Date(userInfo.date_joined).toDateString()
-                    : "N/A"
-                }
-                left={({ color }) => (
-                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
-                    <Fontisto name="date" size={24} color={color} />
-                  </View>
-                )}
-              />
-
-              <List.Item
-                title="State/Region"
-                description={"Kaduna"}
-                descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                titleStyle={{ opacity: 0.6 }}
-                left={({ color }) => (
-                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
-                    <FontAwesome6 name="location-dot" size={24} color={color} />
-                  </View>
-                )}
-              />
-            </View>
-          )}
-
-          {activeTab == 2 && (
-            <View className="px-4">
-              <View className="rounded-lg">
-                <List.Section>
-                  <List.Item
-                    titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    title="Edit Profile"
-                    description="Set Your Profile Avatar"
-                    onPress={() => setChangeAvatarDialogVisible(true)}
-                    left={({ color }) => (
-                      <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
-                        <FontAwesome5
-                          name="user-edit"
-                          size={17}
-                          color={theme.dark ? "lightgreen" : "green"}
-                        />
-                      </View>
-                    )}
-                  />
-                  <List.Item
-                    onPress={() => setPinManagementSheetVisible(true)}
-                    titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    title="Pin Management"
-                    description="Secure your account"
-                    left={({ color }) => (
-                      <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
-                        <FontAwesome5
-                          name="key"
-                          size={17}
-                          color={theme.dark ? "lightblue" : "blue"}
-                        />
-                      </View>
-                    )}
-                  />
-
-                  <List.Item
-                    title="Switch theme"
-                    description="Switch to diffrent themes"
-                    titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    onPress={() => setThemeSelectedSheetVisible(true)}
-                    left={({ color }) => (
-                      <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
-                        <MaterialCommunityIcons
-                          name="theme-light-dark"
-                          size={17}
-                          color={color}
-                        />
-                      </View>
-                    )}
-                    right={() => (
-                      <List.Icon
-                        icon={() => (
-                          <View>
-                            <Text>{`$System`.toUpperCase()}</Text>
-                          </View>
-                        )}
-                      />
-                    )}
-                  />
-                  <List.Item
-                    title="Check For Update"
-                    description="Check for release"
-                    titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    left={({ color }) => (
-                      <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
-                        <MaterialIcons name="update" size={24} color={color} />
-                      </View>
-                    )}
-                  />
-
-                  <List.Item
-                    title="Exit App"
-                    description="Exit from app"
-                    titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    onPress={() => BackHandler.exitApp()}
-                    left={({ color }) => (
-                      <View className="w-8 h-8 rounded-full items-center justify-center bg-[#ba141427]">
-                        <MaterialIcons
-                          name="exit-to-app"
-                          size={24}
-                          color={theme.dark ? "#e77b7b" : "#840606"}
-                        />
-                      </View>
-                    )}
-                  />
-
-                  <List.Item
-                    title="Logout"
-                    onPress={() => router.navigate("/logins/singin")}
-                    titleStyle={{ color: "red" }}
-                    descriptionStyle={{ opacity: 0.6 }}
-                    left={({ color }) => (
-                      <List.Icon color="red" icon={"door-open"} />
-                    )}
-                  />
-                  <List.Item
-                    titleStyle={{ color: "red" }}
-                    onPress={() => {
-                      setDeleteAccountDialogVisible(true);
-                    }}
-                    title="Delete Account"
-                    left={({ color }) => (
-                      <List.Icon color="red" icon={"delete"} />
-                    )}
-                  />
-                </List.Section>
+        <View className="flex-1 px-4">
+          {/* balance view */}
+          <LinearGradient
+            colors={getColors()}
+            start={{ x: 1, y: 0.5 }}
+            end={{ x: -0.2, y: 1.2 }}
+            style={{ borderRadius: 12 }}
+            className="relative h-[90px] w-full rounded-lg py-5 mt-5  p-4 flex-row items-center justify-between px-5"
+          >
+            <View className="gap-y-1">
+              <Text style={{ color: "white", fontSize: 15 }}>
+                Bunus Balance
+              </Text>
+              <View className="flex-row items-center gap-x-1">
+                <Text
+                  style={{ color: "white", fontSize: 20, textAlign: "center" }}
+                  className=" font-[ArchivoBlackRegular]"
+                >
+                  ₦{formatNumber(userInfo?.wallet?.bunus) || "0.00"}{" "}
+                </Text>
+                <MaterialIcons
+                  name="keyboard-arrow-right"
+                  color={"white"}
+                  size={24}
+                />
               </View>
             </View>
-          )}
+
+            <View className="gap-y-1">
+              <Text style={{ color: "white", fontSize: 15 }}>
+                Cashback Balance
+              </Text>
+              <View className="flex-row items-center gap-x-1">
+                <Text
+                  style={{ color: "white", fontSize: 20, textAlign: "center" }}
+                  className=" font-[ArchivoBlackRegular]"
+                >
+                  ₦{formatNumber(userInfo?.wallet?.cashack) || "0.00"}{" "}
+                </Text>
+                <MaterialIcons
+                  name="keyboard-arrow-right"
+                  color={"white"}
+                  size={24}
+                />
+              
+              </View>
+            </View>
+          </LinearGradient>
+
+          {/* end balance view */}
+
+          <View className="mt-5 flex-row items-center gap-x-5">
+            <ActionButton
+              icon={() => (
+                <MaterialIcons name="savings" size={24}  color={theme.colors.onBackground}/>
+              )}
+              label="Saving"
+            />
+              <ActionButton
+                  onPress={() => router.push("/earning")}
+                  label="Earnning"
+                  icon={({ color }) => (
+                   <FontAwesome5 name="money-bill-wave" size={24} color={theme.colors.onBackground} />
+                  )}
+                />
+          </View>
+
+          <View className="flex-row items-center mt-5 px-0 space-x-3">
+            <Text>Details</Text>
+          </View>
+
+          <View className="mt-2">
+            <List.Item
+              descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
+              titleStyle={{ opacity: 0.6 }}
+              title="Email Address"
+              description={userInfo?.email || "No email provided"}
+              left={({ color }) => (
+                <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
+                  <Fontisto name="email" size={24} color={color} />
+                </View>
+              )}
+            />
+
+            <List.Item
+              title="Username"
+              description={userInfo?.username}
+              descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
+              titleStyle={{ opacity: 0.6 }}
+              left={({ color }) => (
+                <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
+                  <List.Icon icon={"account"} />
+                </View>
+              )}
+            />
+
+            <List.Item
+              descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
+              titleStyle={{ opacity: 0.6 }}
+              title="Date Joined"
+              description={
+                userInfo?.date_joined
+                  ? new Date(userInfo.date_joined).toDateString()
+                  : "N/A"
+              }
+              left={({ color }) => (
+                <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
+                  <Fontisto name="date" size={24} color={color} />
+                </View>
+              )}
+            />
+
+            <List.Item
+              title="State/Region"
+              description={"Kaduna"}
+              descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
+              titleStyle={{ opacity: 0.6 }}
+              left={({ color }) => (
+                <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1ca3e61c]">
+                  <FontAwesome6 name="location-dot" size={24} color={color} />
+                </View>
+              )}
+            />
+          </View>
         </View>
       </ScrollView>
 
-      <Portal>
-        <Dialog
-          style={{ backgroundColor: "#f72d2d" }}
-          visible={deleteAccountDialogVisible}
-          onDismiss={() => setDeleteAccountDialogVisible(false)}
-        >
-          <Dialog.Title className="text-white">Warning</Dialog.Title>
-          <Dialog.Content>
-            <Text className="text-white">
-              Are you sure do you want to delete this account
-            </Text>
-          </Dialog.Content>
-          <Dialog.Actions className="">
-            <Button
-              buttonColor="#cc5c5c"
-              textColor={"white"}
-              className="w-20"
-              onPress={() => {
-                setDeleteAccountDialogVisible(false);
-              }}
-              mode={"contained-tonal"}
-            >
-              Yes
-            </Button>
-            <Button
-              textColor="black"
-              buttonColor="lightgreen"
-              className="w-20 text-[#cc5c5c]"
-              onPress={() => setDeleteAccountDialogVisible(false)}
-              mode={"contained-tonal"}
-            >
-              No
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-      <StatusBar key={`${loaded}`} style="light" />
-
-      <BottomSheet
-        visible={themeSelectedSheetVisible}
-        onDismiss={setThemeSelectedSheetVisible}
-      >
-        <View className="p-3">
-          <Text className="font-bold">Selected Theme</Text>
-        </View>
-        <View className="py-2 px-5">
-          <List.Item
-            title="System"
-            onPress={() => {
-              setThemeSelectedSheetVisible(false);
-              setActiveTheme("system");
-            }}
-            left={({ color }) => (
-              <Octicons name="device-mobile" size={24} color={color} />
-            )}
-          />
-          <Divider />
-          <List.Item
-            title="Light"
-            onPress={() => {
-              setThemeSelectedSheetVisible(false);
-              setActiveTheme("light");
-            }}
-            left={({ color }) => (
-              <MaterialIcons name="light-mode" size={24} color={color} />
-            )}
-          />
-          <Divider />
-          <List.Item
-            title="Dark"
-            onPress={() => {
-              setThemeSelectedSheetVisible(false);
-              setActiveTheme("dark");
-            }}
-            left={({ color }) => (
-              <MaterialIcons name="dark-mode" size={24} color={color} />
-            )}
-          />
-        </View>
-      </BottomSheet>
-
-      <BottomSheet
-        visible={pinManagementSheetVisible}
-        onDismiss={setPinManagementSheetVisible}
-        height={"auto"}
-      >
-        <View className="p-3">
-          <Text className="font-bold">Pin Management</Text>
-        </View>
-        <View className="py-2 px-5">
-          <List.Item
-            title="Change Pin"
-            onPress={() => {
-              setPinManagementSheetVisible(false);
-              router.push("/PinManagement/change-pin");
-            }}
-            left={({ color }) => (
-              <MaterialCommunityIcons
-                name="key-change"
-                size={24}
-                color={color}
-              />
-            )}
-          />
-          <Divider />
-          <List.Item
-            title="Reset Pin"
-            onPress={() => {
-              setPinManagementSheetVisible(false);
-              router.push("/PinManagement/reset-pin");
-            }}
-            left={({ color }) => (
-              <MaterialIcons name="lock-reset" size={24} color={color} />
-            )}
-          />
-        </View>
-      </BottomSheet>
-
-      <Portal>
-        <Dialog
-          onDismiss={() => setChangeAvatarDialogVisible(false)}
-          visible={changeAvatarDialogVisible}
-        >
-          <Dialog.Title>Change Avatar</Dialog.Title>
-
-          <Dialog.Actions>
-            <Button onPress={() => setChangeAvatarDialogVisible(false)}>
-              Cancel
-            </Button>
-            <Button onPress={() => setChangeAvatarDialogVisible(false)}>
-              Ok
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </LinearGradient>
+      <StatusBar style={theme.dark ? "light" : "dark"} />
+    </PaperSafeView>
   );
 };
 

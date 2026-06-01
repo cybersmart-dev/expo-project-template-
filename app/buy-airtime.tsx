@@ -1,4 +1,4 @@
-import { FlatList, Pressable, TouchableOpacity, View } from "react-native";
+import { Pressable, ScrollView, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Appbar,
@@ -81,7 +81,7 @@ const BuyAirtimeSuggestAmountCard = ({
     
     onPress(amount);
     setClied(true);
-    await new Timer().postDelayedAsync({ sec: 300 });
+    await new Timer().postDelayedAsync({ sec: 200 });
     setClied(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   };
@@ -97,7 +97,7 @@ const BuyAirtimeSuggestAmountCard = ({
             backgroundColor: theme.colors.surfaceVariant,
             boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.10)",
           }}
-          className="h-[70px] px-3 w-[100px] rounded-lg items-center justify-center"
+          className="h-[50px] px-3 w-[100px] rounded-lg items-center justify-center"
         >
           <Text numberOfLines={1} className="text-[15px] font-bold">
             ₦ {formatNumber(amount)}
@@ -115,19 +115,15 @@ const BuyAirtimeSuggestAmountContainer = ({
   onSelect = (amount: number) => {},
 }) => {
   return (
-    <View className="w-screen">
-      <FlatList
-        data={SuggestAmounts}
-        numColumns={3}
-        renderItem={({ item }) => (
-          <BuyAirtimeSuggestAmountCard
-            onPress={onSelect}
-            amount={item.amount}
-            cashback={item.cashback}
-            key={item.id}
-          />
-        )}
-      />
+    <View className="w-screen flex-row flex-wrap gap-1">
+      {SuggestAmounts.map((item) => (
+        <BuyAirtimeSuggestAmountCard
+          key={item.id}
+          onPress={onSelect}
+          amount={item.amount}
+          cashback={item.cashback}
+        />
+      ))}
     </View>
   );
 };
@@ -245,7 +241,8 @@ const buyairtime = () => {
           )}
         />
       </CustomAppbar>
-      <View className="flex-1 space-y-0 mt-5">
+
+      <ScrollView className="flex-1 space-y-0 mt-5">
         <View>
           <Pressable
             onPress={() => setBeneficiarySheetVisible(true)}
@@ -314,7 +311,9 @@ const buyairtime = () => {
             Buy Now
           </Button>
         </View>
-      </View>
+      </ScrollView>
+
+
       <BottomSheet
         visible={buyAirtimePreviewVisible}
         height={"50%"}

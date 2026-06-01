@@ -162,8 +162,17 @@ function RootLayoutNav() {
           <Stack.Screen
             name="profile"
             options={{
-              presentation: "formSheet",
+              presentation: "containedModal",
               title: "Singup",
+              headerShown: false,
+            }}
+          />
+
+          <Stack.Screen
+            name="settings"
+            options={{
+              presentation: "containedModal",
+              title: "Settigs",
               headerShown: false,
             }}
           />

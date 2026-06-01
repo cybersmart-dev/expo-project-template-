@@ -124,9 +124,11 @@ const PhoneLoginComponent = () => {
 
     if (response.status == 0) {
       setShowProcessing(false);
+      setFingerPrintIconColor(theme.colors.onBackground)
       Toast.danger({ title: "Login Failed", body: response.message });
     }
     if (response.status == undefined) {
+      setFingerPrintIconColor(theme.colors.onBackground)
       setShowProcessing(false);
       setNetworkErrorSheetVisible(true);
       Toast.danger({
@@ -217,7 +219,7 @@ const PhoneLoginComponent = () => {
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
-      <CustomAppbar className="">
+      <CustomAppbar>
         <Appbar.Content
           title={
             <View className="flex-row items-center">
