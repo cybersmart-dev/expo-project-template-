@@ -155,7 +155,7 @@ const BottomSheet = ({
               position: "absolute",
               width: "100%",
               paddingHorizontal: mode == "center" ? 15 : 0,
-              paddingBottom: 15,
+              paddingBottom: mode == "center" ? 15 : 0,
             }}
             className={getModeStyle().main}
           >

@@ -9,7 +9,7 @@ import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   View,
   Image,
@@ -18,10 +18,23 @@ import {
   Platform,
   Keyboard,
   LayoutChangeEvent,
+  Pressable,
+  FlatList,
 } from "react-native";
 import { EaseView } from "react-native-ease";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import { Appbar, Button, Text, TextInput, useTheme } from "react-native-paper";
+import {
+  Appbar,
+  Button,
+  Divider,
+  List,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
+import { isValid } from "phoneng";
+import BottomSheet from "@/components/models/BottomSheet";
+import * as Haptics from "expo-haptics";
 
 const Singup = () => {
   const theme = useTheme();
@@ -35,8 +48,54 @@ const Singup = () => {
   const [emailErrorShow, setEmailErrorShow] = useState(false);
   const [phoneNumberErrorShow, setPhoneNumberErrorShow] = useState(false);
   const [stateErrorShow, setStateErrorShow] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [countrySelectBottomSheetVisible, setCountrySelectBottomSheetVisible] =
+    useState(false);
+  const [stateSelectBottomSheetVisible, setStateSelectBottomSheetVisible] =
+    useState(false);
 
   const [loaded, setLoaded] = useState(false);
+
+  const NigerianStates = [
+    "Abia",
+    "Adamawa",
+    "Akwa Ibom",
+    "Anambra",
+    "Bauchi",
+    "Bayelsa",
+    "Benue",
+    "Borno",
+    "Cross River",
+    "Delta",
+    "Ebonyi",
+    "Edo",
+    "Ekiti",
+    "Enugu",
+    "Gombe",
+    "Imo",
+    "Jigawa",
+    "Kaduna",
+    "Kano",
+    "Katsina",
+    "Kebbi",
+    "Kogi",
+    "Kwara",
+    "Lagos",
+    "Nasarawa",
+    "Niger",
+    "Ogun",
+    "Ondo",
+    "Osun",
+    "Oyo",
+    "Plateau",
+    "Rivers",
+    "Sokoto",
+    "Taraba",
+    "Yobe",
+    "Zamfara",
+    "Federal Capital Territory",
+  ];
+  const Countries = ["Nigeria"];
 
   useFocusEffect(
     useCallback(() => {
@@ -51,16 +110,20 @@ const Singup = () => {
     Keyboard.dismiss();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^(?:\+234|234|0)(?:70|80|81|90|91|701|702|703|704|705|706|707|708|709|810|811|812|813|814|815|816|817|818|819|901|902|903|904|905|906|907|908|909)\d{7}$/;
 
     const trimmedFullName = fullName.trim();
     const trimmedEmail = email.trim();
     const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedState = state.trim();
 
-    const hasFullNameError = trimmedFullName.length === 0;
-    const hasEmailError = trimmedEmail.length === 0 || !emailRegex.test(trimmedEmail);
-    const hasPhoneNumberError = trimmedPhoneNumber.length === 0 || !phoneRegex.test(trimmedPhoneNumber);
+    const hasFullNameError =
+      trimmedFullName.length === 0 ||
+      trimmedFullName.length < 5 ||
+      trimmedFullName.split(" ").length < 2;
+    const hasEmailError =
+      trimmedEmail.length === 0 || !emailRegex.test(trimmedEmail);
+    const hasPhoneNumberError =
+      trimmedPhoneNumber.length === 0 || !isValid(trimmedPhoneNumber);
     const hasStateError = trimmedState.length === 0;
 
     setFullNameErrorShow(hasFullNameError);
@@ -68,22 +131,27 @@ const Singup = () => {
     setPhoneNumberErrorShow(hasPhoneNumberError);
     setStateErrorShow(hasStateError);
 
-    if (hasFullNameError || hasEmailError || hasPhoneNumberError || hasStateError) {
+    if (
+      hasFullNameError ||
+      hasEmailError ||
+      hasPhoneNumberError ||
+      hasStateError
+    ) {
       const message = "Please fix invalid input";
       const description = hasFullNameError
         ? "Enter your full name."
         : hasEmailError
-        ? "Enter a valid email address."
-        : hasPhoneNumberError
-        ? "Enter a valid phone number."
-        : "Enter your state.";
+          ? "Enter a valid email address."
+          : hasPhoneNumberError
+            ? "Enter a valid phone number."
+            : "Enter your state.";
 
       showMessage({
         message,
         description,
         type: "danger",
       });
-      Toast.dangerHapticsAsync({title: message, body: description})
+      Toast.dangerHapticsAsync({ title: message, body: description });
       return;
     }
 
@@ -100,17 +168,55 @@ const Singup = () => {
     return;
   };
 
- 
-
-
   const handleOnLayout = (event: LayoutChangeEvent): void => {
     const height = event.nativeEvent.layout.height;
     setFormHeight(height);
   };
 
+  const StatesComponent = React.memo(({ item }) => {
+    if (!item) return null;
+
+    return (
+      <View className="mt-2 pl-3 pr-1">
+        <List.Item
+          onPress={async () => {
+             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            setStateSelectBottomSheetVisible(false);
+            setState(item);
+          }}
+          title={item}
+          titleStyle={{ fontWeight: "bold", fontSize: 20 }}
+          right={({ color }) => (
+            <MaterialIcons
+              name="keyboard-arrow-right"
+              color={color}
+              size={24}
+            />
+          )}
+          left={() => (
+            <Image
+              className="rounded-full"
+              source={{
+                uri: "https://flagcdn.com/w320/ng.png",
+                height: 30,
+                width: 30,
+              }}
+            />
+          )}
+        />
+        <Divider />
+      </View>
+    );
+  });
+
+  const renderItem = useCallback(
+    ({ item }) => <StatesComponent item={item} />,
+    [NigerianStates],
+  );
+
   return (
     <PaperSafeView>
-      <CustomAppbar style={{ backgroundColor: "transparent" }}>
+      <CustomAppbar>
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -168,7 +274,7 @@ const Singup = () => {
                 fontSize: 20,
               }}
             >
-              Welcome To AppName
+              Welcome To Zaffy
             </Text>
           </EaseView>
           <EaseView
@@ -191,58 +297,89 @@ const Singup = () => {
           </EaseView>
         </View>
       </View>
-    
-           
-      
+
       <BottomLayout onLayout={handleOnLayout}>
-        <View className="px-5 gap-y-5 mt-5">
-           <TextInput
-              placeholder="Full Name"
+        <View className="px-5 gap-y-5 pt-10">
+          <TextInput
+            placeholder="Full Name"
+            keyboardType={"default"}
+            style={{ backgroundColor: "transparent" }}
+            error={fullnameErrorShow}
+            onChangeText={(value) => {
+              setFullName(value);
+              setFullNameErrorShow(false);
+            }}
+            left={<TextInput.Icon size={20} icon="account" />}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 15 }}
+          />
+
+          <TextInput
+            placeholder="Email Address"
+            keyboardType={"email-address"}
+            style={{ backgroundColor: "transparent" }}
+            error={emailErrorShow}
+            onChangeText={(value) => {
+              setEmail(value);
+              setEmailErrorShow(false);
+            }}
+            left={<TextInput.Icon size={20} icon="email" />}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 15 }}
+          />
+
+          <TextInput
+            placeholder="Phone Number"
+            keyboardType={"numeric"}
+            style={{ backgroundColor: "transparent" }}
+            error={phoneNumberErrorShow}
+            onChangeText={(value) => {
+              setPhoneNumber(value);
+              setPhoneNumberErrorShow(false);
+            }}
+            left={<TextInput.Icon size={20} icon="phone" />}
+            mode="outlined"
+            outlineStyle={{ borderRadius: 15 }}
+          />
+
+          <Pressable onPress={() => setCountrySelectBottomSheetVisible(true)}>
+            <TextInput
+              placeholder="Select Country"
               keyboardType={"default"}
               style={{ backgroundColor: "transparent" }}
-              error={fullnameErrorShow}
+              value={selectedCountry}
+              editable={false}
               onChangeText={(value) => {
-                setFullName(value);
-                setFullNameErrorShow(false);
+                setState(value);
+                setStateErrorShow(false);
               }}
-              left={<TextInput.Icon size={20} icon="account" />}
+              left={<TextInput.Icon size={20} icon="map" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
+              right={
+                <TextInput.Icon
+                  size={24}
+                  onPress={() => setCountrySelectBottomSheetVisible(true)}
+                  icon={({ color, size }) => (
+                    <MaterialIcons
+                      name="keyboard-arrow-down"
+                      color={color}
+                      size={size}
+                    />
+                  )}
+                />
+              }
             />
+          </Pressable>
 
+          <Pressable onPress={() => setStateSelectBottomSheetVisible(true)}>
             <TextInput
-              placeholder="Email Address"
-              keyboardType={"email-address"}
-              style={{ backgroundColor: "transparent" }}
-              error={emailErrorShow}
-              onChangeText={(value) => {
-                setEmail(value);
-                setEmailErrorShow(false);
-              }}
-              left={<TextInput.Icon size={20} icon="email" />}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-            />
-
-            <TextInput
-              placeholder="Phone Number"
-              keyboardType={"numeric"}
-              style={{ backgroundColor: "transparent" }}
-              error={phoneNumberErrorShow}
-              onChangeText={(value) => {
-                setPhoneNumber(value);
-                setPhoneNumberErrorShow(false);
-              }}
-              left={<TextInput.Icon size={20} icon="phone" />}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-            />
-
-            <TextInput
-              placeholder="State"
+              placeholder="Select State"
               keyboardType={"default"}
               style={{ backgroundColor: "transparent" }}
               error={stateErrorShow}
+              value={state}
+              editable={false}
               onChangeText={(value) => {
                 setState(value);
                 setStateErrorShow(false);
@@ -250,26 +387,117 @@ const Singup = () => {
               left={<TextInput.Icon size={20} icon="home" />}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
+              right={
+                <TextInput.Icon
+                  size={24}
+                  onPress={() => setStateSelectBottomSheetVisible(true)}
+                  icon={({ color, size }) => (
+                    <MaterialIcons
+                      name="keyboard-arrow-down"
+                      color={color}
+                      size={size}
+                    />
+                  )}
+                />
+              }
             />
+          </Pressable>
 
-            <View className="mb-0">
-              <Button
-                onPress={validateInputs}
-                mode="contained"
-                className="text-lg py-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-              >
-                Next
-              </Button>
-              <View className="flex-row items-center justify-center pt-1">
-                <Text>I have an account</Text>
-                <Button onPress={() => router.back()}>Sing in</Button>
-              </View>
+          <View className="mb-0">
+            <Button
+              onPress={validateInputs}
+              mode="contained"
+              className="text-lg py-1"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+            >
+              Next
+            </Button>
+            <View className="flex-row items-center justify-center pt-1">
+              <Text>I have an account</Text>
+              <Button onPress={() => router.back()}>Sing in</Button>
             </View>
+          </View>
         </View>
       </BottomLayout>
-          
+
+      <BottomSheet
+        mode={"full-width"}
+        height={"50%"}
+        visible={stateSelectBottomSheetVisible}
+        onDismiss={setStateSelectBottomSheetVisible}
+      >
+        <View>
+          <View className="p-3">
+            <Text className="text-lg">Select State</Text>
+          </View>
+
+          <View>
+            <FlatList
+              keyExtractor={(item) => `${item}`}
+              data={NigerianStates}
+              renderItem={renderItem}
+              initialNumToRender={15}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </BottomSheet>
+
+      <BottomSheet
+        mode={"full-width"}
+        height={"50%"}
+        visible={countrySelectBottomSheetVisible}
+        onDismiss={setCountrySelectBottomSheetVisible}
+      >
+        <View>
+          <View className="p-3">
+            <Text className="text-lg">Select Country</Text>
+          </View>
+
+          <View>
+            <FlatList
+              keyExtractor={(item) => `${item}`}
+              data={Countries}
+              renderItem={({ item }) => (
+                <View className="mt-2 px-3">
+                  <List.Item
+                    onPress={async() => {
+                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                      setSelectedCountry(item);
+                      setCountrySelectBottomSheetVisible(false);
+                    }}
+                    titleStyle={{ fontWeight: "bold", fontSize: 20 }}
+                    title={item}
+                    right={({ color }) => (
+                      <MaterialIcons
+                        name="keyboard-arrow-right"
+                        color={color}
+                        size={24}
+                      />
+                    )}
+                    left={() => (
+                      <Image
+                        className="rounded-full"
+                        source={{
+                          uri: "https://flagcdn.com/w320/ng.png",
+                          height: 30,
+                          width: 30,
+                        }}
+                      />
+                    )}
+                  />
+                  <Divider />
+                </View>
+              )}
+              initialNumToRender={15}
+              maxToRenderPerBatch={50}
+              windowSize={5}
+            />
+          </View>
+        </View>
+      </BottomSheet>
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

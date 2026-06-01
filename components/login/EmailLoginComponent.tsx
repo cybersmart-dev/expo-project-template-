@@ -105,7 +105,6 @@ const EmailLoginComponent = () => {
     }
 
     if (response.status == undefined) {
-      console.error("Login Failed", response.message);
       setNetworkErrorSheetVisible(true);
       setShowProcessing(false);
       return;
@@ -156,8 +155,8 @@ const EmailLoginComponent = () => {
           animate={{ translateX: loaded ? 0 : 200 }}
           transition={{ type: "timing", duration: 1000 }}
         >
-          <Button mode={"contained-tonal"} className="mr-2">
-            Help
+          <Button onPress={() => router.push("/logins/phoneLogin")} icon={"phone"} mode={"contained-tonal"} className="mr-2">
+            Login With Phone Numer
           </Button>
         </EaseView>
       </CustomAppbar>
@@ -211,7 +210,7 @@ const EmailLoginComponent = () => {
       </View>
 
       <BottomLayout>
-        <View className="px-5 gap-y-5 mt-5">
+        <View className="px-5 gap-y-5 pt-10">
           <TextInput
             placeholder="Email Address"
             keyboardType={"email-address"}

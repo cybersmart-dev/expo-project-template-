@@ -30,6 +30,7 @@ import NetworkRequestErrorSheet from "../models/NetworkRequestErrorSheet";
 import { Storage } from "@/constants/Storage";
 import BottomLayout from "../Containers/BottomLayout";
 import AnimatedTransLogo from "../Animations/AnimatedTransLogo";
+import CustomAppbar from "../CustomAppbar";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme();
@@ -142,7 +143,7 @@ const PhoneLoginComponent = () => {
       onPress={() => Keyboard.dismiss()}
       style={{ backgroundColor: theme.colors.background }}
     >
-      <Appbar className="bg-transparent">
+      <CustomAppbar>
         <EaseView
           animate={{ translateX: loaded ? 0 : -200 }}
           transition={{ type: "timing", duration: 1000 }}
@@ -163,13 +164,13 @@ const PhoneLoginComponent = () => {
           animate={{ translateX: loaded ? 0 : 200 }}
           transition={{ type: "timing", duration: 1000 }}
         >
-          <Button mode={"contained-tonal"} className="mr-2">
-            Help
+          <Button onPress={() => router.push("/logins/emailLogin")} icon={"email"} mode={"contained-tonal"} className="mr-2">
+            Login With Email
           </Button>
         </EaseView>
-      </Appbar>
+      </CustomAppbar>
 
-      <View className="absolute top-[70px] space-y-0 w-full items-center justify-center">
+      <View className="absolute top-[70px] gap-y-0 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -219,11 +220,11 @@ const PhoneLoginComponent = () => {
       </View>
 
       <BottomLayout>
-        <View className="px-5 space-y-5 mt-5">
+        <View  className="px-5 gap-y-5 pt-10">
           <TextInput
             placeholder="Phone Number"
             keyboardType={"number-pad"}
-            className="bg-transparent"
+            style={{backgroundColor: "transparent"}}
             onChangeText={setPhone}
             disabled={showProcessing}
             left={<TextInput.Icon size={20} icon="phone" />}
@@ -233,7 +234,7 @@ const PhoneLoginComponent = () => {
           <View>
             <TextInput
               placeholder="Password"
-              className="bg-transparent"
+               style={{backgroundColor: "transparent"}}
               secureTextEntry={showPassword ? false : true}
               disabled={showProcessing}
               left={<TextInput.Icon size={20} icon="lock" />}
@@ -264,7 +265,7 @@ const PhoneLoginComponent = () => {
               <Button
                 disabled
                 onPress={() => validateInput()}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
@@ -279,7 +280,7 @@ const PhoneLoginComponent = () => {
             {!showProcessing && (
               <Button
                 onPress={() => validateInput()}
-                className="text-lg p-1"
+                className="text-lg py-1"
                 style={{ borderRadius: 15 }}
                 labelStyle={{ fontSize: 16 }}
                 mode="contained"
