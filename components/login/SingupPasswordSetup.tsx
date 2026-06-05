@@ -12,9 +12,13 @@ import CustomAppbar from "../CustomAppbar";
 
 interface SingupPasswordSetupProps {
   onComfirm: (data: { pass1: string; pass2: string }) => void;
+  email: string | string[];
+  phoneNumber: string | string[];
 }
 export default function SingupPasswordSetup({
   onComfirm,
+  email,
+  phoneNumber,
 }: SingupPasswordSetupProps) {
   const theme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +48,6 @@ export default function SingupPasswordSetup({
   };
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
-     
       <CustomAppbar>
         <Appbar.Action
           isLeading
@@ -57,7 +60,31 @@ export default function SingupPasswordSetup({
           )}
           onPress={() => router.back()}
         />
-        <Appbar.Content title="" mode="small" />
+        <Appbar.Content
+          title={
+            <View className="justify-center mt-5">
+              <Text
+                numberOfLines={1}
+                style={{ fontWeight: "bold", fontSize: 18 }}
+              >
+                {email}
+              </Text>
+              <Text
+                style={{
+                  color: theme.colors.onBackground,
+                  fontSize: 13,
+                  marginBottom: 30,
+                  opacity: 0.5,
+                }}
+              >
+                {phoneNumber}
+              </Text>
+            </View>
+          }
+          mode="small"
+          
+        />
+        <Button onPress={() => router.back()} icon={"pen"}>Edit Details</Button>
       </CustomAppbar>
 
       <View className="gap-y-10 mt-7 px-8">
@@ -65,13 +92,16 @@ export default function SingupPasswordSetup({
           <View className="w-full items-center">
             <Image
               className="h-28 w-24"
-              style={{height: 80, width: 80}}
+              style={{ height: 80, width: 80 }}
               contentFit="cover"
               transition={1000}
               source={require("@/assets/images/gif/password_setup_anim_lock.webp")}
             />
           </View>
-          <Text className="text-2xl text-center font-light w-full">
+          <Text
+            style={{ textAlign: "center" }}
+            className="text-2xl text-center font-light w-full"
+          >
             Create Password
           </Text>
           <Text className="hidden text-center font-light">🔒</Text>
@@ -121,7 +151,7 @@ export default function SingupPasswordSetup({
           labelStyle={{ fontSize: 16 }}
           mode="contained"
         >
-          SingUp Now
+          Register
         </Button>
       </View>
       <StatusBar style={theme.dark ? "light" : "dark"} />

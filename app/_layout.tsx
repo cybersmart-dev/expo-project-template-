@@ -4,14 +4,13 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
-import { createContext, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { DarkScheme, LightScheme } from "../Themes/ThemeSchemes";
 import "react-native-reanimated";
 import { useColorScheme, StatusBar as RNStatusBar } from "react-native";
 import FlashMessage from "react-native-flash-message";
-import { RootLayoutContext } from "@/contexts/RootLayoutContext";
 
 export const DarkTheme = {
   ...MD3DarkTheme,

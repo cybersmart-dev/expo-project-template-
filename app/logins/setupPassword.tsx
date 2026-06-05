@@ -1,8 +1,8 @@
-import { View, Text } from "react-native";
-import React, { useRef, useState } from "react";
+import { View, Text, BackHandler, Alert } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
 import SingupPasswordSetup from "@/components/login/SingupPasswordSetup";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import Processing from "@/components/models/Processing";
 import { Timer } from "@/constants/Utils";
 import requests from "@/Network/HttpRequest";
@@ -12,6 +12,21 @@ const setupPassword = () => {
   const { fullName, email, phoneNumber, state } = useLocalSearchParams();
   const [processing, setProcessing] = useState(false);
   const processingRef = useRef<number>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        Alert.alert("Go Back", "Are you sure do you want to go back?", [
+          { text: "Yes", onPress: () => router.back() },
+          { text: "No", onPress: () => null },
+          
+        ], {"cancelable": true});
+
+        return true;
+      });
+      return () => back.remove();
+    }, []),
+  );
 
   const handleConfirm = (data: { pass1: string; pass2: string }) => {
     const { pass1, pass2 } = data;
@@ -74,7 +89,11 @@ const setupPassword = () => {
   };
   return (
     <View className="flex-1">
-      <SingupPasswordSetup onComfirm={handleConfirm} />
+      <SingupPasswordSetup
+        onComfirm={handleConfirm}
+        email={email}
+        phoneNumber={phoneNumber}
+      />
       <Processing visible={processing} />
     </View>
   );

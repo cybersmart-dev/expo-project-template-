@@ -7,7 +7,7 @@ import { Toast } from "@/constants/Toast";
 import requests from "@/Network/HttpRequest";
 import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router, useFocusEffect } from "expo-router";
+import { Color, router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -48,7 +48,9 @@ const Singup = () => {
   const [emailErrorShow, setEmailErrorShow] = useState(false);
   const [phoneNumberErrorShow, setPhoneNumberErrorShow] = useState(false);
   const [stateErrorShow, setStateErrorShow] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState();
+  const [step, setStep] = useState<"first" | "second">("first");
+  const [refCode, setRefCode] = useState("");
   const [countrySelectBottomSheetVisible, setCountrySelectBottomSheetVisible] =
     useState(false);
   const [stateSelectBottomSheetVisible, setStateSelectBottomSheetVisible] =
@@ -106,15 +108,24 @@ const Singup = () => {
     }, []),
   );
 
-  const validateInputs = async () => {
+  const singupNext = () => {
     Keyboard.dismiss();
+    if (step == "first") {
+      fistStepInputValidation();
+      return;
+    }
+    if (step == "second") {
+      secondStepInputValidation();
+      return;
+    }
+  };
 
+  const fistStepInputValidation = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const trimmedFullName = fullName.trim();
     const trimmedEmail = email.trim();
     const trimmedPhoneNumber = phoneNumber.trim();
-    const trimmedState = state.trim();
 
     const hasFullNameError =
       trimmedFullName.length === 0 ||
@@ -124,19 +135,12 @@ const Singup = () => {
       trimmedEmail.length === 0 || !emailRegex.test(trimmedEmail);
     const hasPhoneNumberError =
       trimmedPhoneNumber.length === 0 || !isValid(trimmedPhoneNumber);
-    const hasStateError = trimmedState.length === 0;
 
     setFullNameErrorShow(hasFullNameError);
     setEmailErrorShow(hasEmailError);
     setPhoneNumberErrorShow(hasPhoneNumberError);
-    setStateErrorShow(hasStateError);
 
-    if (
-      hasFullNameError ||
-      hasEmailError ||
-      hasPhoneNumberError ||
-      hasStateError
-    ) {
+    if (hasFullNameError || hasEmailError || hasPhoneNumberError) {
       const message = "Please fix invalid input";
       const description = hasFullNameError
         ? "Enter your full name."
@@ -154,14 +158,40 @@ const Singup = () => {
       Toast.dangerHapticsAsync({ title: message, body: description });
       return;
     }
+    setStep("second");
+  };
 
+  const secondStepInputValidation = () => {
+    const trimmedState = state.trim();
+
+    const hasStateError = trimmedState.length === 0;
+
+    setStateErrorShow(hasStateError);
+
+    if (hasStateError) {
+      const message = "Please fix invalid input";
+      const description = "Enter your state.";
+
+      showMessage({
+        message,
+        description,
+        type: "danger",
+      });
+      Toast.dangerHapticsAsync({ title: message, body: description });
+      return;
+    }
+    validateInputs();
+  };
+
+  const validateInputs = async () => {
     router.push({
       pathname: "/logins/setupPassword",
       params: {
-        fullName: trimmedFullName,
-        email: trimmedEmail,
-        phoneNumber: trimmedPhoneNumber,
-        state: trimmedState,
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        state: state,
+        ref: refCode,
       },
     });
 
@@ -180,7 +210,7 @@ const Singup = () => {
       <View className="mt-2 pl-3 pr-1">
         <List.Item
           onPress={async () => {
-             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
             setStateSelectBottomSheetVisible(false);
             setState(item);
           }}
@@ -233,7 +263,26 @@ const Singup = () => {
           />
         </EaseView>
         <Appbar.Content
-          title={<View></View>}
+          title={
+            <View className="justify-center mt-5">
+              <Text
+                numberOfLines={1}
+                style={{ fontWeight: "bold", fontSize: 18 }}
+              >
+                {step == "second" && email}
+              </Text>
+              <Text
+                style={{
+                  color: theme.colors.onBackground,
+                  fontSize: 13,
+                  marginBottom: 30,
+                  opacity: 0.5,
+                }}
+              >
+                {step == "second" && phoneNumber}
+              </Text>
+            </View>
+          }
           mode="small"
           style={{ alignItems: "flex-start" }}
         />
@@ -247,10 +296,7 @@ const Singup = () => {
           </Button>
         </EaseView>
       </CustomAppbar>
-      <View
-        style={{ bottom: 0, marginBottom: formHeight }}
-        className="absolute gap-y-1 w-full items-center justify-center"
-      >
+      <View className="absolute top-[80px] space-y-1 w-full items-center justify-center">
         <EaseView
           animate={{
             opacity: loaded ? 1 : 0,
@@ -292,120 +338,190 @@ const Singup = () => {
                 opacity: 0.5,
               }}
             >
-              some description here
+              Register New Account
             </Text>
           </EaseView>
         </View>
       </View>
 
+      <EaseView
+        animate={{
+          translateX: step == "second" ? -10 : 0,
+          opacity: step == "second" ? 1 : 0,
+        }}
+        style={{
+          marginBottom: formHeight,
+          position: "absolute",
+          bottom: 0,
+          marginLeft: 3,
+        }}
+        className="absolute bottom-0 ml-3 p-2"
+      >
+        <Button
+          onPress={() => {
+            setStep("first");
+          }}
+          icon={"arrow-left"}
+        >
+          Back
+        </Button>
+      </EaseView>
+
       <BottomLayout onLayout={handleOnLayout}>
         <View className="px-5 gap-y-5 pt-10">
-          <TextInput
-            placeholder="Full Name"
-            keyboardType={"default"}
-            style={{ backgroundColor: "transparent" }}
-            error={fullnameErrorShow}
-            onChangeText={(value) => {
-              setFullName(value);
-              setFullNameErrorShow(false);
-            }}
-            left={<TextInput.Icon size={20} icon="account" />}
-            mode="outlined"
-            outlineStyle={{ borderRadius: 15 }}
-          />
+          {step == "first" && (
+            <View className="gap-y-5">
+              <TextInput
+                placeholder="Full Name"
+                keyboardType={"default"}
+                value={fullName}
+                style={{ backgroundColor: "transparent" }}
+                error={fullnameErrorShow}
+                onChangeText={(value) => {
+                  setFullName(value);
+                  setFullNameErrorShow(false);
+                }}
+                left={<TextInput.Icon size={20} icon="account" />}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+              />
 
-          <TextInput
-            placeholder="Email Address"
-            keyboardType={"email-address"}
-            style={{ backgroundColor: "transparent" }}
-            error={emailErrorShow}
-            onChangeText={(value) => {
-              setEmail(value);
-              setEmailErrorShow(false);
-            }}
-            left={<TextInput.Icon size={20} icon="email" />}
-            mode="outlined"
-            outlineStyle={{ borderRadius: 15 }}
-          />
+              <TextInput
+                placeholder="Email Address"
+                value={email}
+                keyboardType={"email-address"}
+                style={{ backgroundColor: "transparent" }}
+                error={emailErrorShow}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  setEmailErrorShow(false);
+                }}
+                left={<TextInput.Icon size={20} icon="email" />}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+              />
+              <TextInput
+                placeholder="Phone Number"
+                keyboardType={"numeric"}
+                value={phoneNumber}
+                style={{ backgroundColor: "transparent" }}
+                error={phoneNumberErrorShow}
+                onChangeText={(value) => {
+                  setPhoneNumber(value);
+                  setPhoneNumberErrorShow(false);
+                }}
+                left={<TextInput.Icon size={20} icon="phone" />}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+              />
+            </View>
+          )}
 
-          <TextInput
-            placeholder="Phone Number"
-            keyboardType={"numeric"}
-            style={{ backgroundColor: "transparent" }}
-            error={phoneNumberErrorShow}
-            onChangeText={(value) => {
-              setPhoneNumber(value);
-              setPhoneNumberErrorShow(false);
-            }}
-            left={<TextInput.Icon size={20} icon="phone" />}
-            mode="outlined"
-            outlineStyle={{ borderRadius: 15 }}
-          />
-
-          <Pressable onPress={() => setCountrySelectBottomSheetVisible(true)}>
-            <TextInput
-              placeholder="Select Country"
-              keyboardType={"default"}
-              style={{ backgroundColor: "transparent" }}
-              value={selectedCountry}
-              editable={false}
-              onChangeText={(value) => {
-                setState(value);
-                setStateErrorShow(false);
-              }}
-              left={<TextInput.Icon size={20} icon="map" />}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-              right={
-                <TextInput.Icon
-                  size={24}
-                  onPress={() => setCountrySelectBottomSheetVisible(true)}
-                  icon={({ color, size }) => (
-                    <MaterialIcons
-                      name="keyboard-arrow-down"
-                      color={color}
-                      size={size}
+          {step == "second" && (
+            <View className="gap-y-5">
+              <Pressable
+                onPress={() => setCountrySelectBottomSheetVisible(true)}
+              >
+                <TextInput
+                  placeholder="Select Country"
+                  keyboardType={"default"}
+                  style={{ backgroundColor: "transparent" }}
+                  value={selectedCountry}
+                  editable={false}
+                  onChangeText={(value) => {
+                    setState(value);
+                    setStateErrorShow(false);
+                  }}
+                  left={
+                    <TextInput.Icon
+                      size={20}
+                      icon={({ color, size }) => (
+                        <View>
+                          {selectedCountry && (
+                            <Image
+                              className="rounded-full"
+                              source={{
+                                uri: "https://flagcdn.com/w320/ng.png",
+                                height: 30,
+                                width: 30,
+                              }}
+                            />
+                          )}
+                          {!selectedCountry && (
+                            <MaterialIcons
+                              name="map"
+                              color={color}
+                              size={size}
+                            />
+                          )}
+                        </View>
+                      )}
                     />
-                  )}
-                />
-              }
-            />
-          </Pressable>
-
-          <Pressable onPress={() => setStateSelectBottomSheetVisible(true)}>
-            <TextInput
-              placeholder="Select State"
-              keyboardType={"default"}
-              style={{ backgroundColor: "transparent" }}
-              error={stateErrorShow}
-              value={state}
-              editable={false}
-              onChangeText={(value) => {
-                setState(value);
-                setStateErrorShow(false);
-              }}
-              left={<TextInput.Icon size={20} icon="home" />}
-              mode="outlined"
-              outlineStyle={{ borderRadius: 15 }}
-              right={
-                <TextInput.Icon
-                  size={24}
-                  onPress={() => setStateSelectBottomSheetVisible(true)}
-                  icon={({ color, size }) => (
-                    <MaterialIcons
-                      name="keyboard-arrow-down"
-                      color={color}
-                      size={size}
+                  }
+                  mode="outlined"
+                  outlineStyle={{ borderRadius: 15 }}
+                  right={
+                    <TextInput.Icon
+                      size={24}
+                      onPress={() => setCountrySelectBottomSheetVisible(true)}
+                      icon={({ color, size }) => (
+                        <MaterialIcons
+                          name="keyboard-arrow-down"
+                          color={color}
+                          size={size}
+                        />
+                      )}
                     />
-                  )}
+                  }
                 />
-              }
-            />
-          </Pressable>
+              </Pressable>
 
+              <Pressable onPress={() => setStateSelectBottomSheetVisible(true)}>
+                <TextInput
+                  placeholder="Select State"
+                  keyboardType={"default"}
+                  style={{ backgroundColor: "transparent" }}
+                  error={stateErrorShow}
+                  value={state}
+                  editable={false}
+                  onChangeText={(value) => {
+                    setState(value);
+                    setStateErrorShow(false);
+                  }}
+                  left={<TextInput.Icon size={20} icon="home" />}
+                  mode="outlined"
+                  outlineStyle={{ borderRadius: 15 }}
+                  right={
+                    <TextInput.Icon
+                      size={24}
+                      onPress={() => setStateSelectBottomSheetVisible(true)}
+                      icon={({ color, size }) => (
+                        <MaterialIcons
+                          name="keyboard-arrow-down"
+                          color={color}
+                          size={size}
+                        />
+                      )}
+                    />
+                  }
+                />
+              </Pressable>
+
+              <TextInput
+                placeholder="Referral Code ( Optional )"
+                style={{ backgroundColor: "transparent" }}
+                onChangeText={(value) => {
+                  setRefCode(value);
+                }}
+                left={<TextInput.Icon size={20} icon="account" />}
+                mode="outlined"
+                outlineStyle={{ borderRadius: 15 }}
+              />
+            </View>
+          )}
           <View className="mb-0">
             <Button
-              onPress={validateInputs}
+              onPress={singupNext}
               mode="contained"
               className="text-lg py-1"
               style={{ borderRadius: 15 }}
@@ -463,8 +579,10 @@ const Singup = () => {
               renderItem={({ item }) => (
                 <View className="mt-2 px-3">
                   <List.Item
-                    onPress={async() => {
-                      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                    onPress={async () => {
+                      await Haptics.impactAsync(
+                        Haptics.ImpactFeedbackStyle.Heavy,
+                      );
                       setSelectedCountry(item);
                       setCountrySelectBottomSheetVisible(false);
                     }}

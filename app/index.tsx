@@ -1,28 +1,27 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { View, Image, BackHandler } from "react-native";
 import {
   Text,
   useTheme,
   Button,
   Appbar,
+  ActivityIndicator,
   Dialog,
   Portal,
-  ActivityIndicator,
-  IconButton,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
 import { PaperSafeView } from "@/components/PaperView";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { Timer } from "@/constants/Utils";
-import Fontisto from "@expo/vector-icons/Fontisto";
 
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
 import requests from "@/Network/HttpRequest";
 import { DarkTheme } from "./_layout";
 import * as WebBrowser from "expo-web-browser";
+import { Host, AlertDialog, TextButton, Button as ComposeButton, Text as ComposeText } from '@expo/ui/jetpack-compose';
+
 
 const Index = () => {
   const theme = useTheme<typeof DarkTheme>();
@@ -31,6 +30,7 @@ const Index = () => {
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [loginCheckFinished, setLoginCheckFinished] = useState(false);
+   const [visible, setVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,7 +45,7 @@ const Index = () => {
   useFocusEffect(
     useCallback(() => {
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
-        setExitDialogVisible(true);
+        setVisible(true);
         return true;
       });
       return () => {
@@ -244,44 +244,34 @@ const Index = () => {
           >
             Contact Support
           </Button>
+         
         </View>
       </View>
 
-      <Portal>
-        <Dialog
-          visible={exitDialogVisible}
-          onDismiss={() => setExitDialogVisible(false)}
-        >
-          <Dialog.Title>Exit</Dialog.Title>
-          <Dialog.Content>
-            <Text>Are you sure do you want exit</Text>
-          </Dialog.Content>
-          <Dialog.Actions className="">
-            <Button
-              buttonColor="#f41c1c6b"
-              textColor={theme.colors.onBackground}
-              className="w-20"
-              onPress={() => {
-                setExitDialogVisible(false);
-                BackHandler.exitApp();
-              }}
-              mode={"contained-tonal"}
-            >
-              Yes
-            </Button>
-            <Button
-              textColor="black"
-              buttonColor="lightgreen"
-              className="w-20"
-              onPress={() => setExitDialogVisible(false)}
-              mode={"contained-tonal"}
-            >
-              No
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
+     <Host matchContents>
+       {visible && (
+        <AlertDialog onDismissRequest={() => setVisible(false)}>
+          <AlertDialog.Title>
+            <Text>Confirm Action</Text>
+          </AlertDialog.Title>
+          <AlertDialog.Text>
+            <Text>Are you sure you want to exit?</Text>
+          </AlertDialog.Text>
+          <AlertDialog.ConfirmButton>
+            <TextButton onClick={() => setVisible(false)}>
+              <Text>
+                No
+              </Text>
+            </TextButton>
+          </AlertDialog.ConfirmButton>
+          <AlertDialog.DismissButton>
+            <TextButton onClick={() => BackHandler.exitApp()}>
+              <Text>Yes</Text>
+            </TextButton>
+          </AlertDialog.DismissButton>
+        </AlertDialog>
+      )}
+     </Host>
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

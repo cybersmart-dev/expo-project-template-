@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Modal } from "react-native";
+import { View, StyleSheet, Modal, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ActivityIndicator, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -64,9 +64,9 @@ const Processing = ({ visible }: ProcessingProps) => {
   return (
     <Modal transparent={true} visible={visible}>
       <SafeAreaView className="bg-[#1818189a]" style={styles.container}>
-        <View className="space-y-5">
-          <ActivityIndicator />
-          <Text>Processing...</Text>
+        <View className="gap-y-5">
+          <ActivityIndicator size={50} />
+          <Text style={{fontSize: 20}}>Processing...</Text>
         </View>
       </SafeAreaView>
     </Modal>
