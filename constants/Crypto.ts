@@ -15,8 +15,6 @@ export const encrypt = async (plaintext: any, key: string) => {
 
     const enc = await aesEncryptAsync(plainBase64, secretKey)
 
-    console.log(enc.ciphertext());
-
     const dec = await aesDecryptAsync(enc, secretKey)
     
 

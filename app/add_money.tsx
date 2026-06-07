@@ -1,5 +1,5 @@
 import { View, Pressable, Keyboard } from "react-native";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Appbar,
   Button,
@@ -12,7 +12,7 @@ import {
   Text,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { PaperSafeView } from "@/components/PaperView";
 import { StatusBar } from "expo-status-bar";
 import { EaseView } from "react-native-ease";
@@ -20,13 +20,38 @@ import { showMessage } from "react-native-flash-message";
 import * as Clipboard from "expo-clipboard";
 import { Toast } from "@/constants/Toast";
 import CustomAppbar from "@/components/CustomAppbar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const add_money = () => {
   const theme = useTheme();
   const [activeTab, setActiveTab] = useState("1");
+  const [virtualAccounts, setVirtualAccounts] = useState<
+    Array<{ bankName: string; accountNumber: string; accountName: string }>
+  >([]);
 
   const handleActiveTab = (tabID: string) => {
     setActiveTab(tabID);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getVirtualAccounts();
+      return () => {};
+    }, []),
+  );
+
+  const getVirtualAccounts = async () => {
+    try {
+      const userInfoString = await AsyncStorage.getItem("userInfo");
+      if (userInfoString) {
+        const userInfo = JSON.parse(userInfoString);
+        const virtualAccounts = userInfo.virtual_accounts || [];
+        console.log("Virtual Accounts:", virtualAccounts);
+        setVirtualAccounts(virtualAccounts);
+      }
+    } catch (error) {
+      console.error("Error fetching virtual accounts:", error);
+    }
   };
 
   const handleCopy = async (text: string) => {
@@ -106,84 +131,51 @@ const add_money = () => {
 
               {/** Account 1 */}
 
-              <Text className="text-center mt-4">Account 1</Text>
-              <Card className="mt-2" mode={"outlined"}>
-                <View>
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Bank Name</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>{"Opay"}</DataTable.Cell>
-                  </DataTable.Row>
+              <Text className="text-center mt-4">Accounts</Text>
+              {virtualAccounts.map((item) => (
+                <Card
+                  key={item?.accountNumber}
+                  className="mt-2"
+                  mode={"outlined"}
+                >
+                  <View>
+                    <DataTable.Row>
+                      <DataTable.Cell>
+                        <Text className="font-bold">Bank Name</Text>
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>{item?.bankName}</DataTable.Cell>
+                    </DataTable.Row>
 
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Account Number</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>
-                      <Pressable
-                        onPress={() => handleCopy("080")}
-                        className="flex-row items-center gap-x-2"
-                      >
-                        <Text>{7026426738}</Text>
-                        <Pressable>
-                          <Icon source={"content-copy"} size={17} />
+                    <DataTable.Row>
+                      <DataTable.Cell>
+                        <Text className="font-bold">Account Number</Text>
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>
+                        <Pressable
+                          onPress={() => handleCopy(item?.accountNumber || "")}
+                          className="flex-row items-center gap-x-2"
+                        >
+                          <Text>{item?.accountNumber}</Text>
+                          <Pressable>
+                            <Icon source={"content-copy"} size={17} />
+                          </Pressable>
                         </Pressable>
-                      </Pressable>
-                    </DataTable.Cell>
-                  </DataTable.Row>
+                      </DataTable.Cell>
+                    </DataTable.Row>
 
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Account Name</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>{"Mustapha Aminu"}</DataTable.Cell>
-                  </DataTable.Row>
-                </View>
-              </Card>
+                    <DataTable.Row>
+                      <DataTable.Cell>
+                        <Text className="font-bold">Account Name</Text>
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>
+                        {item?.accountName}
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  </View>
+                </Card>
+              ))}
 
               {/** end Account 1 */}
-
-              {/** Account 2 */}
-
-              <Text className="text-center mt-4">Account 2</Text>
-              <Card className="mt-2" mode={"outlined"}>
-                <View>
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Bank Name</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>{"Opay"}</DataTable.Cell>
-                  </DataTable.Row>
-
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Account Number</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>
-                      {" "}
-                      <Pressable
-                        onPress={() => handleCopy("080")}
-                        className="flex-row items-center gap-x-2"
-                      >
-                        <Text>{7026426738}</Text>
-                        <Pressable>
-                          <Icon source={"content-copy"} size={17} />
-                        </Pressable>
-                      </Pressable>
-                    </DataTable.Cell>
-                  </DataTable.Row>
-
-                  <DataTable.Row>
-                    <DataTable.Cell>
-                      <Text className="font-bold">Account Name</Text>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>{"Mustapha Aminu"}</DataTable.Cell>
-                  </DataTable.Row>
-                </View>
-              </Card>
-
-              {/** end Account 2 */}
             </View>
           </View>
         </EaseView>
@@ -195,7 +187,10 @@ const add_money = () => {
           style={{ display: activeTab == "2" ? "flex" : "none" }}
         >
           <View className="p-3 mt-5">
-            <Text style={{textAlign: "center"}} className="text-center text-[16px] font-light">
+            <Text
+              style={{ textAlign: "center" }}
+              className="text-center text-[16px] font-light"
+            >
               Found Your wallet with one-time virtual account number
             </Text>
 

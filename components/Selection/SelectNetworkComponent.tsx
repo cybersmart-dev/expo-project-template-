@@ -20,7 +20,7 @@ import {
 import BottomSheet from "../models/BottomSheet";
 import React,{ useCallback, useEffect, useRef, useState } from "react";
 import { NetworksType } from "@/constants/Types";
-import * as Contacts from "expo-contacts";
+import * as Contacts from "expo-contacts/legacy";
 import {
   getNetworkByName,
   getNetworkImageByNumber,

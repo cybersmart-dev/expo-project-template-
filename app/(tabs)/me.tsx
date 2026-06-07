@@ -318,7 +318,7 @@ const Me = () => {
                   style={{ color: "white", fontSize: 20, textAlign: "center" }}
                   className=" font-[ArchivoBlackRegular]"
                 >
-                  ₦{formatNumber(userInfo?.wallet?.cashack) || "0.00"}{" "}
+                  ₦{formatNumber(userInfo?.wallet?.cashback) || "0.00"}{" "}
                 </Text>
                 <MaterialIcons
                   name="keyboard-arrow-right"

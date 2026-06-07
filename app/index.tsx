@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { View, Image, BackHandler } from "react-native";
+import { View, Image, BackHandler, Alert } from "react-native";
 import {
   Text,
   useTheme,
@@ -20,17 +20,18 @@ import MaskedView from "@react-native-masked-view/masked-view";
 import requests from "@/Network/HttpRequest";
 import { DarkTheme } from "./_layout";
 import * as WebBrowser from "expo-web-browser";
-import { Host, AlertDialog, TextButton, Button as ComposeButton, Text as ComposeText } from '@expo/ui/jetpack-compose';
-
+import * as Notifications from "expo-notifications";
+import { useNotification } from "@/contexts/NotificationContext";
 
 const Index = () => {
   const theme = useTheme<typeof DarkTheme>();
+   const { notification, expoPushToken, error } = useNotification();
   const [loginOption, setLoginOption] = useState("");
   const [bounceState, setBounceState] = useState(0);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [loginCheckFinished, setLoginCheckFinished] = useState(false);
-   const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,7 +46,16 @@ const Index = () => {
   useFocusEffect(
     useCallback(() => {
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
-        setVisible(true);
+        Alert.alert(
+          "Go Back",
+          "Are you sure do you want to go back?",
+          [
+            { text: "Yes", onPress: () => BackHandler.exitApp() },
+            { text: "No", onPress: () => null },
+          ],
+          { cancelable: true },
+        );
+
         return true;
       });
       return () => {
@@ -72,206 +82,209 @@ const Index = () => {
 
       if (token) {
         router.push("/logins/singin");
+        await new Timer().postDelayedAsync({sec: 100})
       }
       setLoginCheckFinished(true);
     } catch (error) {}
   };
 
-  if (!loginCheckFinished) {
-    return (
-      <PaperSafeView>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size={50} />
-        </View>
-      </PaperSafeView>
-    );
+  const showTestNotification = () => {
+    alert(expoPushToken)
+
+     Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Convert Successfully",
+        sound: "mixkit_melodic_gold_price.wav",
+        body: `Your Convert of  Was Successfully`,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: 1,
+        channelId: "deposit",
+      },
+    });
   }
 
   return (
     <PaperSafeView>
-      <Appbar style={{ backgroundColor: "transparent" }}>
-        <Appbar.Content
-          title={
-            <View className="flex-row items-center">
+      {loginCheckFinished && (
+        <View style={{ flex: 1}}>
+          <Appbar style={{ backgroundColor: "transparent" }}>
+            <Appbar.Content
+              title={
+                <View className="flex-row items-center">
+                  <Image
+                    className="h-[60px] w-[50px] mr-[-5px]  rounded-full"
+                    source={require("@/assets/images/icon_trans.png")}
+                  />
+                  <MaskedView
+                    maskElement={
+                      <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
+                        affy
+                      </Text>
+                    }
+                  >
+                    <LinearGradient
+                      colors={[
+                        theme.colors.onPrimaryContainer,
+                        theme.colors?.accent,
+                      ]}
+                      start={{ x: 1, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                    >
+                      <Text className="text-3xl font-bold opacity-0">affy</Text>
+                    </LinearGradient>
+                  </MaskedView>
+                </View>
+              }
+              mode="small"
+              style={{ alignItems: "flex-start" }}
+            />
+            <EaseView
+              animate={{ translateX: loaded ? 0 : 200 }}
+              transition={{ type: "timing", duration: 1000 }}
+            >
+              <Button onPress={showTestNotification} mode={"contained-tonal"} className="mr-2">
+                Skip
+              </Button>
+            </EaseView>
+          </Appbar>
+          <View className="absolute top-[80px] space-y-1 w-full items-center justify-center">
+            <EaseView
+              animate={{
+                opacity: loaded ? 1 : 0,
+                translateY: bounceState == 0 ? 0 : -10,
+              }}
+              transition={{
+                duration: 1000,
+                type: "timing",
+                easing: "easeInOut",
+              }}
+            >
               <Image
-                className="h-[60px] w-[50px] mr-[-5px]  rounded-full"
-                source={require("@/assets/images/icon_trans.png")}
+                className="h-[250px] w-[280px]  rounded-full"
+                source={require("@/assets/images/women_home.png")}
               />
-              <MaskedView
-                maskElement={
-                  <Text className="text-3xl font-bold font-[ArchivoBlackRegular]">
-                    affy
-                  </Text>
-                }
+            </EaseView>
+            <EaseView
+              animate={{
+                opacity: bounceState == 1 ? 0.3 : 0.7,
+              }}
+              transition={{
+                duration: 1000,
+                type: "timing",
+                easing: "easeInOut",
+              }}
+              style={{
+                backgroundColor: theme.colors.elevation.level0,
+                boxShadow: "0 0px 20px 10px rgba(0, 0, 0, 0.20)",
+              }}
+              className="bg-transparent rounded-full h-0 w-[200px]"
+            ></EaseView>
+
+            <View className="items-center pt-3">
+              <EaseView
+                animate={{
+                  opacity: loaded ? 1 : 0,
+                  translateY: loaded ? 0 : -20,
+                }}
+                transition={{ duration: 1000, type: "timing", delay: 200 }}
               >
-                <LinearGradient
-                  colors={[
-                    theme.colors.onPrimaryContainer,
-                    theme.colors?.accent,
-                  ]}
-                  start={{ x: 1, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+                <Text
+                  style={{
+                    fontSize: 20,
+                  }}
                 >
-                  <Text className="text-3xl font-bold opacity-0">affy</Text>
-                </LinearGradient>
-              </MaskedView>
-            </View>
-          }
-          mode="small"
-          style={{ alignItems: "flex-start" }}
-        />
-        <EaseView
-          animate={{ translateX: loaded ? 0 : 200 }}
-          transition={{ type: "timing", duration: 1000 }}
-        >
-          <Button mode={"contained-tonal"} className="mr-2">
-            Skip
-          </Button>
-        </EaseView>
-      </Appbar>
-      <View className="absolute top-[80px] space-y-1 w-full items-center justify-center">
-        <EaseView
-          animate={{
-            opacity: loaded ? 1 : 0,
-            translateY: bounceState == 0 ? 0 : -10,
-          }}
-          transition={{ duration: 1000, type: "timing", easing: "easeInOut" }}
-        >
-          <Image
-            className="h-[250px] w-[280px]  rounded-full"
-            source={require("@/assets/images/women_home.png")}
-          />
-        </EaseView>
-        <EaseView
-          animate={{
-            opacity: bounceState == 1 ? 0.3 : 0.7,
-          }}
-          transition={{ duration: 1000, type: "timing", easing: "easeInOut" }}
-          style={{
-            backgroundColor: theme.colors.elevation.level0,
-            boxShadow: "0 0px 20px 10px rgba(0, 0, 0, 0.20)",
-          }}
-          className="bg-transparent rounded-full h-0 w-[200px]"
-        ></EaseView>
+                  Welcome To{" "}
+                  <Text
+                    style={{ color: theme.colors.accent }}
+                    className="font-bold"
+                  >
+                    Zaffy
+                  </Text>
+                </Text>
+              </EaseView>
 
-        <View className="items-center pt-3">
-          <EaseView
-            animate={{
-              opacity: loaded ? 1 : 0,
-              translateY: loaded ? 0 : -20,
-            }}
-            transition={{ duration: 1000, type: "timing", delay: 200 }}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-              }}
-            >
-              Welcome To{" "}
-              <Text
-                style={{ color: theme.colors.accent }}
-                className="font-bold"
+              <EaseView
+                animate={{
+                  opacity: loaded ? 1 : 0,
+                  translateY: loaded ? 0 : -20,
+                }}
+                transition={{ duration: 1000, type: "timing", delay: 400 }}
               >
-                Zaffy
-              </Text>
-            </Text>
-          </EaseView>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    marginBottom: 30,
+                    opacity: 0.5,
+                  }}
+                >
+                  Fast. Secure. Reliable.
+                </Text>
+              </EaseView>
+            </View>
+          </View>
 
-          <EaseView
-            animate={{
-              opacity: loaded ? 1 : 0,
-              translateY: loaded ? 0 : -20,
-            }}
-            transition={{ duration: 1000, type: "timing", delay: 400 }}
-          >
-            <Text
+          <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-20">
+            <Button
+              onPress={() => router.push("/logins/emailLogin")}
+              // icon={({ color }) => (
+              //   <Fontisto name="email" size={24} color={color} />
+              // )}
+              className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
               style={{
-                fontSize: 13,
-                marginBottom: 30,
-                opacity: 0.5,
+                borderRadius: 15,
               }}
+              labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+              mode="outlined"
             >
-              Fast. Secure. Reliable.
-            </Text>
-          </EaseView>
+              Login
+            </Button>
+
+            <Button
+              onPress={() => router.push("/singup")}
+              // icon={({ color }) => (
+              //   <AntDesign name="mobile" size={24} color={color} />
+              // )}
+              mode={"outlined"}
+              className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
+              style={{
+                borderRadius: 15,
+              }}
+              labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+            >
+              SingUp
+            </Button>
+
+            <View>
+              <Button
+                onPress={async (e) => {
+                  e.preventDefault();
+                  await WebBrowser.openBrowserAsync(
+                    "https://wa.me/+2347026426748",
+                  );
+                }}
+                // icon={() => <IconButton icon={"face-agent"} />}
+                mode={"outlined"}
+                className="p-1 py-0"
+                style={{
+                  borderRadius: 15,
+                }}
+                labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+              >
+                Contact Support
+              </Button>
+            </View>
+          </View>
         </View>
-      </View>
-
-      <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-20">
-        <Button
-          onPress={() => router.push("/logins/emailLogin")}
-          // icon={({ color }) => (
-          //   <Fontisto name="email" size={24} color={color} />
-          // )}
-          className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
-          style={{
-            borderRadius: 15,
-          }}
-          labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-          mode="outlined"
-        >
-          Login
-        </Button>
-
-        <Button
-          onPress={() => router.push("/singup")}
-          // icon={({ color }) => (
-          //   <AntDesign name="mobile" size={24} color={color} />
-          // )}
-          mode={"outlined"}
-          className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
-          style={{
-            borderRadius: 15,
-          }}
-          labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-        >
-          SingUp
-        </Button>
-
-        <View>
-          <Button
-            onPress={async (e) => {
-              e.preventDefault();
-              await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
-            }}
-            // icon={() => <IconButton icon={"face-agent"} />}
-            mode={"outlined"}
-            className="p-1 py-0"
-            style={{
-              borderRadius: 15,
-            }}
-            labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-          >
-            Contact Support
-          </Button>
-         
-        </View>
-      </View>
-
-     <Host matchContents>
-       {visible && (
-        <AlertDialog onDismissRequest={() => setVisible(false)}>
-          <AlertDialog.Title>
-            <Text>Confirm Action</Text>
-          </AlertDialog.Title>
-          <AlertDialog.Text>
-            <Text>Are you sure you want to exit?</Text>
-          </AlertDialog.Text>
-          <AlertDialog.ConfirmButton>
-            <TextButton onClick={() => setVisible(false)}>
-              <Text>
-                No
-              </Text>
-            </TextButton>
-          </AlertDialog.ConfirmButton>
-          <AlertDialog.DismissButton>
-            <TextButton onClick={() => BackHandler.exitApp()}>
-              <Text>Yes</Text>
-            </TextButton>
-          </AlertDialog.DismissButton>
-        </AlertDialog>
       )}
-     </Host>
+
+      {!loginCheckFinished && (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size={50} />
+        </View>
+      )}
+
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );
