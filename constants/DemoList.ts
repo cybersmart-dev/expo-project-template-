@@ -153,8 +153,28 @@ export const CableTVSubscription = [
     plans: [
       {
         id: 1,
-        name: "GOTV 500 super",
-        amount: 500,
+        name: "GOTV Max",
+        amount: 8500,
+      },
+       {
+        id: 2,
+        name: "GOTV Jolli",
+        amount: 5800,
+      },
+      {
+        id: 3,
+        name: "GOTV Smallie - Monthly",
+        amount: 1900,
+      },
+      {
+        id: 4,
+        name: "GOTV Jinja",
+        amount: 3900,
+      },
+      {
+        id: 5,
+        name: "GOTV Supa Plus - Monthly",
+        amount: 16800,
       },
     ],
   },

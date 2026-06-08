@@ -33,6 +33,8 @@ import { Timer } from "@/constants/Utils";
 import CableTvPreview from "@/components/Previews/CableTvPreview";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import CustomAppbar from "@/components/CustomAppbar";
+import { Toast } from "@/constants/Toast";
+import requests from "@/Network/HttpRequest";
 
 interface CableSelectInputProps {
   onSelect: (data: (typeof CableTVSubscription)[0]) => void;
@@ -136,6 +138,7 @@ const cabletv = () => {
     useState<(typeof CableTVSubscription)[0]["plans"][0]>();
   const [transactionProcessing, setTransactionProcessing] = useState(false);
   const [previewSheetVisible, setPreviewSheetVisible] = useState(false);
+  const [customerName, setCustomerName] = useState("")
   const [transactionPinSheetVisible, setTransactionPinSheetVisible] =
     useState(false);
 
@@ -143,28 +146,60 @@ const cabletv = () => {
     //
   };
 
-  const handleVerifyIUC = async (e: GestureResponderEvent) => {
+  const handleVerifyIUC = async (from: string) => {
+    if (IUCVerified && from == "next") {
+      setPreviewSheetVisible(true);
+      return;
+    }
     if (!selectedProvider) {
-      showMessage({
-        message: "Please Select Cable Provider",
-        type: "danger",
-        icon: "danger",
-      });
+      await Toast.dangerHapticsAsync({ title: "Please Select Cable Provider" });
       return;
     }
     if (!iuc) {
-      showMessage({
-        message: "Please Enter IUC",
-        type: "danger",
-        icon: "danger",
-      });
+      await Toast.dangerHapticsAsync({ title: "Please Enter IUC" });
+      return;
+    }
+
+    console.log("Plan", selectedPlan?.id);
+
+    if (!selectedPlan?.id) {
+      await Toast.dangerHapticsAsync({ title: "Please select plan" });
       return;
     }
 
     setVerifyingIUC(true);
-    await new Timer().postDelayedAsync({ sec: 3000 });
+
+    const response = await requests.post({
+      url: "/service/id/validator/",
+      data: {
+        service: "CABLETV",
+        cable: selectedProvider.id,
+        iuc: iuc
+      },
+    });
     setVerifyingIUC(false);
-    setIUCVerified(true);
+
+    if (response.status == 1) {
+      setCustomerName(response.data?.customer_name)
+      setIUCVerified(true);
+      setPreviewSheetVisible(true);
+    }
+
+    if (response.status == 0) {
+      setIUCVerified(false);
+      setCustomerName("")
+      await Toast.dangerHapticsAsync({
+        title: "Validation Failde",
+        body: response.message,
+      });
+    }
+
+    if (response.status == undefined) {
+      await Toast.dangerHapticsAsync({
+        title: "Validation Failde",
+        body: response.message,
+      });
+    }
   };
 
   const handlePinComplate = async (pin: string) => {
@@ -191,32 +226,28 @@ const cabletv = () => {
     });
   };
 
-  const handleNext = async (e: GestureResponderEvent) => {
+  const handleNext = async () => {
     if (!selectedProvider) {
-      showMessage({
-        message: "Please Select Cable Provider",
-        type: "danger",
-        icon: "danger",
-      });
+      await Toast.dangerHapticsAsync({ title: "Please Select Cable Provider" });
       return;
     }
     if (!iuc) {
-      showMessage({
-        message: "Please Enter IUC",
-        type: "danger",
-        icon: "danger",
-      });
+      await Toast.dangerHapticsAsync({ title: "Please Enter IUC" });
+      return;
+    }
+
+    console.log("Plan", selectedPlan?.id);
+
+    if (!selectedPlan?.id) {
+      await Toast.dangerHapticsAsync({ title: "Please select plan" });
       return;
     }
 
     if (iuc && !IUCVerified) {
-      setVerifyingIUC(true);
-      await new Timer().postDelayedAsync({ sec: 3000 });
-      setVerifyingIUC(false);
-      setIUCVerified(true);
+      await handleVerifyIUC("next");
+    }else{
+      setPreviewSheetVisible(true)
     }
-    await new Timer().postDelayedAsync({sec:500})
-    setPreviewSheetVisible(true);
   };
 
   const getPlans = () => {
@@ -224,6 +255,8 @@ const cabletv = () => {
     const plan = CableTVSubscription.find((item) => item.name == cable)?.plans;
     return plan;
   };
+
+  const handleIUCVerification = async () => {};
 
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
@@ -262,20 +295,20 @@ const cabletv = () => {
                 {IUCVerified && (
                   <View className="items-center flex-row gap-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
-                    <Text>{iuc}</Text>
+                    <Text>{customerName}</Text>
                   </View>
                 )}
               </View>
               <View className="self-end">
                 {!verifyingIUC && (
-                  <Button onPress={handleVerifyIUC} mode="contained-tonal">
+                  <Button onPress={() => handleVerifyIUC("validate")} mode="contained-tonal">
                     Validate IUC
                   </Button>
                 )}
                 {verifyingIUC && (
                   <Button
                     disabled
-                    onPress={handleVerifyIUC}
+                    onPress={() => handleVerifyIUC("validate")}
                     mode="contained-tonal"
                   >
                     <ActivityIndicator />
@@ -299,7 +332,7 @@ const cabletv = () => {
               <TextInput
                 mode="outlined"
                 className="rounded-lg "
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 value={selectedPlan ? selectedPlan?.name : ""}
                 placeholder="Select Plan"
                 outlineStyle={{ borderRadius: 15 }}
@@ -344,10 +377,11 @@ const cabletv = () => {
       <BottomSheet
         visible={plansSheetVisible}
         onDismiss={setPlansSheetVisible}
+        mode={"full-width"}
         height={"50%"}
       >
         <View>
-          <View className="mt-2">
+          <View className="mt-2 pl-3">
             <Text className="text-lg text-center"> Select Plan</Text>
           </View>
 

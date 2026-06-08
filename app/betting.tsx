@@ -1,5 +1,11 @@
 import { useCallback, useRef, useState } from "react";
-import { View, Pressable, Keyboard, FlatList, Image as RNImage } from "react-native";
+import {
+  View,
+  Pressable,
+  Keyboard,
+  FlatList,
+  Image as RNImage,
+} from "react-native";
 import { PaperSafeView } from "@/components/PaperView";
 import { StatusBar } from "expo-status-bar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -24,10 +30,11 @@ import BottomSheet from "@/components/models/BottomSheet";
 import { BettingProviders } from "@/constants/DemoList";
 import { showMessage } from "react-native-flash-message";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
-import {Image } from "expo-image";
+import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import CustomAppbar from "@/components/CustomAppbar";
+import { Toast } from "@/constants/Toast";
 
 const betting = () => {
   const theme = useTheme();
@@ -67,7 +74,7 @@ const betting = () => {
   };
 
   const handleVerifyID = async () => {
-    if (customerId.length < 10) {
+    if (customerId.length <= 0) {
       showMessage({
         message: "Please Enter Valid Id",
         type: "danger",
@@ -78,12 +85,43 @@ const betting = () => {
 
     setVerifyingID(true);
 
-    const finished = await new Timer().postDelayedAsync({ sec: 3000 });
-    if (finished) {
+    const response = await requests.post({
+      url: "/service/id/validator/",
+      data: {
+        service:"BETTING",
+        "betting_id": selectedProvider?.name,
+        "customer_id": customerId
+      },
+    });
+
+    console.log(response);
+    
+
+    if (response.status == 1) {
       setVerifyingID(false);
       setIdVerified(true);
+      return response
     }
-    return finished;
+
+    if (response.status == 0) {
+      setVerifyingID(false);
+      await Toast.dangerHapticsAsync({
+        title: "Validation Failed",
+        body: response.message,
+      });
+      return 
+    }
+
+    if (response.status == undefined) {
+      setVerifyingID(false);
+      await Toast.dangerHapticsAsync({
+        title: "Validation Failed",
+        body: "Network disconnected please try again",
+      });
+      return 
+    }
+
+    return response
   };
 
   const handleNext = async () => {
@@ -95,7 +133,7 @@ const betting = () => {
       });
       return;
     }
-    if (customerId.length < 10) {
+    if (customerId.length <= 0) {
       showMessage({
         message: "Please Enter Valid Id",
         type: "danger",
@@ -111,9 +149,12 @@ const betting = () => {
       });
       return;
     }
-    if (customerId.length >= 10 && !idVerified) {
+    if (customerId.length >= 0 && !idVerified) {
       await handleVerifyID();
       await new Timer().postDelayedAsync({ sec: 500 });
+      if (idVerified) {
+         setPreviewSheetVisible(true);
+      }
       setPreviewSheetVisible(true);
     } else {
       setPreviewSheetVisible(true);
@@ -187,7 +228,7 @@ const betting = () => {
               <TextInput
                 mode="outlined"
                 className="rounded-lg"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -229,7 +270,7 @@ const betting = () => {
               <TextInput
                 mode="outlined"
                 className="rounded-lg"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 keyboardType="numeric"
                 editable={!idVerified}
                 placeholder={"Customer ID"}
@@ -285,7 +326,7 @@ const betting = () => {
               <TextInput
                 mode="outlined"
                 className="rounded-lg"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 keyboardType="numeric"
                 placeholder="Amount"
                 value={amount}
