@@ -19,6 +19,7 @@ import {
   IconButton,
   Icon,
   Divider,
+  HelperText,
 } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -56,6 +57,10 @@ const transfer = () => {
   const [showBackBottomSheet, setShowBackBottomSheet] = useState(false);
   const [processingTransfer, setProcessingTransfer] = useState(false);
   const [networkData, setNetworkData] = useState({});
+  const [amountError, setAmountError] = useState(false);
+  const [sharePinError, setSharePinError] = useState(false);
+  const [amontErrorMessage, setAmontErrorMessage] = useState("");
+  const [sharePinErrorMessage, setsharePinErrorMessage] = useState("");
 
   useFocusEffect(
     useCallback(() => {
@@ -79,28 +84,24 @@ const transfer = () => {
     await fetchBalance();
   };
 
-
-  const transferAirtime = async () => {
-    
-  }
+  const transferAirtime = async () => {};
 
   const handleContinue = () => {
     if (toNumber(amount) < 100) {
-      showMessage({
-        message: "Minimum Amount is 100",
-        type: "danger",
-        icon: "danger",
-      });
+      setAmountError(true);
+      setAmontErrorMessage("Minimum Amount is 100");
       return;
     }
     if (!sharePin || sharePin.length <= 3) {
-      showMessage({
-        message: "Please Enter Your Valid Share Pin",
-        type: "danger",
-        icon: "danger",
-      });
+      setSharePinError(true);
+      setsharePinErrorMessage("Please Enter Your Valid Share Pin");
       return;
     }
+    setAmontErrorMessage("");
+    setsharePinErrorMessage("");
+    setAmountError(false)
+    setSharePinError(false)
+    
     setTransferSheetVisible(true);
   };
 
@@ -143,7 +144,7 @@ const transfer = () => {
         amount: amount,
         pin: pin,
         share_pin: sharePin,
-        token: token
+        token: token,
       },
     });
 
@@ -247,7 +248,10 @@ const transfer = () => {
             >
               <View>
                 <View className="flex-row items-center gap-x-2 mb-2">
-                  <Text style={{color: "black"}} className="font-bold text-[11px]">
+                  <Text
+                    style={{ color: "black" }}
+                    className="font-bold text-[11px]"
+                  >
                     Airtime Balance
                   </Text>
                   <Pressable onPress={() => setHideBalance(!hideBalance)}>
@@ -269,7 +273,10 @@ const transfer = () => {
                 {fetchingBalance ? (
                   <View className="gap-y-2">
                     <ActivityIndicator color={"black"} />
-                    <Text style={{color: "black"}} className="text-[10px] text-center">
+                    <Text
+                      style={{ color: "black" }}
+                      className="text-[10px] text-center"
+                    >
                       Loading balance...
                     </Text>
                   </View>
@@ -284,7 +291,10 @@ const transfer = () => {
                     </Button>
                   </View>
                 ) : (
-                  <Text style={{color: "black"}} className="text-3xl w-[160px]">
+                  <Text
+                    style={{ color: "black" }}
+                    className="text-3xl w-[160px]"
+                  >
                     ₦{hideBalance ? "*****" : formatNumber(airtimeBalance)}
                   </Text>
                 )}
@@ -293,7 +303,10 @@ const transfer = () => {
               <View className="items-center justify-center">
                 {networkData?.name && (
                   <View className="w-full flex-row items-center justify-center gap-x-2">
-                    <Text style={{color: "black"}} className="text-lg font-bold ">
+                    <Text
+                      style={{ color: "black" }}
+                      className="text-lg font-bold "
+                    >
                       {new String(networkData?.name)?.toUpperCase()}
                     </Text>
                     <Image
@@ -303,31 +316,35 @@ const transfer = () => {
                   </View>
                 )}
 
-                <Text style={{color: "black"}}>{number}</Text>
+                <Text style={{ color: "black" }}>{number}</Text>
               </View>
             </View>
           </View>
           <View className="px-5 gap-y-4">
             <View className="gap-y-2">
               <Text>Amount To Send</Text>
-              <TextInput
-                onChangeText={setAmount}
-                keyboardType={"number-pad"}
-                mode="outlined"
-                style={{backgroundColor: "transparent"}}
-                value={amount}
-                outlineStyle={{ borderRadius: 15 }}
-                placeholder={"Amount"}
-                right={
-                  <TextInput.Icon
-                    icon={() => (
-                      <Button onPress={() => setAmount(`${airtimeBalance}`)}>
-                        ALL
-                      </Button>
-                    )}
-                  />
-                }
-              />
+              <View>
+                <TextInput
+                  onChangeText={setAmount}
+                  keyboardType={"number-pad"}
+                  error={amountError}
+                  mode="outlined"
+                  style={{ backgroundColor: "transparent" }}
+                  value={amount}
+                  outlineStyle={{ borderRadius: 15 }}
+                  placeholder={"Amount"}
+                  right={
+                    <TextInput.Icon
+                      icon={() => (
+                        <Button onPress={() => setAmount(`${airtimeBalance}`)}>
+                          ALL
+                        </Button>
+                      )}
+                    />
+                  }
+                />
+                <HelperText type={"error"}>{amontErrorMessage}</HelperText>
+              </View>
             </View>
             <View className="gap-y-2">
               <Text>Amount To Receive</Text>
@@ -335,7 +352,7 @@ const transfer = () => {
                 editable={false}
                 value={`${getReceveAmount()}`}
                 placeholder={`${formatNumber(0)}`}
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 mode="outlined"
                 outlineStyle={{ borderRadius: 15 }}
               />
@@ -343,23 +360,26 @@ const transfer = () => {
 
             <View className="gap-y-2">
               <Text>Share Pin</Text>
-              <TextInput
-                placeholder={`Enter your pin`}
-                mode="outlined"
-                style={{backgroundColor: "transparent"}}
-                secureTextEntry={showPassword ? false : true}
-                keyboardType="numeric"
-                onChangeText={setSharePin}
-                outlineStyle={{ borderRadius: 15 }}
-                right={
-                  <TextInput.Icon
-                    size={20}
-                    onPress={() => setShowPassword(!showPassword)}
-                    icon={showPassword ? "eye-off" : "eye"}
-                  />
-                }
-              />
-
+              <View>
+                <TextInput
+                  placeholder={`Enter your pin`}
+                  mode="outlined"
+                  style={{ backgroundColor: "transparent" }}
+                  secureTextEntry={showPassword ? false : true}
+                  keyboardType="numeric"
+                  error={sharePinError}
+                  onChangeText={setSharePin}
+                  outlineStyle={{ borderRadius: 15 }}
+                  right={
+                    <TextInput.Icon
+                      size={20}
+                      onPress={() => setShowPassword(!showPassword)}
+                      icon={showPassword ? "eye-off" : "eye"}
+                    />
+                  }
+                />
+                <HelperText type={"error"}>{sharePinErrorMessage}</HelperText>
+              </View>
               <View className="flex-row items-center gap-x-0">
                 <Text>I dont have share pin</Text>
                 <Button
@@ -393,7 +413,11 @@ const transfer = () => {
         onComplate={handleConvert}
       />
 
-      <BottomSheet onDismiss={setShowBackBottomSheet} visible={showBackBottomSheet} height={"auto"}>
+      <BottomSheet
+        onDismiss={setShowBackBottomSheet}
+        visible={showBackBottomSheet}
+        height={"auto"}
+      >
         <View className="p-2 px-3">
           <Text className="font-bold text-lg">GO BACK</Text>
           <Divider />

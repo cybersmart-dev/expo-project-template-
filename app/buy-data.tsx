@@ -1,5 +1,5 @@
 import { Keyboard, Pressable, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
   Appbar,
@@ -25,6 +25,7 @@ import requests from "@/Network/HttpRequest";
 import NoConnectionModal from "@/components/models/NoConnectionModal";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import CustomAppbar from "@/components/CustomAppbar";
+import { Toast } from "@/constants/Toast";
 
 const buydata = () => {
   const theme = useTheme();
@@ -33,19 +34,21 @@ const buydata = () => {
   >();
   const [selectedBundlePacks, setSelectedBundlePacks] =
     useState<DataPackType>();
-  const [selectedNetworkData, setselectedNetworkData] = useState<
-    NetworksType[0]
-  >();
+  const [selectedNetworkData, setselectedNetworkData] =
+    useState<NetworksType[0]>();
   const [beneficiarySheetVisible, setBeneficiarySheetVisible] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [pinSheetVisible, setPinSheetVisible] = useState(false);
   const [transactionProcessing, setTransactionProcessing] = useState(false);
-  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false)
+
+  const [phoneError, setPhoneError] = useState(false);
+  const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false);
 
   const [buyDataPreviewVisible, setBuyDataPreviewVisible] = useState(false);
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
 
-  const [selectNetworkSheetVisible, setSelectNetworkSheetVisible] = useState(false)
+  const [selectNetworkSheetVisible, setSelectNetworkSheetVisible] =
+    useState(false);
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
@@ -57,27 +60,17 @@ const buydata = () => {
 
   const handleBuy = () => {
     if (!selectedNetworkData) {
-      showMessage({
-        message: "Please Select Network",
-        type: "danger",
-        icon: "danger",
-      });
-      return
+      setSelectNetworkSheetVisible(true);
+      Toast.danger({ title: "Please Select Network" });
+      return;
     }
     if (!isValidMobileNumber(mobileNumber)) {
-      showMessage({
-        message: "Please Enter valid mobile number",
-        type: "danger",
-        icon: "danger",
-      });
+      setPhoneError(true);
+      Toast.danger({ title: "Please Enter valid mobile number" });
       return;
     }
     if (!selectedBundlePacks) {
-      showMessage({
-        message: "Please select plan",
-        type: "danger",
-        icon: "danger",
-      });
+      Toast.danger({ title: "Please select plan" });
       return;
     }
 
@@ -89,6 +82,9 @@ const buydata = () => {
     setPinSheetVisible(true);
   };
 
+  useEffect(() => {
+    setPhoneError(false);
+  }, [mobileNumber]);
 
   const handleBuyData = async (pin: string) => {
     const amount = selectedBundlePacks?.price;
@@ -119,8 +115,8 @@ const buydata = () => {
 
     if (response.status == undefined) {
       setPinSheetVisible(false);
-      setNetWorkErrorVisible(true)
-      return
+      setNetWorkErrorVisible(true);
+      return;
     }
 
     router.push({
@@ -158,7 +154,7 @@ const buydata = () => {
         </CustomAppbar>
       </View>
 
-      <View  className="flex-1">
+      <View className="flex-1">
         <View className="mt-2">
           <Pressable
             onPress={() => setBeneficiarySheetVisible(true)}
@@ -173,6 +169,7 @@ const buydata = () => {
           </Pressable>
           <SelectNetworkComponent
             onChangeText={setMobileNumber}
+            error={phoneError}
             showNetworksSheet={selectNetworkSheetVisible}
             onSelectNetwork={(data) => {
               setSelectedNetworkName(data.name);
@@ -252,7 +249,10 @@ const buydata = () => {
         </View>
       </BottomSheet>
       <NoConnectionModal visible={false} />
-      <NetworkRequestErrorSheet visible={netWorkErrorVisible} onDismiss={setNetWorkErrorVisible}/>
+      <NetworkRequestErrorSheet
+        visible={netWorkErrorVisible}
+        onDismiss={setNetWorkErrorVisible}
+      />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

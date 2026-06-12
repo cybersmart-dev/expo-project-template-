@@ -78,7 +78,6 @@ const BuyAirtimeSuggestAmountCard = ({
   const [clied, setClied] = useState(false);
 
   const handlePress = async (amount: number) => {
-    
     onPress(amount);
     setClied(true);
     await new Timer().postDelayedAsync({ sec: 200 });
@@ -141,6 +140,8 @@ const buyairtime = () => {
     useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworksType[0]>();
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
+  const [numberError, setNumberError] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
@@ -152,11 +153,13 @@ const buyairtime = () => {
 
   const handleBuy = async () => {
     if (!selectedNetwork) {
+      setNetworkError(true);
       Toast.danger({ title: "Please Select Network" });
       return;
     }
 
     if (!isValidMobileNumber(mobileNumber)) {
+      setNumberError(true);
       Toast.danger({
         title: "Invalid Number",
         body: "Please Enter Valid Mobile Number",
@@ -215,6 +218,11 @@ const buyairtime = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    setNumberError(false);
+  }, [mobileNumber]);
+
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()} className="flex-1 ">
       <CustomAppbar>
@@ -256,6 +264,8 @@ const buyairtime = () => {
             />
           </Pressable>
           <SelectNetworkComponent
+            error={numberError}
+            showNetworksSheet={networkError}
             onChangeText={setMobileNumber}
             onSelectNetwork={(data) => setSelectedNetwork(data)}
           />
@@ -312,7 +322,6 @@ const buyairtime = () => {
           </Button>
         </View>
       </ScrollView>
-
 
       <BottomSheet
         visible={buyAirtimePreviewVisible}

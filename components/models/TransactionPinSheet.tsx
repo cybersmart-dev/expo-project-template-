@@ -42,6 +42,7 @@ const TransactionPinSheet = ({
   onOtpResend,
 }: TransactionPinSheetProps) => {
   const [cancelProcessing, setCancelProcessing] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
   const { resendCount, startCounter } = useCounter({ count: 30 });
 
   const handleCancel = async () => {
@@ -91,6 +92,22 @@ const TransactionPinSheet = ({
       // Handle authentication failure
     }
   };
+
+  const hasBiometrics = async () => {
+    const [hasHardware, isEnrolled] = await Promise.all([
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync(),
+    ]);
+    return hasHardware && isEnrolled;
+  };
+
+  useEffect(() => {
+    const checkBiometrics = async () => {
+      const available = await hasBiometrics();
+      setBiometricAvailable(available);
+    };
+    checkBiometrics();
+  }, []);
 
   const getUserPin = async () => {
     try {
@@ -191,15 +208,19 @@ const TransactionPinSheet = ({
                   Stop
                 </Button>
               )}
-              {!cancelProcessing && isTransactionPinSheet && (
-                <FAB
-                  onPress={fingerprintLogin}
-                  className="bottom-0"
-                  icon={"fingerprint"}
-                  size={"medium"}
-                  elevation={0}
-                />
-              )}
+              {!cancelProcessing &&
+                isTransactionPinSheet &&
+                (biometricAvailable ? (
+                  <FAB
+                    onPress={fingerprintLogin}
+                    className="bottom-0"
+                    icon={"fingerprint"}
+                    size={"medium"}
+                    elevation={0}
+                  />
+                ) : (
+                  ""
+                ))}
             </View>
           </View>
         </View>

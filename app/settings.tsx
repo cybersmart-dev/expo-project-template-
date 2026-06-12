@@ -9,6 +9,7 @@ import {
   Button,
   Appbar,
   Text,
+  TextInput,
 } from "react-native-paper";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -50,12 +51,54 @@ const settings = () => {
           />
           <Appbar.Content
             color="white"
-            title={<Text className="text-lg font-bold">Profile</Text>}
+            title={<Text className="text-lg font-bold">Settings</Text>}
           />
         </CustomAppbar>
         <View className="px-4">
           <View className="rounded-lg">
             <List.Section>
+              <List.Item
+                titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
+                descriptionStyle={{ opacity: 0.6 }}
+                title="Login Settings"
+                descriptionNumberOfLines={1}
+                description="Reset/Change Password and setup Fingerprint Authentication"
+                onPress={() => router.push("/login_settings")}
+                right={({color}) => (
+                  <MaterialIcons
+                    name="keyboard-arrow-right"
+                    color={color}
+                    size={24}
+                  />
+                )}
+                left={({ color }) => (
+                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
+                    <FontAwesome5
+                      name={"lock"}
+                      size={17}
+                      color={theme.dark ? "lightgreen" : "green"}
+                    />
+                  </View>
+                )}
+              />
+
+              <List.Item
+                onPress={() => setPinManagementSheetVisible(true)}
+                titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
+                descriptionStyle={{ opacity: 0.6 }}
+                title="Pin Settings"
+                description="Secure your account"
+                left={({ color }) => (
+                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
+                    <FontAwesome5
+                      name="key"
+                      size={17}
+                      color={theme.dark ? "lightblue" : "blue"}
+                    />
+                  </View>
+                )}
+              />
+
               <List.Item
                 titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
                 descriptionStyle={{ opacity: 0.6 }}
@@ -68,22 +111,6 @@ const settings = () => {
                       name="user-edit"
                       size={17}
                       color={theme.dark ? "lightgreen" : "green"}
-                    />
-                  </View>
-                )}
-              />
-              <List.Item
-                onPress={() => setPinManagementSheetVisible(true)}
-                titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
-                descriptionStyle={{ opacity: 0.6 }}
-                title="Pin Management"
-                description="Secure your account"
-                left={({ color }) => (
-                  <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
-                    <FontAwesome5
-                      name="key"
-                      size={17}
-                      color={theme.dark ? "lightblue" : "blue"}
                     />
                   </View>
                 )}

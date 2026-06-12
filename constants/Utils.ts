@@ -1,6 +1,8 @@
 import { NetworksType } from "./Types";
 import { parse } from "phoneng";
 
+
+
 export function isValidMobileNumber(mobileNumber: string) {
   if (!mobileNumber) {
     return false;

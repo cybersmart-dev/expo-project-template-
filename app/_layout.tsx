@@ -330,6 +330,15 @@ function RootLayoutNav() {
               }}
             />
 
+             <Stack.Screen
+              name="login_settings"
+              options={{
+                presentation: "containedModal",
+                title: "Change Pin",
+                headerShown: false,
+              }}
+            />
+
             {/** end protected screens */}
 
             <Stack.Screen

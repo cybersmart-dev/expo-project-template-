@@ -2,6 +2,8 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Crypto from "expo-crypto";
 import { Storage } from "@/constants/Storage";
+import * as Application from "expo-application";
+import { Platform } from "react-native";
 
 interface requestProps {
   url: string;
@@ -101,10 +103,10 @@ export default class requests {
 
   static getUrl(path: string) {
     if (__DEV__) {
-
       // return "http://10.211.171.71:8000/api".concat(path)
       //return "http://10.34.222.29:8000/api" + path;
-      return "http://192.168.43.243:8000/api".concat(path);
+      //return "http://192.168.43.243:8000/api".concat(path);
+      return "http://172.17.128.1:8000/api".concat(path);
     }
     return "https://zaffy-ng.vercel.app/api" + path;
   }
@@ -112,8 +114,7 @@ export default class requests {
   static async getToken() {
     try {
       const auth = await Storage.secureGet("auth");
-      
-      
+
       if (auth) {
         const token = JSON.parse(auth)?.token;
         if (token) {
@@ -126,20 +127,39 @@ export default class requests {
   static async clearToken() {
     try {
       await Storage.secureRemove("auth");
-      await AsyncStorage.clear()
+      await AsyncStorage.clear();
       router.push("/logins/emailLogin");
     } catch (error) {}
   }
 
   static async getheaders(add_header_token: boolean) {
     const token = await this.getToken();
+    const device_id = await this.getDeviceID();
+    const pushToken = this.getPushToken();
 
     let headers: any = {
       "content-type": "application/json",
+      "device-id": device_id,
+      "x-notification-token": pushToken,
     };
     if (add_header_token) {
       headers.Authorization = `Token ${token}`;
     }
     return headers;
+  }
+
+  static async getDeviceID() {
+    if (Platform.OS == "android") {
+      return Application.getAndroidId();
+    } else {
+      return await Application.getIosIdForVendorAsync();
+    }
+  }
+
+  static async getPushToken() {
+    try {
+      const token = await Storage.secureGet("pushToken");
+      return token;
+    } catch (error) {}
   }
 }

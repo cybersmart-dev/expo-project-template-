@@ -54,6 +54,7 @@ import CustomAppbar from "@/components/CustomAppbar";
 import { formatNumber } from "@/constants/Formats";
 import ActionButton from "@/components/Buttons/ActionButton";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { DarkTheme } from "../_layout";
 
 const screen = Dimensions.get("screen");
 
@@ -191,7 +192,7 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
 };
 
 const Me = () => {
-  const theme = useTheme();
+  const theme = useTheme<typeof DarkTheme>();
 
   const [loaded, setLoaded] = useState(false);
 
@@ -276,7 +277,8 @@ const Me = () => {
         <Appbar.Action onPress={() => router.push("/settings")} icon={"cog"} />
       </CustomAppbar>
       <ScrollView className="flex-1 w-screen">
-        <ProfileTop
+       <Pressable onPress={() => {}}>
+         <ProfileTop
           loadUserInfo={loadUserInfo}
           userInfo={userInfo}
           loaded={loaded}
@@ -352,7 +354,7 @@ const Me = () => {
             <Text>Details</Text>
           </View>
 
-          <View className="mt-2">
+          <View style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="mt-2 px-2 rounded-lg">
             <List.Item
               descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
               titleStyle={{ opacity: 0.6 }}
@@ -406,6 +408,7 @@ const Me = () => {
             />
           </View>
         </View>
+       </Pressable>
       </ScrollView>
 
       <StatusBar style={theme.dark ? "light" : "dark"} />

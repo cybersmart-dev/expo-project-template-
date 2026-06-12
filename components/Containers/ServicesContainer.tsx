@@ -5,15 +5,16 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "../models/BottomSheet";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card, Text, useTheme } from "react-native-paper";
 import { router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 
 const ServicesContainer = () => {
+  const theme = useTheme()
   const [showMoreBottomSheet, setshowMoreBottomSheet] = useState(false);
   return (
-    <View>
-      <View className="gap-y-8 items-center p-5">
+    <View className="gap-y-8 items-center px-3">
+      <View  style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="gap-y-8 items-center p-2 rounded-lg" >
         <View className="flex-row items-center justify-between w-[100%]">
           <ActionButton
             label="Betting"

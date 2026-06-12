@@ -37,6 +37,7 @@ const airtime2cash = () => {
   const [phoneErrorVisible, setPhoneErrorVisible] = useState(false);
   const [amountErrorVisible, setAmountErrorVisible] = useState(false);
   const [otpSheetVisible, setOtpSheetVisible] = useState(false);
+  const [numberErrorMessage, setNumberErrorMessage] = useState("");
   const [networks, setNetworks] = useState<Array<(typeof Networks)[0]>>([]);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
@@ -68,6 +69,7 @@ const airtime2cash = () => {
       return;
     }
     if (!isValidMobileNumber(phoneNumber)) {
+      setNumberErrorMessage("Please Enter Valid Sender Number Here");
       setPhoneErrorVisible(true);
       return;
     }
@@ -90,8 +92,13 @@ const airtime2cash = () => {
     });
 
     if (response.status == 0) {
-      Toast.danger({ title: "Transaction Failed", body: response.message });
       setOtpSheetVisible(false);
+      if (response.message?.toLowerCase().match("number")) {
+        setNumberErrorMessage(response.message);
+        setPhoneErrorVisible(true);
+      } else {
+        Toast.danger({ title: "Transaction Failed", body: response.message });
+      }
       return;
     }
 
@@ -166,7 +173,10 @@ const airtime2cash = () => {
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <View>
-        <CustomAppbar style={{ backgroundColor: "transparent" }} collapsable={true}>
+        <CustomAppbar
+          style={{ backgroundColor: "transparent" }}
+          collapsable={true}
+        >
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -211,7 +221,7 @@ const airtime2cash = () => {
                 className="ml-5 p-3 rounded-lg"
               >
                 <Image
-                    resizeMode={"stretch"}
+                  resizeMode={"stretch"}
                   className="h-[55px] w-[55px] rounded-full"
                   source={{ uri: item.icon }}
                 />
@@ -240,7 +250,7 @@ const airtime2cash = () => {
               type="error"
             >
               <Icon color="red" source={"information"} size={15} /> {""}
-              Please Enter Valid Sender Number Here
+              {numberErrorMessage}
             </HelperText>
           </View>
 

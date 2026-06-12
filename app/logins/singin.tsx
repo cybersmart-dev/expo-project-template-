@@ -1,10 +1,8 @@
-import React, { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   View,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   TouchableOpacity,
   BackHandler,
   Alert,
@@ -19,15 +17,14 @@ import {
   Dialog,
   Portal,
   Icon,
+  HelperText,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { showMessage } from "react-native-flash-message";
 import { EaseView } from "react-native-ease";
 import { StatusBar } from "expo-status-bar";
-import { CustomLightTheme } from "@/Themes/ThemeSchemes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PaperSafeView } from "@/components/PaperView";
-import Entypo from "@expo/vector-icons/Entypo";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import * as LocalAuthentication from "expo-local-authentication";
@@ -39,6 +36,7 @@ import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
 import { LightTheme } from "../_layout";
 import BottomLayout from "@/components/Containers/BottomLayout";
 import CustomAppbar from "@/components/CustomAppbar";
+import { useNotification } from "@/contexts/NotificationContext";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme<typeof LightTheme>();
@@ -47,6 +45,9 @@ const PhoneLoginComponent = () => {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
+  const [isBiometricLoginEnabled, setIsBiometricLoginEnabled] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [userInfo, setUserInfo] = useState<{
     username: string;
     email: string;
@@ -54,11 +55,27 @@ const PhoneLoginComponent = () => {
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
+  const { notification, expoPushToken, error } = useNotification();
   const [loaded, setLoaded] = useState(false);
   const [fingerPrintIconColor, setFingerPrintIconColor] = useState("");
 
+  useEffect(() => {
+    return () => {
+      savePushToken();
+    };
+  }, [expoPushToken]);
+
+  const savePushToken = async () => {
+    try {
+      if (expoPushToken) {
+        await Storage.SecureStore("pushToken", expoPushToken);
+      }
+    } catch (error) {}
+  };
+
   useFocusEffect(
     useCallback(() => {
+      loadDeviceID();
       setFingerPrintIconColor(theme.colors.onBackground);
       setLoaded(true);
       return () => {
@@ -66,6 +83,11 @@ const PhoneLoginComponent = () => {
       };
     }, []),
   );
+
+  const loadDeviceID = async () => {
+    let id = await requests.getDeviceID();
+    console.log("Device ID", id);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -82,13 +104,17 @@ const PhoneLoginComponent = () => {
     }, [showProcessing]),
   );
   const validateInput = () => {
+    setPasswordError(false);
     if (!password) {
+      setPasswordError(true);
+      setPasswordErrorMessage("Please Enter Your Password");
       Toast.danger({
         title: "Password Error",
         body: "Please Enter Your Password",
       });
       return;
     }
+
     login(userInfo?.email, password);
   };
 
@@ -119,16 +145,26 @@ const PhoneLoginComponent = () => {
       setShowProcessing(false);
       Toast.success({ title: "Login Success", body: "Welcome back!" });
       await saveLoginState(response.token);
-      router.push("/(tabs)");
+      router.push({ pathname: "/(tabs)", params: { backFrom: "singin" } });
     }
 
     if (response.status == 0) {
       setShowProcessing(false);
-      setFingerPrintIconColor(theme.colors.onBackground)
-      Toast.danger({ title: "Login Failed", body: response.message });
+      setFingerPrintIconColor(theme.colors.onBackground);
+      setPasswordError(true);
+
+      if (response.message?.toLowerCase()?.match("invalid login")) {
+        setPasswordErrorMessage("Wrong Password");
+        Toast.dangerHapticsAsync({
+          title: "Login Failed",
+          body: "Wrong Password",
+        });
+      } else {
+        Toast.danger({ title: "Login Failed", body: response.message });
+      }
     }
     if (response.status == undefined) {
-      setFingerPrintIconColor(theme.colors.onBackground)
+      setFingerPrintIconColor(theme.colors.onBackground);
       setShowProcessing(false);
       setNetworkErrorSheetVisible(true);
       Toast.danger({
@@ -163,6 +199,9 @@ const PhoneLoginComponent = () => {
   useEffect(() => {
     const checkBiometrics = async () => {
       const available = await hasBiometrics();
+      if (available) {
+        loadBiometricLoginState();
+      }
       setBiometricAvailable(available);
     };
     checkBiometrics();
@@ -197,14 +236,14 @@ const PhoneLoginComponent = () => {
     });
 
     if (result.success) {
-      setFingerPrintIconColor("lightgreen")
+      setFingerPrintIconColor("lightgreen");
       const auth = await Storage.secureGet("auth");
       if (auth) {
         const password = JSON.parse(auth)?.password;
         login(userInfo?.email, password);
       }
     } else {
-      setFingerPrintIconColor("red")
+      setFingerPrintIconColor("red");
       showMessage({
         message: "Failed",
         description: "Authentication failed: " + result.error,
@@ -214,6 +253,24 @@ const PhoneLoginComponent = () => {
       // Handle authentication failure
     }
   };
+
+  const loadBiometricLoginState = async () => {
+    try {
+      const state = await AsyncStorage.getItem("BiometricLoginState");
+      if (state?.trim() == "1") {
+        setIsBiometricLoginEnabled(true);
+        return;
+      }
+
+      setIsBiometricLoginEnabled(false);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    setPasswordError(false);
+    return () => {};
+  }, [password]);
+
   return (
     <PaperSafeView
       onPress={() => Keyboard.dismiss()}
@@ -303,8 +360,8 @@ const PhoneLoginComponent = () => {
         </View>
       </View>
       <BottomLayout>
-        <View className="gap-y-7 px-7 mt-5">
-          {biometricAvailable && (
+        <View className="gap-y-1 px-7">
+          {biometricAvailable && isBiometricLoginEnabled && (
             <View className="items-center">
               <TouchableOpacity
                 disabled={showProcessing}
@@ -322,24 +379,31 @@ const PhoneLoginComponent = () => {
             </View>
           )}
 
-          <TextInput
-            placeholder="Password"
-            style={{ backgroundColor: "transparent" }}
-            secureTextEntry={showPassword ? false : true}
-            left={<TextInput.Icon size={20} icon="key" />}
-            onChangeText={setPassword}
-            disabled={showProcessing}
-            onSubmitEditing={() => validateInput()}
-            right={
-              <TextInput.Icon
-                size={20}
-                onPress={() => setShowPassword(!showPassword)}
-                icon={showPassword ? "eye-off" : "eye"}
-              />
-            }
-            mode="outlined"
-            outlineStyle={{ borderRadius: 15 }}
-          />
+          <View className="mt-10">
+            <TextInput
+              placeholder="Password"
+              style={{ backgroundColor: "transparent" }}
+              secureTextEntry={showPassword ? false : true}
+              error={passwordError}
+              left={<TextInput.Icon size={20} icon="key" />}
+              onChangeText={setPassword}
+              disabled={showProcessing}
+              onSubmitEditing={() => validateInput()}
+              right={
+                <TextInput.Icon
+                  size={20}
+                  onPress={() => setShowPassword(!showPassword)}
+                  icon={showPassword ? "eye-off" : "eye"}
+                />
+              }
+              mode="outlined"
+              outlineStyle={{ borderRadius: 15 }}
+            />
+
+            <HelperText type={"error"} visible={passwordError}>
+              {passwordErrorMessage}
+            </HelperText>
+          </View>
 
           <View className="">
             {showProcessing && (

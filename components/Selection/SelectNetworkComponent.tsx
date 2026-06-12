@@ -36,11 +36,13 @@ interface SelectNetworkComponentProps {
   onChangeText: (text: string) => void;
   showNetworksSheet?: boolean;
   onSelectNetwork: (data: (typeof Networks)[0]) => void;
+  error?: boolean
 }
 const SelectNetworkComponent = ({
   onSelectNetwork,
   showNetworksSheet = false,
   onChangeText,
+  error = false
 }: SelectNetworkComponentProps) => {
   const [selectNetworkVisible, setselectNetworkVisible] = useState(false);
   const theme = useTheme();
@@ -225,7 +227,7 @@ const SelectNetworkComponent = ({
   return (
     <View className="px-5">
       <View
-        style={{ borderColor: theme.colors.onBackground, borderRadius: 15 }}
+        style={{ borderColor: error ? theme.colors.error : theme.colors.onBackground, borderRadius: 15 }}
         className="w-[100%] h-[55px] flex-row border  p-1 px-2"
       >
         <View className="flex-row items-center">

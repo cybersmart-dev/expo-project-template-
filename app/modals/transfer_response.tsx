@@ -30,7 +30,7 @@ const transfer_response = () => {
   useFocusEffect(
     useCallback(() => {
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
-        router.push("/(tabs)");
+        goBack();
         return true;
       });
       return () => back.remove();
@@ -58,11 +58,18 @@ const transfer_response = () => {
     });
   };
 
+  const goBack = useCallback(() => {
+    router.push({
+      pathname: "/(tabs)",
+      params: { backFrom: "transfer_response" },
+    });
+  }, []);
+
   return (
     <PaperSafeView className="flex-1">
       <CustomAppbar>
         <Appbar.Content title="" />
-        <Button onPress={() => router.push("/(tabs)")}>Done</Button>
+        <Button onPress={goBack}>Done</Button>
       </CustomAppbar>
       <View>
         <View className="items-center gap-y-4 mt-5">
@@ -87,24 +94,22 @@ const transfer_response = () => {
               />
             )}
 
-            {
-              transferData?.statusCode == 2 && (
-                <Image
-                  style={{ height: 70, width: 70 }}
-                  placeholder={{ blurhash }}
-                  contentFit="cover"
-                  transition={1000}
-                  source={require("@/assets/images/transaction_pending.png")}
-                />
-              )
-            }
+            {transferData?.statusCode == 2 && (
+              <Image
+                style={{ height: 70, width: 70 }}
+                placeholder={{ blurhash }}
+                contentFit="cover"
+                transition={1000}
+                source={require("@/assets/images/transaction_pending.png")}
+              />
+            )}
 
             <Text
               style={{
                 fontWeight: "bold",
                 fontSize: 20,
                 textTransform: "uppercase",
-                textAlign:"center"
+                textAlign: "center",
               }}
               className="w-screen"
             >
@@ -119,31 +124,29 @@ const transfer_response = () => {
         </View>
       </View>
 
-      
-        <View className="absolute top-[50%] w-full px-10">
-          <View className="">
-            <Pressable
-              onPress={() => {
-                router.push({
-                  pathname: "/TransactionDetails/[id]",
-                  params: { id: transferData.id },
-                });
-              }}
-              style={{ backgroundColor: theme.colors.primary }}
-              className="flex-row items-center justify-between px-3 rounded-lg"
-            >
-              <Text style={{ color: theme.colors.background }}>
-                View Transaction Details
-              </Text>
-              <MaterialIcons
-                name="keyboard-arrow-right"
-                size={24}
-                color={theme.colors.background}
-              />
-            </Pressable>
-          </View>
+      <View className="absolute top-[50%] w-full px-10">
+        <View className="">
+          <Pressable
+            onPress={() => {
+              router.push({
+                pathname: "/TransactionDetails/[id]",
+                params: { id: transferData.id },
+              });
+            }}
+            style={{ backgroundColor: theme.colors.primary }}
+            className="flex-row items-center justify-between px-3 rounded-lg"
+          >
+            <Text style={{ color: theme.colors.background }}>
+              View Transaction Details
+            </Text>
+            <MaterialIcons
+              name="keyboard-arrow-right"
+              size={24}
+              color={theme.colors.background}
+            />
+          </Pressable>
         </View>
-      
+      </View>
 
       {transferData?.statusCode == 1 && (
         <View className="absolute bottom-0 mb-10 gap-y-5 items-center w-full px-10">

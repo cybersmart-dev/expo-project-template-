@@ -69,8 +69,8 @@ export const HomeQuickActionsContainer = () => {
   ));
 
   return (
-    <View className="px-7">
-      <View className="flex-row items-center justify-between  p-2">
+    <View  className="px-3">
+      <View style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="flex-row items-center justify-between rounded-lg p-2">
         <ActionButton
           label="Data"
           onPress={goToBuyData}

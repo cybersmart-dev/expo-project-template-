@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Image, BackHandler, Alert } from "react-native";
 import {
   Text,
@@ -22,10 +22,11 @@ import { DarkTheme } from "./_layout";
 import * as WebBrowser from "expo-web-browser";
 import * as Notifications from "expo-notifications";
 import { useNotification } from "@/contexts/NotificationContext";
+import { Storage } from "@/constants/Storage";
 
 const Index = () => {
   const theme = useTheme<typeof DarkTheme>();
-   const { notification, expoPushToken, error } = useNotification();
+  const { notification, expoPushToken, error } = useNotification();
   const [loginOption, setLoginOption] = useState("");
   const [bounceState, setBounceState] = useState(0);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
@@ -82,16 +83,30 @@ const Index = () => {
 
       if (token) {
         router.push("/logins/singin");
-        await new Timer().postDelayedAsync({sec: 100})
+        await new Timer().postDelayedAsync({ sec: 100 });
       }
       setLoginCheckFinished(true);
     } catch (error) {}
   };
 
-  const showTestNotification = () => {
-    alert(expoPushToken)
+  useEffect(() => {
+    return () => {
+      savePushToken();
+    };
+  }, [expoPushToken]);
 
-     Notifications.scheduleNotificationAsync({
+  const savePushToken = async () => {
+    try {
+      if (expoPushToken) {
+        await Storage.SecureStore("pushToken", expoPushToken);
+      }
+    } catch (error) {}
+  };
+  
+  const showTestNotification = () => {
+    alert(expoPushToken);
+
+    Notifications.scheduleNotificationAsync({
       content: {
         title: "Convert Successfully",
         sound: "mixkit_melodic_gold_price.wav",
@@ -103,12 +118,12 @@ const Index = () => {
         channelId: "deposit",
       },
     });
-  }
+  };
 
   return (
     <PaperSafeView>
       {loginCheckFinished && (
-        <View style={{ flex: 1}}>
+        <View style={{ flex: 1 }}>
           <Appbar style={{ backgroundColor: "transparent" }}>
             <Appbar.Content
               title={
@@ -144,7 +159,11 @@ const Index = () => {
               animate={{ translateX: loaded ? 0 : 200 }}
               transition={{ type: "timing", duration: 1000 }}
             >
-              <Button onPress={showTestNotification} mode={"contained-tonal"} className="mr-2">
+              <Button
+                onPress={showTestNotification}
+                mode={"contained-tonal"}
+                className="mr-2"
+              >
                 Skip
               </Button>
             </EaseView>
@@ -225,7 +244,7 @@ const Index = () => {
             </View>
           </View>
 
-          <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-20">
+          <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-15">
             <Button
               onPress={() => router.push("/logins/emailLogin")}
               // icon={({ color }) => (

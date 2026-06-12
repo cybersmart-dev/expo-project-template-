@@ -10,6 +10,7 @@ import {
   useColorScheme,
   BackHandler,
   GestureResponderEvent,
+  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -23,7 +24,7 @@ import {
 import { HomeQuickActionsContainer } from "@/components/Containers/HomeQuickActionsContainer";
 import ServicesContainer from "@/components/Containers/ServicesContainer";
 import HomeSliderContainer from "@/components/Containers/HomeSliderContainer";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
 import CreatePinContainer from "@/components/Containers/CreatePinContainer";
 import { StatusBar } from "expo-status-bar";
@@ -38,10 +39,14 @@ import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorShe
 import RecentTransactionsContainer from "@/components/Containers/RecentTransactionsContainer";
 import { PaperSafeView } from "@/components/PaperView";
 import CustomAppbar from "@/components/CustomAppbar";
+import { useNotification } from "@/contexts/NotificationContext";
+import { Storage } from "@/constants/Storage";
 
 export default function Index() {
   const theme = useTheme();
   const colorScheme = useColorScheme();
+  const { notification, expoPushToken, error } = useNotification();
+  const { backFrom } = useLocalSearchParams();
   const [hideBalance, setHideBalance] = useState(false);
   const [showPinSheet, setShowPinSheet] = useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
@@ -52,6 +57,20 @@ export default function Index() {
     useState(false);
 
   const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      savePushToken();
+    };
+  }, [expoPushToken]);
+
+  const savePushToken = async () => {
+    try {
+      if (expoPushToken) {
+        await Storage.SecureStore("pushToken", expoPushToken);
+      }
+    } catch (error) {}
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -104,7 +123,12 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchData();
+      if (backFrom == "singin" || backFrom == "transfer_response") {
+        console.log("Loading Data");
+        fetchData();
+      } else {
+        loadUserInfo();
+      }
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setExitDialogVisible(true);
         return true;
@@ -154,15 +178,14 @@ export default function Index() {
         }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
         // style={{ backgroundColor: theme.colors.background }}
-        style={{flex: 1}}
+        style={{ flex: 1 }}
       >
-        <CustomAppbar
-        >
+        <CustomAppbar>
           <Appbar.Content
             title={
               <TouchableOpacity
                 onPress={() => router.push("/me")}
-                className="flex-row items-center gap-x-2"
+                className="flex-row items-center gap-x-2 ml-2"
               >
                 <Image
                   className="h-7 w-7 rounded-full"
@@ -179,14 +202,12 @@ export default function Index() {
           />
           <Appbar.Action
             onPress={() => router.push("/notifications")}
-            
             icon={"bell-outline"}
           />
           <Appbar.Action
             onPress={async () => {
               await WebBrowser.openBrowserAsync("https://wa.me/+2347026426748");
             }}
-           
             icon={"face-agent"}
           />
         </CustomAppbar>
@@ -204,37 +225,39 @@ export default function Index() {
           }
           className="pb-5 flex-1"
         >
-          <View className="px-5 rounded-lg mt-3">
-            <BalanceContainer
-              theme={theme}
-              fetchingInfo={fetchingInfo}
-              fetchInfo={fetchData}
-              userInfo={userInfo}
-              hideBalance={hideBalance}
-              onHideBalanceToggle={() => setHideBalance(!hideBalance)}
-            />
-          </View>
+          <Pressable onPress={() => null}>
+            <View className="px-5 rounded-lg mt-3">
+              <BalanceContainer
+                theme={theme}
+                fetchingInfo={fetchingInfo}
+                fetchInfo={fetchData}
+                userInfo={userInfo}
+                hideBalance={hideBalance}
+                onHideBalanceToggle={() => setHideBalance(!hideBalance)}
+              />
+            </View>
 
-          <View className="px-3 mt-3">
-            <Text className="mb-1 ml-4 mt-4 font-bold opacity-70 uppercase text-[11px]">
-              Quick Actions
-            </Text>
-            <HomeQuickActionsContainer />
-          </View>
+            <View className="px-3 mt-3">
+              <Text className="mb-1 ml-4 mt-4 font-bold opacity-70 uppercase text-[11px]">
+                Quick Actions
+              </Text>
+              <HomeQuickActionsContainer />
+            </View>
 
-          <View className="px-3 mt-5">
-            <Text className="font-bold ml-4 opacity-70 uppercase text-[11px]">
-              Recent Transactions
-            </Text>
-            <RecentTransactionsContainer refreshKey={refreshKey} />
-          </View>
+            <View className="px-3 mt-5">
+              <Text className="font-bold ml-4 opacity-70 uppercase text-[11px]">
+                Recent Transactions
+              </Text>
+              <RecentTransactionsContainer refreshKey={refreshKey} />
+            </View>
 
-          <View className="px-3 mt-5">
-            <Text className="mb-1 ml-5 font-bold opacity-70 uppercase text-[11px]">
-              Services
-            </Text>
-            <ServicesContainer />
-          </View>
+            <View className="px-3 mt-5">
+              <Text className="mb-1 ml-5 font-bold opacity-70 uppercase text-[11px]">
+                Services
+              </Text>
+              <ServicesContainer />
+            </View>
+          </Pressable>
         </ScrollView>
         <BottomSheet
           mode="full-width"

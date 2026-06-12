@@ -20,12 +20,14 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: theme.colors.primary,
+         tabBarInactiveTintColor: theme.dark ? "gray" : undefined,
           tabBarStyle: {
             paddingBottom: 0,
             height: 60,
             borderTopWidth: 0,
             borderRadius: 50,
             elevation: 10,
+            
           },
           
           tabBarBackground: () => (
@@ -47,6 +49,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
+
             tabBarIcon: ({ color, size }) => (
               <Feather name="home" size={size} color={color} />
             ),
@@ -64,6 +67,7 @@ export default function TabLayout() {
                 color={color}
               />
             ),
+           
           }}
         />
         
