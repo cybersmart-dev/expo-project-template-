@@ -5,7 +5,7 @@ import {
   LayoutChangeEvent,
   BackHandler,
 } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
   ActivityIndicator,
@@ -39,6 +39,7 @@ const PasswordReset = () => {
     useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
   const [otpSended, setOtpSended] = useState(false);
+  const [emailError, setEmailError] = useState(false)
   const [resendOtpProcessing, setResendOtpProcessing] = useState(false);
   const { resendCount, startCounter } = useCounter({ count: 30 });
 
@@ -85,14 +86,22 @@ const PasswordReset = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email.trim())) {
+      setEmailError(true)
       Toast.danger({
         title: "Email Error",
         body: "Please Enter valid email Address",
       });
       return;
     }
+
+    setEmailError(false)
     reset();
   };
+
+  useEffect(() => {
+    setEmailError(false)
+  }, [email])
+  
 
   const reset = async () => {
     Keyboard.dismiss();
@@ -212,7 +221,7 @@ const PasswordReset = () => {
               color={color}
             />
           )}
-          onPress={() => router.push("/")}
+          onPress={() => router.back()}
         />
 
         <Appbar.Content title="Reset Password" />
@@ -268,6 +277,7 @@ const PasswordReset = () => {
                   fontSize: 13,
                   marginBottom: 30,
                   opacity: 0.5,
+                  textAlign:"center"
                 }}
                 className="text-center place-items-center grid"
               >
@@ -343,6 +353,7 @@ const PasswordReset = () => {
                 <TextInput
                   placeholder="Email Address"
                   keyboardType={"email-address"}
+                  error={emailError}
                   style={{ backgroundColor: "transparent" }}
                   mode="outlined"
                   outlineStyle={{ borderRadius: 15 }}

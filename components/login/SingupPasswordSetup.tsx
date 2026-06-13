@@ -82,9 +82,10 @@ export default function SingupPasswordSetup({
             </View>
           }
           mode="small"
-          
         />
-        <Button onPress={() => router.back()} icon={"pen"}>Edit Details</Button>
+        <Button onPress={() => router.back()} icon={"pen"}>
+          Edit Details
+        </Button>
       </CustomAppbar>
 
       <View className="gap-y-10 mt-7 px-8">

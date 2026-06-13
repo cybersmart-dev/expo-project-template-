@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Image,
@@ -40,6 +40,9 @@ const EmailLoginComponent = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setpasswordError] = useState(false);
+
   const processingRef = useRef<number>(null);
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
@@ -63,9 +66,12 @@ const EmailLoginComponent = () => {
         title: "Email Error",
         body: "Please Enter valid email Address",
       });
+      setEmailError(true);
       return;
     }
     if (!password) {
+      setpasswordError(true);
+      setEmailError(false);
       Toast.dangerHapticsAsync({
         title: "Password Error",
         body: "Please Enter Your Password",
@@ -73,8 +79,19 @@ const EmailLoginComponent = () => {
       return;
     }
 
+    setEmailError(false);
+    setpasswordError(false);
+
     login();
   };
+
+  useEffect(() => {
+    setEmailError(false);
+  }, [email]);
+
+  useEffect(() => {
+    setpasswordError(false);
+  }, [password]);
 
   const login = async () => {
     setShowProcessing(true);
@@ -122,8 +139,8 @@ const EmailLoginComponent = () => {
 
         const response = await requests.get({ url: "/networks/" });
         await Storage.SecureStore("networks", JSON.stringify(response));
-          
-        router.push({ pathname: "/(tabs)", params: { backFrom: "login" } })
+
+        router.push({ pathname: "/(tabs)", params: { backFrom: "login" } });
       }
     } catch (error) {
       Toast.danger({ title: "Error", body: `${error}` });
@@ -155,7 +172,12 @@ const EmailLoginComponent = () => {
           animate={{ translateX: loaded ? 0 : 200 }}
           transition={{ type: "timing", duration: 1000 }}
         >
-          <Button onPress={() => router.push("/logins/phoneLogin")} icon={"phone"} mode={"contained-tonal"} className="mr-2">
+          <Button
+            onPress={() => router.push("/logins/phoneLogin")}
+            icon={"phone"}
+            mode={"contained-tonal"}
+            className="mr-2"
+          >
             Login With Phone Numer
           </Button>
         </EaseView>
@@ -169,7 +191,7 @@ const EmailLoginComponent = () => {
           }}
           transition={{ duration: 1000, type: "timing" }}
         >
-         <AnimatedTransLogo />
+          <AnimatedTransLogo />
         </EaseView>
         <View className="items-center">
           <EaseView
@@ -216,10 +238,11 @@ const EmailLoginComponent = () => {
             keyboardType={"email-address"}
             className="bg-transparent"
             mode="outlined"
+            error={emailError}
             disabled={showProcessing}
             outlineStyle={{ borderRadius: 15 }}
             onChangeText={setEmail}
-            style={{backgroundColor: "transparent"}}
+            style={{ backgroundColor: "transparent" }}
             left={<TextInput.Icon size={20} icon="email" />}
           />
 
@@ -228,11 +251,12 @@ const EmailLoginComponent = () => {
               placeholder="Password"
               onChangeText={setPassword}
               secureTextEntry={showPassword ? false : true}
+              error={passwordError}
               left={<TextInput.Icon size={20} icon="lock" />}
               disabled={showProcessing}
               mode="outlined"
               outlineStyle={{ borderRadius: 15 }}
-              style={{backgroundColor: "transparent"}}
+              style={{ backgroundColor: "transparent" }}
               right={
                 <TextInput.Icon
                   size={20}

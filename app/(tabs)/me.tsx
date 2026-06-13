@@ -354,7 +354,7 @@ const Me = () => {
             <Text>Details</Text>
           </View>
 
-          <View style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="mt-2 px-2 rounded-lg">
+          <View  className="mt-2 px-2 rounded-lg">
             <List.Item
               descriptionStyle={{ fontFamily: "ArchivoBlackRegular" }}
               titleStyle={{ opacity: 0.6 }}

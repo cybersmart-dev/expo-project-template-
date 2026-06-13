@@ -16,11 +16,15 @@ const setupPassword = () => {
   useFocusEffect(
     useCallback(() => {
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
-        Alert.alert("Go Back", "Are you sure do you want to go back?", [
-          { text: "Yes", onPress: () => router.back() },
-          { text: "No", onPress: () => null },
-          
-        ], {"cancelable": true});
+        Alert.alert(
+          "Go Back",
+          "Are you sure do you want to go back?",
+          [
+            { text: "Yes", onPress: () => router.back() },
+            { text: "No", onPress: () => null },
+          ],
+          { cancelable: true },
+        );
 
         return true;
       });

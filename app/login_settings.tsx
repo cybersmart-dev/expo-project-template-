@@ -1,4 +1,4 @@
-import { Alert, View } from "react-native";
+import { Alert, Keyboard, Modal, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
@@ -17,12 +17,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Toast } from "@/constants/Toast";
 import * as LocalAuthentication from "expo-local-authentication";
 import BottomSheet from "@/components/models/BottomSheet";
+import TextInput from "@/components/Inputs/TextInput";
+import Button from "@/components/Buttons/Button";
+import { Timer } from "@/constants/Utils";
+import requests from "@/Network/HttpRequest";
 
 const login_settings = () => {
   const theme = useTheme();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   const [isBiometricLoginEnabled, setIsBiometricLoginEnabled] = useState(false);
+  const [passwordChangeModalVisible, setPasswordChangeModalVisible] =
+    useState(false);
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
+  const [realPasswordError, setRealPasswordError] = useState(false);
+  const [realPasswordErrorMessage, setRealPasswordErrorMessage] = useState("");
+  const [realPassword, setRealPassword] = useState("");
   const [biometricOptionSheetVisible, setBiometricOptionSheetVisible] =
     useState(false);
 
@@ -32,6 +42,55 @@ const login_settings = () => {
       return () => {};
     }, []),
   );
+
+  const getUserEmail = async () => {
+    try {
+      const data = await AsyncStorage.getItem("userInfo");
+      if (data) {
+        const parsedData = JSON.parse(data);
+        return parsedData?.email;
+      }
+    } catch (error) {}
+  };
+  const verifyPassword = async () => {
+    if (!realPassword) {
+      setRealPasswordError(true);
+      setRealPasswordErrorMessage("Please enter your password");
+      return;
+    }
+
+    const email = await getUserEmail();
+    
+    Keyboard.dismiss();
+    setVerifyingPassword(true);
+
+    const response = await requests.post({
+      url: "/login/",
+      add_header_token: false,
+      data: { email: email, password: realPassword },
+    });
+
+    setVerifyingPassword(false);
+
+    if (response.token != undefined) {
+      router.push({
+        pathname: "/changePassword",
+        params: { realPassword: realPassword },
+      });
+    }
+
+    if (response.status == 0) {
+      setRealPasswordError(true);
+
+      setRealPasswordErrorMessage("Wrong Password");
+    }
+    if (response.status == undefined) {
+      Toast.danger({
+        title: "Network Error",
+        body: "Please check your internet connection and try again.",
+      });
+    }
+  };
 
   const enableBiometicVerification = async () => {
     // Check if biometric hardware is available
@@ -123,6 +182,12 @@ const login_settings = () => {
     setBiometricOptionSheetVisible(false);
     enableBiometicVerification();
   };
+
+  useEffect(() => {
+    setRealPasswordError(false);
+    setRealPasswordErrorMessage("");
+  }, [realPassword]);
+
   return (
     <PaperSafeView>
       <CustomAppbar>
@@ -149,7 +214,9 @@ const login_settings = () => {
             title="Reset Password"
             descriptionNumberOfLines={1}
             description="Did you forgot your password?"
-            onPress={() => {}}
+            onPress={() =>
+              router.push({ pathname: "/passwordreset/PasswordReset" })
+            }
             left={({ color }) => (
               <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
                 <FontAwesome5
@@ -174,7 +241,7 @@ const login_settings = () => {
             title="Change Password"
             descriptionNumberOfLines={1}
             description="Change your password"
-            onPress={() => {}}
+            onPress={() => setPasswordChangeModalVisible(true)}
             left={({ color }) => (
               <View className="w-8 h-8 rounded-full items-center justify-center bg-[#77ef9133]">
                 <FontAwesome5
@@ -251,6 +318,34 @@ const login_settings = () => {
           </List.Section>
         </View>
       </BottomSheet>
+
+      <Modal
+        onRequestClose={() => setPasswordChangeModalVisible(false)}
+        visible={passwordChangeModalVisible}
+      >
+        <PaperSafeView>
+          <CustomAppbar>
+            <Appbar.Action
+              onPress={() => setPasswordChangeModalVisible(false)}
+              icon={"close"}
+            />
+          </CustomAppbar>
+          <View className="px-5 mt-5">
+            <View className="gap-y-2">
+              <Text className="ml-2">Enter Your Password</Text>
+              <TextInput
+                error={realPasswordError}
+                errorMessage={realPasswordErrorMessage}
+                onChangeText={setRealPassword}
+                placeholder="Paaword"
+              />
+            </View>
+            <Button onPress={verifyPassword} loading={verifyingPassword}>
+              Continue
+            </Button>
+          </View>
+        </PaperSafeView>
+      </Modal>
     </PaperSafeView>
   );
 };

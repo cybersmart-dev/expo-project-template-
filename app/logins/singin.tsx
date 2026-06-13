@@ -60,8 +60,7 @@ const PhoneLoginComponent = () => {
   const [fingerPrintIconColor, setFingerPrintIconColor] = useState("");
 
   useEffect(() => {
-      savePushToken();
-    
+    savePushToken();
   }, [expoPushToken]);
 
   const savePushToken = async () => {
@@ -378,7 +377,11 @@ const PhoneLoginComponent = () => {
             </View>
           )}
 
-          <View className="mt-5">
+          <View
+            className={
+              biometricAvailable && isBiometricLoginEnabled ? "mt-6" : "mt-10"
+            }
+          >
             <TextInput
               placeholder="Password"
               style={{ backgroundColor: "transparent" }}

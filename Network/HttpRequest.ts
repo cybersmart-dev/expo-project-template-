@@ -42,6 +42,7 @@ export default class requests {
         headers,
         add_header_token = true,
     }: requestProps): Promise<responseProps> {
+
         url = this.getUrl(url);
         if (data) {
             data.tnxid = this.generateUUID();

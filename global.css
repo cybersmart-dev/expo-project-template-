@@ -1,3 +1,6 @@
 @import "tailwindcss";
 @import "uniwind";
 
+@source "./app/**/*.{js,jsx,ts,tsx}";
+@source "./components/**/*.{js,jsx,ts,tsx}";
+

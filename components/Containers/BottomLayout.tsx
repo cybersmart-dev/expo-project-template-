@@ -1,20 +1,17 @@
 import {
   View,
-  Text,
-  ActivityIndicator,
-  Button,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
-  TouchableOpacity,
   LayoutChangeEvent,
+  Dimensions
 } from "react-native";
 import React, { useCallback, useState } from "react";
-import { CustomLightTheme } from "@/Themes/ThemeSchemes";
-import Entypo from "@expo/vector-icons/Entypo";
 import { EaseView } from "react-native-ease";
-import { IconButton, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { useFocusEffect } from "expo-router";
+
+
+const { width, height } = Dimensions.get("screen")
 
 interface BottomLayoutProps {
   children: React.ReactNode;
@@ -36,7 +33,7 @@ const BottomLayout = ({ children, onLayout }: BottomLayoutProps) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS == "android" ? "padding" : "height"}
-      className="h-auto min-h-[40%]  w-screen "
+      className="h-auto min-h-[40%]  w-screen  justify-center flex-row"
       style={{
         position: "absolute",
         bottom: 0,
@@ -49,10 +46,11 @@ const BottomLayout = ({ children, onLayout }: BottomLayoutProps) => {
           marginTop: 50,
           paddingBottom: 30,
           borderTopRightRadius: 30,
-          borderTopLeftRadius:30
+          borderTopLeftRadius:30,
+          width: width
           
         }}
-        className="rounded-t-5 h-full justify-center"
+        className="rounded-t-5 h-full w-screen justify-center"
         animate={{ translateY: loaded ? 0 : 100 }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
       >

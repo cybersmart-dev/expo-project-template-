@@ -180,6 +180,18 @@ function RootLayoutNav() {
               }}
             />
 
+
+            <Stack.Screen
+              name="changePassword"
+              options={{
+                presentation: "containedModal",
+                title: "Change Password",
+                headerShown: false,
+              }}
+            />
+
+            
+
             <Stack.Screen
               name="settings"
               options={{

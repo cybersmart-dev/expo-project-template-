@@ -24,7 +24,7 @@ import {
 import { HomeQuickActionsContainer } from "@/components/Containers/HomeQuickActionsContainer";
 import ServicesContainer from "@/components/Containers/ServicesContainer";
 import HomeSliderContainer from "@/components/Containers/HomeSliderContainer";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams, usePathname } from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
 import CreatePinContainer from "@/components/Containers/CreatePinContainer";
 import { StatusBar } from "expo-status-bar";
@@ -53,15 +53,14 @@ export default function Index() {
   const [fetchingInfo, setFetchingInfo] = useState(false);
   const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
+  const pathname = usePathname()
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    
-      savePushToken();
-    
+    savePushToken();
   }, [expoPushToken]);
 
   const savePushToken = async () => {
@@ -88,7 +87,7 @@ export default function Index() {
     }
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setFetchingInfo(true);
     const response = await requests.get({ url: "/user/details/" });
 
@@ -119,16 +118,15 @@ export default function Index() {
       loadUserInfo();
       setNetworkErrorSheetVisible(true);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+    console.log("Fetching...", pathname);
+  }, [refreshKey]);
 
   useFocusEffect(
     useCallback(() => {
-      if (backFrom == "singin" || backFrom == "transfer_response" || backFrom == "login") {
-        console.log("Loading Data");
-        fetchData();
-      } else {
-        loadUserInfo();
-      }
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
         setExitDialogVisible(true);
         return true;
@@ -169,6 +167,10 @@ export default function Index() {
       console.error("Error checking login state:", error);
     }
   };
+
+  const refreshData = useCallback(() => {
+    setRefreshKey((prev) => prev + 1);
+  }, []);
 
   return (
     <PaperSafeView>
@@ -215,13 +217,7 @@ export default function Index() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl
-              refreshing={false}
-              onRefresh={() => {
-                fetchData();
-                setRefreshKey((prev) => prev + 1);
-              }}
-            />
+            <RefreshControl refreshing={false} onRefresh={refreshData} />
           }
           className="pb-5 flex-1"
         >
@@ -230,7 +226,7 @@ export default function Index() {
               <BalanceContainer
                 theme={theme}
                 fetchingInfo={fetchingInfo}
-                fetchInfo={fetchData}
+                fetchInfo={refreshData}
                 userInfo={userInfo}
                 hideBalance={hideBalance}
                 onHideBalanceToggle={() => setHideBalance(!hideBalance)}

@@ -1,5 +1,5 @@
 import { FlatList, View } from "react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Divider,
@@ -62,7 +62,9 @@ const RecentTransactionsListComponent = ({
         right={() => (
           <View className="items-end justify-evenly">
             <Text
-              style={{ color: getTransactionSideFormat(side, amount, status).color }}
+              style={{
+                color: getTransactionSideFormat(side, amount, status).color,
+              }}
               className="text-green-600"
             >
               {" "}
@@ -90,13 +92,12 @@ const RecentTransactionsContainer = ({
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
   const theme = useTheme();
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchTransactions();
-    }, [refreshKey]),
-  );
+  useEffect(() => {
+    fetchTransactions();
+  }, [refreshKey]);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
+    console.log("Fetching Recents...");
     setFetching(true);
     setNetworkRequestFailed(false);
     const response = await requests.get({
@@ -114,10 +115,10 @@ const RecentTransactionsContainer = ({
       Toast.danger({ title: "Error", body: response.message });
     }
     if (response.status == undefined) {
-      loadRecentTransactions()
+      loadRecentTransactions();
       setNetworkRequestFailed(true);
     }
-  };
+  }, []);
 
   const storeRecentTransactions = async (transactions: Array<object>) => {
     try {
@@ -141,7 +142,12 @@ const RecentTransactionsContainer = ({
 
   return (
     <View className="px-3 mt-2">
-      <View style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="px-0 rounded-lg mt-0">
+      <View
+        style={{
+          backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white",
+        }}
+        className="px-0 rounded-lg mt-0"
+      >
         {transactions.map((item: any) => (
           <RecentTransactionsListComponent
             key={item?.id}
@@ -162,7 +168,9 @@ const RecentTransactionsContainer = ({
         ))}
         {transactions.length == 0 && !fetching && !networkRequestFailed && (
           <View className="w-full mt-2">
-            <Text className="text-center font-[ArchivoBlackRegular] text-[11px]">NO DATA</Text>
+            <Text className="text-center font-[ArchivoBlackRegular] text-[11px]">
+              NO DATA
+            </Text>
           </View>
         )}
         {fetching && transactions.length == 0 && (
