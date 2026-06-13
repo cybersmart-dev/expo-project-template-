@@ -1,103 +1,103 @@
 {
-  "expo": {
-    "name": "Zaffy",
-    "slug": "mypock",
-    "version": "1.0.3",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "reactmail",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "versionCode": 2,
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.zaffy.wallet",
-      "googleServicesFile": "./google-services.json",
-      "permissions": [
-        "android.permission.READ_CONTACTS",
-        "android.permission.WRITE_CONTACTS"
-      ]
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      [
-        "expo-contacts",
-        {
-          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
-        }
-      ],
-      [
-        "expo-dev-client",
-        {
-          "launchMode": "most-recent"
-        }
-      ],
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "image": "./assets/images/splash-icon.png",
-            "backgroundColor": "#000000"
-          }
-        }
-      ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "enableProguardInReleaseBuilds": true,
-            "enableShrinkResourcesInReleaseBuilds": true,
-            "useLegacyPackaging": true,
-            "enableMinifyInReleaseBuilds": true
-          }
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/icon.png",
-          "color": "#000000",
-          "defaultChannel": "default",
-          "sounds": ["./assets/audio/mixkit_melodic_gold_price.wav"],
-          "enableBackgroundRemoteNotifications": false
-        }
-      ],
-      "expo-router",
-      "expo-font",
-      "expo-web-browser",
-      "expo-secure-store",
-      "expo-image",
-      "expo-sharing",
-      "expo-splash-screen",
-      "expo-status-bar"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "1ca3b9d4-270f-4ac4-97a8-71955b410293"
-      }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/1ca3b9d4-270f-4ac4-97a8-71955b410293"
-    },
-    "owner": "cybersmart83"
-  }
+    "expo": {
+        "name": "Zaffy",
+        "slug": "mypock",
+        "version": "1.0.3",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "scheme": "reactmail",
+        "userInterfaceStyle": "automatic",
+        "ios": {
+            "supportsTablet": true
+        },
+        "android": {
+            "versionCode": 2,
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "com.zaffy.wallet",
+            "googleServicesFile": "./google-services.json",
+            "permissions": [
+                "android.permission.READ_CONTACTS",
+                "android.permission.WRITE_CONTACTS"
+            ]
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "static",
+            "favicon": "./assets/images/favicon.png"
+        },
+        "plugins": [
+            [
+                "expo-contacts",
+                {
+                    "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+                }
+            ],
+            [
+                "expo-dev-client",
+                {
+                    "launchMode": "most-recent"
+                }
+            ],
+            [
+                "expo-splash-screen",
+                {
+                    "image": "./assets/images/splash-icon.png",
+                    "resizeMode": "contain",
+                    "backgroundColor": "#ffffff",
+                    "dark": {
+                        "image": "./assets/images/splash-icon.png",
+                        "backgroundColor": "#000000"
+                    }
+                }
+            ],
+            [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "enableProguardInReleaseBuilds": true,
+                        "enableShrinkResourcesInReleaseBuilds": true,
+                        "useLegacyPackaging": true,
+                        "enableMinifyInReleaseBuilds": true
+                    }
+                }
+            ],
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/images/icon_trans.png",
+                    "color": "#000000",
+                    "defaultChannel": "default",
+                    "sounds": ["./assets/audio/mixkit_melodic_gold_price.wav"],
+                    "enableBackgroundRemoteNotifications": false
+                }
+            ],
+            "expo-router",
+            "expo-font",
+            "expo-web-browser",
+            "expo-secure-store",
+            "expo-image",
+            "expo-sharing",
+            "expo-splash-screen",
+            "expo-status-bar"
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "extra": {
+            "router": {},
+            "eas": {
+                "projectId": "1ca3b9d4-270f-4ac4-97a8-71955b410293"
+            }
+        },
+        "runtimeVersion": {
+            "policy": "appVersion"
+        },
+        "updates": {
+            "url": "https://u.expo.dev/1ca3b9d4-270f-4ac4-97a8-71955b410293"
+        },
+        "owner": "cybersmart83"
+    }
 }

@@ -11,8 +11,8 @@ export async function registerForPushNotificationsAsync(): Promise<string> {
             vibrationPattern: [0, 250, 250, 250],
             lightColor: "#FF231F7C"
         });
-        await Notifications.setNotificationChannelAsync("deposit", {
-            name: "deposit",
+        await Notifications.setNotificationChannelAsync("credit", {
+            name: "Credit Alerts",
             sound: "mixkit_melodic_gold_price.wav",
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],

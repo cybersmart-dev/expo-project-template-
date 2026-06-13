@@ -90,9 +90,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    return () => {
       savePushToken();
-    };
   }, [expoPushToken]);
 
   const savePushToken = async () => {
@@ -105,6 +103,7 @@ const Index = () => {
   
   const showTestNotification = () => {
     alert(expoPushToken);
+    savePushToken()
 
     Notifications.scheduleNotificationAsync({
       content: {

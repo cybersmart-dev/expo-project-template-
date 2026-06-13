@@ -122,8 +122,8 @@ const EmailLoginComponent = () => {
 
         const response = await requests.get({ url: "/networks/" });
         await Storage.SecureStore("networks", JSON.stringify(response));
-
-        router.push("/(tabs)");
+          
+        router.push({ pathname: "/(tabs)", params: { backFrom: "login" } })
       }
     } catch (error) {
       Toast.danger({ title: "Error", body: `${error}` });

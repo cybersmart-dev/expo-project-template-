@@ -130,7 +130,7 @@ const PhoneLoginComponent = () => {
 
         await Storage.SecureStore("networks", JSON.stringify(response));
 
-        router.push("/(tabs)");
+        router.push({ pathname: "/(tabs)", params: { backFrom: "login" } });
       }
     } catch (error) {
       showMessage({

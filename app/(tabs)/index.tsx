@@ -59,9 +59,9 @@ export default function Index() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    return () => {
+    
       savePushToken();
-    };
+    
   }, [expoPushToken]);
 
   const savePushToken = async () => {
@@ -123,7 +123,7 @@ export default function Index() {
 
   useFocusEffect(
     useCallback(() => {
-      if (backFrom == "singin" || backFrom == "transfer_response") {
+      if (backFrom == "singin" || backFrom == "transfer_response" || backFrom == "login") {
         console.log("Loading Data");
         fetchData();
       } else {
