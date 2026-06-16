@@ -37,6 +37,7 @@ import { LightTheme } from "../_layout";
 import BottomLayout from "@/components/Containers/BottomLayout";
 import CustomAppbar from "@/components/CustomAppbar";
 import { useNotification } from "@/contexts/NotificationContext";
+import { ErrorStatusCode } from "@/constants/StatusCodes";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme<typeof LightTheme>();

@@ -11,3 +11,8 @@ export type NetworksType = Array<{
   name: "mtn" | "airtel" | "glo" | "9mobile";
   icon: string;
 }>;
+
+export type BeneficiaryType = {
+  phone_number: string,
+  network: NetworksType[0] | undefined
+}

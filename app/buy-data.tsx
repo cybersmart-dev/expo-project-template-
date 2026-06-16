@@ -1,20 +1,21 @@
-import { Keyboard, Pressable, View } from "react-native";
+import { Keyboard, Pressable, ScrollView, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import {
   Appbar,
   Button,
   Chip,
+  List,
   Switch,
   Text,
   useTheme,
 } from "react-native-paper";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import SelectNetworkComponent from "@/components/Selection/SelectNetworkComponent";
 import DataListContainer from "@/components/Containers/DataListContainer";
 import { StatusBar } from "expo-status-bar";
-import { DataPackType, NetworksType } from "@/constants/Types";
+import { BeneficiaryType, DataPackType, NetworksType } from "@/constants/Types";
 import BottomSheet from "@/components/models/BottomSheet";
 import BuyDataPreviewComponent from "@/components/Containers/BuyDataPreviewComponent";
 import { Networks } from "@/constants/DemoList";
@@ -26,6 +27,8 @@ import NoConnectionModal from "@/components/models/NoConnectionModal";
 import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorSheet";
 import CustomAppbar from "@/components/CustomAppbar";
 import { Toast } from "@/constants/Toast";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "react-native";
 
 const buydata = () => {
   const theme = useTheme();
@@ -43,9 +46,13 @@ const buydata = () => {
 
   const [phoneError, setPhoneError] = useState(false);
   const [netWorkErrorVisible, setNetWorkErrorVisible] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworksType[0]>();
 
   const [buyDataPreviewVisible, setBuyDataPreviewVisible] = useState(false);
-  const [isSwitchOn, setIsSwitchOn] = React.useState(true);
+  const [isSwitchOn, setIsSwitchOn] = useState(true);
+  const [beneficiaries, setBeneficiaries] = useState<Array<BeneficiaryType>>(
+    [],
+  );
 
   const [selectNetworkSheetVisible, setSelectNetworkSheetVisible] =
     useState(false);
@@ -119,16 +126,80 @@ const buydata = () => {
       return;
     }
 
-    router.push({
-      pathname: "/modals/transfer_response",
-      params: {
-        status: "Success",
-        type: "Data",
-        amount: amount,
-        data: JSON.stringify(response.data),
-      },
-    });
+    if (response.status == 1) {
+      if (isSwitchOn) {
+        const beneficiary: BeneficiaryType = {
+          phone_number: mobileNumber,
+          network: selectedNetwork,
+        };
+        saveBeneficiary(beneficiary);
+      }
+      router.push({
+        pathname: "/modals/transfer_response",
+        params: {
+          status: "Success",
+          type: "Data",
+          amount: amount,
+          data: JSON.stringify(response.data),
+        },
+      });
+    }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadBeneficiaries();
+    }, []),
+  );
+
+  const saveBeneficiary = async (beneficiary: BeneficiaryType) => {
+    try {
+      let is_exists =
+        beneficiaries.find(
+          (mBeneficiary) =>
+            mBeneficiary.phone_number == beneficiary.phone_number,
+        ) != undefined;
+      if (is_exists) {
+        return;
+      }
+      const beneficiaries_copy: Array<BeneficiaryType> = JSON.parse(
+        JSON.stringify(beneficiaries),
+      );
+      beneficiaries_copy.push(beneficiary);
+
+      await AsyncStorage.setItem(
+        "data_beneficiaries",
+        JSON.stringify(beneficiaries_copy),
+      );
+    } catch (error) {}
+  };
+
+  const loadBeneficiaries = async () => {
+    try {
+      const beneficiariesString = await AsyncStorage.getItem(
+        "data_beneficiaries",
+      );
+      if (!beneficiariesString) {
+        return;
+      }
+
+      const beneficiariesData = JSON.parse(beneficiariesString);
+
+      console.log("beneficiaries: ", beneficiariesData);
+
+      setBeneficiaries(beneficiariesData);
+    } catch (error) {}
+  };
+
+  const handleBeneficiarySelect = useCallback(
+    (beneficiary: BeneficiaryType) => {
+      setBeneficiarySheetVisible(false);
+      setMobileNumber(beneficiary.phone_number);
+      setSelectedNetwork(beneficiary.network);
+    },
+    [],
+  );
+
   return (
     <PaperSafeView className="flex-1">
       <View>
@@ -154,64 +225,99 @@ const buydata = () => {
         </CustomAppbar>
       </View>
 
-      <View className="flex-1">
-        <View className="mt-2">
-          <Pressable
-            onPress={() => setBeneficiarySheetVisible(true)}
-            className="px-5 right-[-63%] items-center mb-2 flex-row "
-          >
-            <Text className="font-bold">Beneficiary</Text>
-            <MaterialIcons
-              name="keyboard-arrow-right"
-              size={24}
-              color={theme.colors.onBackground}
-            />
-          </Pressable>
-          <SelectNetworkComponent
-            onChangeText={setMobileNumber}
-            error={phoneError}
-            showNetworksSheet={selectNetworkSheetVisible}
-            onSelectNetwork={(data) => {
-              setSelectedNetworkName(data.name);
-              setselectedNetworkData(data);
-              setSelectedBundlePacks(undefined);
-            }}
-          />
-        </View>
-
-        <View>
-          <DataListContainer
-            networkId={selectedNetworkData?.id}
-            network={selectedNetworkName}
-            onPackSelect={setSelectedBundlePacks}
-            onPressSelectNetwork={() => setSelectNetworkSheetVisible(true)}
-          />
-
-          <View className="px-5">
-            <View
-              style={{ backgroundColor: theme.colors.primaryContainer }}
-              className=" rounded-lg h-auto py-2 mt-3"
+      <ScrollView>
+        <View className="flex-1">
+          <View className="mt-2">
+            <Pressable
+              onPress={() => setBeneficiarySheetVisible(true)}
+              className="px-5 right-[-53%] items-center mb-2 flex-row "
             >
-              <View className=" items-center flex-row justify-between px-3">
-                <Text className="">Save Beneficiary</Text>
-                <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+              <Text className="font-bold">All Beneficiaries</Text>
+              <MaterialIcons
+                name="keyboard-arrow-right"
+                size={24}
+                color={theme.colors.onBackground}
+              />
+            </Pressable>
+            <SelectNetworkComponent
+              onChangeText={setMobileNumber}
+              error={phoneError}
+              selectedNetworkProp={selectedNetwork}
+              value={mobileNumber}
+              showNetworksSheet={selectNetworkSheetVisible}
+              onSelectNetwork={(data) => {
+                setSelectedNetworkName(data.name);
+                setselectedNetworkData(data);
+                setSelectedBundlePacks(undefined);
+              }}
+            />
+          </View>
+
+          <View>
+            <DataListContainer
+              networkId={selectedNetworkData?.id}
+              network={selectedNetworkName}
+              onPackSelect={setSelectedBundlePacks}
+              onPressSelectNetwork={() => setSelectNetworkSheetVisible(true)}
+            />
+
+            <View className="px-5">
+              <View
+                style={{ backgroundColor: theme.colors.primaryContainer }}
+                className=" rounded-lg h-auto py-2 mt-3"
+              >
+                <View className=" items-center flex-row justify-between px-3">
+                  <Text className="">Save Beneficiary</Text>
+                  <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        <View className="px-5 pt-5">
-          <Button
-            onPress={handleBuy}
-            className="text-lg py-1"
-            style={{ borderRadius: 15 }}
-            labelStyle={{ fontSize: 16 }}
-            mode="contained"
-          >
-            Buy Now
-          </Button>
+          <View className="px-5 pt-5">
+            <Button
+              onPress={handleBuy}
+              className="text-lg py-1"
+              style={{ borderRadius: 15 }}
+              labelStyle={{ fontSize: 16 }}
+              mode="contained"
+            >
+              Buy Now
+            </Button>
+          </View>
+
+          <View className="px-5 mt-5 gap-y-2 mb-5">
+            <Text>Beneficiaries</Text>
+            <View
+              style={{
+                backgroundColor: theme.dark
+                  ? theme.colors.surfaceVariant
+                  : "white",
+              }}
+              className="px-0 rounded-lg mt-0"
+            >
+              {beneficiaries.map((item) => (
+                <View key={item.phone_number} className="px-5">
+                  <List.Item
+                    title={item.phone_number}
+                    onPress={() => handleBeneficiarySelect(item)}
+                    left={() => (
+                      <List.Icon
+                        icon={() => (
+                          <Image
+                            className="rounded-full h-[30px] w-[30px]"
+                            source={{ uri: item.network?.icon }}
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                </View>
+              ))}
+            </View>
+          </View>
         </View>
-      </View>
+      </ScrollView>
 
       <BottomSheet
         mode="center"
@@ -243,8 +349,25 @@ const buydata = () => {
           <View className="p-3">
             <Text className="text-lg">Select Beneficiary</Text>
           </View>
-          <View className="h-full w-full items-center justify-center">
-            <Text>No Data</Text>
+          <View className="h-full w-full">
+            {beneficiaries.map((item) => (
+              <View key={item.phone_number} className="px-5">
+                <List.Item
+                  title={item.phone_number}
+                  onPress={() => handleBeneficiarySelect(item)}
+                  left={() => (
+                    <List.Icon
+                      icon={() => (
+                        <Image
+                          className="rounded-full h-[30px] w-[30px]"
+                          source={{ uri: item.network?.icon }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </View>
+            ))}
           </View>
         </View>
       </BottomSheet>

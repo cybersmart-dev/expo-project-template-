@@ -1,4 +1,11 @@
-import { View, FlatList, TouchableOpacity, RefreshControl, Pressable } from "react-native";
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   Chip,
@@ -15,6 +22,7 @@ import { Timer } from "@/constants/Utils";
 import { Image } from "expo-image";
 import requests from "@/Network/HttpRequest";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 
 const BundlesList = {
   mtn: {
@@ -160,30 +168,40 @@ const DataPackComponent = ({
   return (
     <Pressable className="p-1 mt-2">
       <EaseView
-        animate={{ scale: clied ? 0.5 : 1 }}
+        animate={{ scale: clied ? 0.7 : 1 }}
         transition={{ type: "timing", duration: 700 }}
       >
         <TouchableOpacity
           onPress={handlePress}
           style={{
-            backgroundColor: theme.colors.surfaceVariant,
+            //backgroundColor: theme.colors.background,
             borderColor: selected ? theme.colors.primary : "transparent",
             borderWidth: 1.5,
             borderStyle: "dotted",
             boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.10)",
+            borderRadius: 12,
           }}
-          className="h-[120px] py-5 w-[100px]  rounded-lg items-center justify-center"
+          className="h-[120px] py-5 w-[100px]   items-center justify-center"
         >
-          <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
-            <Text numberOfLines={1} className="text-[10px]">
-              <Text className="text-black">+ ₦ {formatNumber(0.4)}</Text>
+          <View
+            style={{
+              borderRadius: 12,
+              borderColor: selected ? theme.colors.primary : "transparent",
+            }}
+            className="h-[120px] py-5 w-[100px]  items-center justify-center"
+           
+          >
+            <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
+              <Text numberOfLines={1} className="text-[10px]">
+                <Text className="text-black">+ ₦ {formatNumber(0.4)}</Text>
+              </Text>
+            </View>
+            <Text className="text-lg font-bold mt-3">{item.benefits}</Text>
+            <Text>{item.validity}</Text>
+            <Text className="text-[12px] mt-2">
+              <Text className="font-bold">₦{formatNumber(item.price)}</Text>
             </Text>
           </View>
-          <Text className="text-lg font-bold mt-3">{item.benefits}</Text>
-          <Text>{item.validity}</Text>
-          <Text className="text-[12px] mt-2">
-            <Text className="font-bold">₦{formatNumber(item.price)}</Text>
-          </Text>
         </TouchableOpacity>
       </EaseView>
     </Pressable>
@@ -209,12 +227,13 @@ const DataListContainer = ({
   const [selectedPack, setSelectedPack] = useState<DataPackType>();
   const [dataPlans, setDataPlans] = useState<Array<any>>([]);
   const [selectedBundleName, setSelectedBundleName] = useState("");
+  const theme = useTheme();
 
   useEffect(() => {
     if (network) {
       setDataBundles([]);
       setDataPlans([]);
-      setSelectedBundleName("")
+      setSelectedBundleName("");
       fetchDataPlans();
     }
   }, [network, networkId]);
@@ -251,34 +270,30 @@ const DataListContainer = ({
   return (
     <View className="w-full h-auto">
       <View className="flex-row items-center justify-around mt-5 px-2">
-        <FlatList
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={dataBundles}
-          renderItem={({ item }) => (
-            <View className="p-1 mr-3 pr-1">
-              <Chip
-                selected={true ? item.name == selectedBundleName : false}
-                onPress={() => {
-                  setSelectedBundleName(item.name);
-                  setDataPlans(item.plans);
-                }}
-              >
-                {item.name}
-              </Chip>
-            </View>
-          )}
-        />
+        {dataBundles.map((item) => (
+          <View className="p-1 mr-3 pr-1">
+            <Chip
+              selected={true ? item.name == selectedBundleName : false}
+              onPress={() => {
+                setSelectedBundleName(item.name);
+                setDataPlans(item.plans);
+              }}
+            >
+              {item.name}
+            </Chip>
+          </View>
+        ))}
       </View>
-      <Pressable className="px-3 space-x-1 mt-1 h-[290px]">
-        <FlatList
-          keyExtractor={(item) => `${item.id}`}
-          numColumns={3}
-          data={dataPlans}
-          refreshControl={<RefreshControl refreshing={false} onRefresh={fetchDataPlans} />}
-          renderItem={({ item }) => (
+      <Pressable className="px-3 gap-x-1 px-3 mt-1 h-[290px]">
+        <ScrollView
+          style={{
+           // backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white",
+          }}
+          className="px-0 rounded-lg mt-0 px-2"
+        >
+          {dataPlans.map((item) => (
             <DataPackComponent
+              key={item.id}
               selected={
                 `${item.id}|${item.benefits}` ==
                 `${selectedPack?.id}|${selectedPack?.benefits}`
@@ -289,34 +304,39 @@ const DataListContainer = ({
               }}
               item={item}
             />
-          )}
-          ListEmptyComponent={() =>
-            !fetchingPlans && !networkRequestFailed && (
-              <View className="h-full items-center justify-center w-full pt-5">
-                <Image
-                  style={{height: 50, width:50}}
-                  className="rounded-full"
-                  source={require("@/assets/images/gif/no_transactions_anim.webp")}
-                />
+          ))}
+        </ScrollView>
+        {networkId &&
+          dataPlans.length == 0 &&
+          !fetchingPlans &&
+          !networkRequestFailed && (
+            <View className="h-full items-center justify-center w-full pt-5">
+              <Image
+                style={{ height: 50, width: 50 }}
+                className="rounded-full"
+                source={require("@/assets/images/gif/no_transactions_anim.webp")}
+              />
 
-                <Text className="mt-3">
-                  <Text className="font-bold">' {network?.toUpperCase() +' '+ selectedBundleName} '</Text> data plans not available currently
-                </Text>
-                <Button
-                  onPress={fetchDataPlans}
-                  mode={"contained-tonal"}
-                  className="mt-4"
-                >
-                  Reload
-                </Button>
-              </View>
-            )
-          }
-        />
+              <Text className="mt-3">
+                <Text className="font-bold">
+                  ' {network?.toUpperCase() + " " + selectedBundleName} '
+                </Text>{" "}
+                data plans not available currently
+              </Text>
+              <Button
+                onPress={fetchDataPlans}
+                mode={"contained-tonal"}
+                className="mt-4"
+              >
+                Reload
+              </Button>
+            </View>
+          )}
+
         {networkRequestFailed && (
           <View className="h-full items-center justify-center w-full">
             <Image
-              style={{height: 50, width:50}}
+              style={{ height: 50, width: 50 }}
               className="rounded-full"
               source={require("@/assets/images/gif/no_connection_anim2.gif")}
             />
@@ -344,7 +364,12 @@ const DataListContainer = ({
         {!network && (
           <View className="h-full items-center justify-center w-full">
             <View className="gap-y-3 items-center w-full">
-              <Text style={{textAlign:"center"}} className="font-bold w-full text-center uppercase">Select network first!</Text>
+              <Text
+                style={{ textAlign: "center" }}
+                className="font-bold w-full text-center uppercase"
+              >
+                Select network first!
+              </Text>
               <Button onPress={onPressSelectNetwork} mode={"contained-tonal"}>
                 Select Now
               </Button>

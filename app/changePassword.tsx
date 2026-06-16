@@ -117,7 +117,7 @@ const changePassword = () => {
         <Text className="hidden text-center font-light">🔒</Text>
       </View>
 
-      <View className="flex-1">
+      
         <BottomLayout>
           <View className="mt-7 px-5 gap-y-2">
             <TextInput
@@ -152,7 +152,7 @@ const changePassword = () => {
             </Button>
           </View>
         </BottomLayout>
-      </View>
+      
     </PaperSafeView>
   );
 };

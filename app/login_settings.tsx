@@ -73,6 +73,7 @@ const login_settings = () => {
     setVerifyingPassword(false);
 
     if (response.token != undefined) {
+      setPasswordChangeModalVisible(false)
       router.push({
         pathname: "/changePassword",
         params: { realPassword: realPassword },

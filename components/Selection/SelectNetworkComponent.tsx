@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import BottomSheet from "../models/BottomSheet";
-import React,{ useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { NetworksType } from "@/constants/Types";
 import * as Contacts from "expo-contacts/legacy";
 import {
@@ -35,19 +35,22 @@ import { parse, isValid } from "phoneng";
 interface SelectNetworkComponentProps {
   onChangeText: (text: string) => void;
   showNetworksSheet?: boolean;
-  onSelectNetwork: (data: (typeof Networks)[0]) => void;
-  error?: boolean
+  selectedNetworkProp?: NetworksType[0];
+  onSelectNetwork: (data: NetworksType[0]) => void;
+  error?: boolean;
+  value?: string | undefined;
 }
 const SelectNetworkComponent = ({
   onSelectNetwork,
   showNetworksSheet = false,
   onChangeText,
-  error = false
+  value,
+  selectedNetworkProp,
+  error = false,
 }: SelectNetworkComponentProps) => {
   const [selectNetworkVisible, setselectNetworkVisible] = useState(false);
   const theme = useTheme();
-  const [selectedNetwork, setSelectedNetwork] =
-    useState<(typeof Networks)[0]>();
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworksType[0]>();
   const mobileNumberRef = useRef<TextInput>(null);
   const [mobileNumber, setMobileNumber] = useState("");
   const [contactsSheetVisible, setContactsSheetVisible] = useState(false);
@@ -62,6 +65,19 @@ const SelectNetworkComponent = ({
       loadNetworks();
     }, []),
   );
+
+  useEffect(() => {
+    if (value) {
+      setMobileNumber(value);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (selectedNetworkProp) {
+      setSelectedNetwork(selectedNetworkProp);
+      onSelectNetwork(selectedNetworkProp);
+    }
+  }, [selectedNetworkProp]);
 
   useEffect(() => {
     const result = parse(mobileNumber);
@@ -227,7 +243,10 @@ const SelectNetworkComponent = ({
   return (
     <View className="px-5">
       <View
-        style={{ borderColor: error ? theme.colors.error : theme.colors.onBackground, borderRadius: 15 }}
+        style={{
+          borderColor: error ? theme.colors.error : theme.colors.onBackground,
+          borderRadius: 15,
+        }}
         className="w-[100%] h-[55px] flex-row border  p-1 px-2"
       >
         <View className="flex-row items-center">

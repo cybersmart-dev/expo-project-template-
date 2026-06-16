@@ -1,17 +1,18 @@
 import { Pressable, ScrollView, TouchableOpacity, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Appbar,
   Button,
   HelperText,
   Icon,
+  List,
   Switch,
   Text,
   TextInput,
   useTheme,
 } from "react-native-paper";
 import { PaperSafeView } from "@/components/PaperView";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import SelectNetworkComponent from "@/components/Selection/SelectNetworkComponent";
 import { Keyboard } from "react-native";
@@ -20,7 +21,7 @@ import { showMessage } from "react-native-flash-message";
 import { formatNumber } from "@/constants/Formats";
 import BottomSheet from "@/components/models/BottomSheet";
 import BuyAirtimePreviewContainer from "@/components/Containers/BuyAirtimePreviewContainer";
-import { NetworksType } from "@/constants/Types";
+import { BeneficiaryType, NetworksType } from "@/constants/Types";
 import { Networks } from "@/constants/DemoList";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import { StatusBar } from "expo-status-bar";
@@ -30,6 +31,8 @@ import NetworkRequestErrorSheet from "@/components/models/NetworkRequestErrorShe
 import { Toast } from "@/constants/Toast";
 import * as Haptics from "expo-haptics";
 import CustomAppbar from "@/components/CustomAppbar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "react-native";
 
 const SuggestAmounts = [
   {
@@ -142,6 +145,9 @@ const buyairtime = () => {
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
   const [numberError, setNumberError] = useState(false);
   const [networkError, setNetworkError] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState<Array<BeneficiaryType>>(
+    [],
+  );
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
 
@@ -197,6 +203,13 @@ const buyairtime = () => {
     setPinSheetVisible(false);
 
     if (response.status == 1) {
+      if (isSwitchOn) {
+        const beneficiary: BeneficiaryType = {
+          phone_number: mobileNumber,
+          network: selectedNetwork,
+        };
+        saveBeneficiary(beneficiary);
+      }
       router.push({
         pathname: "/modals/transfer_response",
         params: {
@@ -222,6 +235,60 @@ const buyairtime = () => {
   useEffect(() => {
     setNumberError(false);
   }, [mobileNumber]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadBeneficiaries();
+    }, []),
+  );
+
+  const saveBeneficiary = async (beneficiary: BeneficiaryType) => {
+    try {
+      let is_exists =
+        beneficiaries.find(
+          (mBeneficiary) =>
+            mBeneficiary.phone_number == beneficiary.phone_number,
+        ) != undefined;
+      if (is_exists) {
+        return;
+      }
+      const beneficiaries_copy: Array<BeneficiaryType> = JSON.parse(
+        JSON.stringify(beneficiaries),
+      );
+      beneficiaries_copy.push(beneficiary);
+
+      await AsyncStorage.setItem(
+        "airtime_beneficiaries",
+        JSON.stringify(beneficiaries_copy),
+      );
+    } catch (error) {}
+  };
+
+  const loadBeneficiaries = async () => {
+    try {
+      const beneficiariesString = await AsyncStorage.getItem(
+        "airtime_beneficiaries",
+      );
+      if (!beneficiariesString) {
+        return;
+      }
+
+      const beneficiariesData = JSON.parse(beneficiariesString);
+
+      console.log("beneficiaries: ", beneficiariesData);
+
+      setBeneficiaries(beneficiariesData);
+    } catch (error) {}
+  };
+
+  const handleBeneficiarySelect = useCallback(
+    (beneficiary: BeneficiaryType) => {
+      setBeneficiarySheetVisible(false);
+      setMobileNumber(beneficiary.phone_number);
+      setSelectedNetwork(beneficiary.network);
+    },
+    [],
+  );
 
   return (
     <PaperSafeView onPress={() => Keyboard.dismiss()} className="flex-1 ">
@@ -254,9 +321,9 @@ const buyairtime = () => {
         <View>
           <Pressable
             onPress={() => setBeneficiarySheetVisible(true)}
-            className="px-5 right-[-63%] items-center mb-2 flex-row "
+            className="px-5 right-[-53%] items-center mb-2 flex-row "
           >
-            <Text className="font-bold">Beneficiary</Text>
+            <Text className="font-bold">All Beneficiaries</Text>
             <MaterialIcons
               name="keyboard-arrow-right"
               size={24}
@@ -265,7 +332,9 @@ const buyairtime = () => {
           </Pressable>
           <SelectNetworkComponent
             error={numberError}
+            selectedNetworkProp={selectedNetwork}
             showNetworksSheet={networkError}
+            value={mobileNumber}
             onChangeText={setMobileNumber}
             onSelectNetwork={(data) => setSelectedNetwork(data)}
           />
@@ -321,6 +390,37 @@ const buyairtime = () => {
             Buy Now
           </Button>
         </View>
+
+        <View className="px-5 mt-5 gap-y-2 mb-5">
+          <Text>Beneficiaries</Text>
+          <View
+            style={{
+              backgroundColor: theme.dark
+                ? theme.colors.surfaceVariant
+                : "white",
+            }}
+            className="px-0 rounded-lg mt-0"
+          >
+            {beneficiaries.map((item) => (
+              <View key={item.phone_number} className="px-5">
+                <List.Item
+                  title={item.phone_number}
+                  onPress={() => handleBeneficiarySelect(item)}
+                  left={() => (
+                    <List.Icon
+                      icon={() => (
+                        <Image
+                          className="rounded-full h-[30px] w-[30px]"
+                          source={{ uri: item.network?.icon }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </View>
+            ))}
+          </View>
+        </View>
       </ScrollView>
 
       <BottomSheet
@@ -354,8 +454,25 @@ const buyairtime = () => {
           <View className="p-3">
             <Text className="text-lg">Select Beneficiary</Text>
           </View>
-          <View className="h-full w-full items-center justify-center">
-            <Text>No Data</Text>
+          <View className="h-full w-full">
+            {beneficiaries.map((item) => (
+              <View key={item.phone_number} className="px-5">
+                <List.Item
+                  title={item.phone_number}
+                  onPress={() => handleBeneficiarySelect(item)}
+                  left={() => (
+                    <List.Icon
+                      icon={() => (
+                        <Image
+                          className="rounded-full h-[30px] w-[30px]"
+                          source={{ uri: item.network?.icon }}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </View>
+            ))}
           </View>
         </View>
       </BottomSheet>

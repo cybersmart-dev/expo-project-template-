@@ -4,175 +4,170 @@ import * as Crypto from "expo-crypto";
 import { Storage } from "@/constants/Storage";
 import * as Application from "expo-application";
 import { Platform } from "react-native";
+import { ErrorStatusCode } from "@/constants/StatusCodes";
 
 interface requestProps {
-    url: string;
-    method: "GET" | "POST";
-    data?: any;
-    headers?: HeadersInit | undefined;
-    add_header_token?: boolean;
+  url: string;
+  method: "GET" | "POST";
+  data?: any;
+  headers?: HeadersInit | undefined;
+  add_header_token?: boolean;
 }
 
 interface responseProps {
-    [x: string]: any;
-    status: number | undefined;
-    message?: string;
-    data?: any;
-    token?: string;
+  [x: string]: any;
+  status: number | undefined;
+  error_code?: number | undefined;
+  message?: string;
+  data?: any;
+  token?: string;
 }
 
 interface requestGetProps {
-    url: string;
-    add_header_token?: boolean;
+  url: string;
+  add_header_token?: boolean;
 }
 
 interface requestPostProps {
-    url: string;
-    data?: { tnxid: string } | Object;
-    add_header_token?: boolean;
+  url: string;
+  data?: { tnxid: string } | Object;
+  add_header_token?: boolean;
 }
 
 export default class requests {
-    constructor() {}
+  constructor() {}
 
-    static async request({
-        url,
-        method,
-        data,
-        headers,
-        add_header_token = true,
-    }: requestProps): Promise<responseProps> {
-
-        url = this.getUrl(url);
-        if (data) {
-            data.tnxid = this.generateUUID();
-        }
-        try {
-            const response = await fetch(url, {
-                method: method,
-                body: JSON.stringify(data),
-                headers: headers,
-            });
-
-            const responseData: responseProps = await response.json();
-
-            if (
-                responseData.message?.toLowerCase().match(/token/i) ||
-                (responseData.message
-                    ?.toLowerCase()
-                    .includes("Authorization") &&
-                    responseData.status == 0)
-            ) {
-                if (router.pathname != "/logins/emailLogin") {
-                    await this.clearToken();
-                    router.push("/logins/emailLogin");
-                    return { status: 0, message: "Session expired" };
-                }
-            }
-
-            return responseData;
-        } catch (error) {
-            return { status: undefined, message: `${error}` };
-        }
+  static async request({
+    url,
+    method,
+    data,
+    headers,
+    add_header_token = true,
+  }: requestProps): Promise<responseProps> {
+    url = this.getUrl(url);
+    if (data) {
+      data.tnxid = this.generateUUID();
     }
+    try {
+      const response = await fetch(url, {
+        method: method,
+        body: JSON.stringify(data),
+        headers: headers,
+      });
 
-    static async get({ url, add_header_token = true }: requestGetProps) {
-        const headers = await this.getheaders(add_header_token);
-        const response = await this.request({
-            url: url,
-            method: "GET",
-            headers: headers,
-        });
-
-        return response;
-    }
-
-    static async post({
-        url,
-        data,
-        add_header_token = true,
-    }: requestPostProps) {
-        const headers = await this.getheaders(add_header_token);
-
-        const response = await this.request({
-            url: url,
-            data: data,
-            method: "POST",
-            headers: headers,
-        });
-        return response;
-    }
-
-    static generateUUID() {
-        const uuid = Crypto.randomUUID();
-        return uuid;
-    }
-
-    static getUrl(path: string) {
-        if (__DEV__) {
-            // return "http://10.211.171.71:8000/api".concat(path)
-            //return "http://10.34.222.29:8000/api" + path;
-            //return "http://192.168.43.243:8000/api".concat(path);
-            return "http://172.17.128.1:8000/api".concat(path);
-        }
-        return "https://zaffy-ng.vercel.app/api" + path;
-    }
-
-    static async getToken() {
-        try {
-            const auth = await Storage.secureGet("auth");
-
-            if (auth) {
-                const token = JSON.parse(auth)?.token;
-                if (token) {
-                    return token;
-                }
-            }
-        } catch (error) {}
-    }
-
-    static async clearToken() {
-        try {
-            await Storage.secureRemove("auth");
-            await AsyncStorage.clear();
-            router.push("/logins/emailLogin");
-        } catch (error) {}
-    }
-
-    static async getheaders(add_header_token: boolean) {
-        const token = await this.getToken();
-        const device_id = await this.getDeviceID();
-        const pushToken = await this.getPushToken();
-
-        let headers: any = {
-            "content-type": "application/json",
+      const responseData: responseProps = await response.json();
+      
+      if (
+        responseData.status == 0 &&
+        responseData.error_code == ErrorStatusCode.SESSION_EXPIRED
+      ) {
+        router.push("/logins/emailLogin");
+        return {
+          status: 0,
+          message: "Session expired",
+          error_code: ErrorStatusCode.SESSION_EXPIRED,
         };
+      }
 
-        if (device_id) {
-            headers["device-id"] = device_id;
-        }
+      return responseData;
+    } catch (error) {
+      return { status: undefined, message: `${error}` };
+    }
+  }
 
-        if (pushToken) {
-            headers["x-notification-token"] = pushToken;
+  static async get({ url, add_header_token = true }: requestGetProps) {
+    const headers = await this.getheaders(add_header_token);
+    const response = await this.request({
+      url: url,
+      method: "GET",
+      headers: headers,
+    });
+
+    return response;
+  }
+
+  static async post({ url, data, add_header_token = true }: requestPostProps) {
+    const headers = await this.getheaders(add_header_token);
+
+    const response = await this.request({
+      url: url,
+      data: data,
+      method: "POST",
+      headers: headers,
+    });
+    return response;
+  }
+
+  static generateUUID() {
+    const uuid = Crypto.randomUUID();
+    return uuid;
+  }
+
+  static getUrl(path: string) {
+    if (__DEV__) {
+      // return "http://10.211.171.71:8000/api".concat(path)
+      //return "http://10.34.222.29:8000/api" + path;
+      //return "http://192.168.43.243:8000/api".concat(path);
+      return "http://172.17.128.1:8000/api".concat(path);
+    }
+    return "https://zaffy-ng.vercel.app/api" + path;
+  }
+
+  static async getToken() {
+    try {
+      const auth = await Storage.secureGet("auth");
+
+      if (auth) {
+        const token = JSON.parse(auth)?.token;
+        if (token) {
+          return token;
         }
-        if (add_header_token) {
-            headers.Authorization = `Token ${token}`;
-        }
-        return headers;
+      }
+    } catch (error) {}
+  }
+
+  static async clearToken() {
+    try {
+      await Storage.secureRemove("auth");
+      await AsyncStorage.clear();
+      router.push("/logins/emailLogin");
+    } catch (error) {}
+  }
+
+  static async getheaders(add_header_token: boolean) {
+    const token = await this.getToken();
+    const device_id = await this.getDeviceID();
+    const pushToken = await this.getPushToken();
+
+    let headers: any = {
+      "content-type": "application/json",
+    };
+
+    if (device_id) {
+      headers["device-id"] = device_id;
     }
 
-    static async getDeviceID() {
-        if (Platform.OS == "android") {
-            return Application.getAndroidId();
-        } else {
-            return await Application.getIosIdForVendorAsync();
-        }
+    if (pushToken) {
+      headers["x-notification-token"] = pushToken;
     }
+    if (add_header_token) {
+      headers.Authorization = `Token ${token}`;
+    }
+    return headers;
+  }
 
-    static async getPushToken() {
-        try {
-            const token = await Storage.secureGet("pushToken");
-            return token;
-        } catch (error) {}
+  static async getDeviceID() {
+    if (Platform.OS == "android") {
+      return Application.getAndroidId();
+    } else {
+      return await Application.getIosIdForVendorAsync();
     }
+  }
+
+  static async getPushToken() {
+    try {
+      const token = await Storage.secureGet("pushToken");
+      return token;
+    } catch (error) {}
+  }
 }

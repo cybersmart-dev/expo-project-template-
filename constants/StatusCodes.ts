@@ -1,0 +1,25 @@
+
+export const TransactionStatusCode = {
+    FAILED: 0,
+    SUCCESS: 1,
+    PENDING: 2
+}
+
+export const ResponseStatusCode = {
+    FAILED: 0,
+    SUCCESS: 1
+}
+
+export const ErrorStatusCode = {
+    WRONG_PIN: 1001,
+    WRONG_PASSWORD: 100,
+    ACCOUNT_BLOCKED: 101,
+    ACCOUNT_NOT_HAVE_PIN: 102,
+    ACCOUNT_NOT_HAVE_PASSWORD: 103,
+    INVALID_DEVICE_ID: 104,
+    KYC_REQUIRE: 105,
+    ACCOUNT_UPGRADE_REQUIRE: 106,
+    APP_UPDATE_REQUIRE: 107,
+    INVALID_LOGIN_DETAILS: 108,
+    SESSION_EXPIRED: 109
+}

@@ -86,7 +86,7 @@ const settings = () => {
                 onPress={() => setPinManagementSheetVisible(true)}
                 titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
                 descriptionStyle={{ opacity: 0.6 }}
-                title="Pin Settings"
+                title="Payment Settings"
                 description="Secure your account"
                 left={({ color }) => (
                   <View className="w-8 h-8 rounded-full items-center justify-center bg-[#1952bd31]">
