@@ -60,7 +60,7 @@ const BuyAirtimePreviewContainer = ({
                   <Text className="font-bold">Network</Text>
                 </DataTable.Cell>
                 <DataTable.Cell numeric>
-                  <View className="flex-row items-center space-x-2">
+                  <View className="flex-row items-center gap-x-2">
                     <Text>{networkData?.name.toUpperCase()}</Text>
                     <Image
                       className="h-7 w-7 rounded-full"
@@ -81,7 +81,7 @@ const BuyAirtimePreviewContainer = ({
                 <DataTable.Cell>
                   <Text className="font-bold">Amount</Text>
                 </DataTable.Cell>
-                <DataTable.Cell numeric>{formatNumber(amount)}</DataTable.Cell>
+                <DataTable.Cell numeric>₦{formatNumber(amount)}</DataTable.Cell>
               </DataTable.Row>
             </DataTable>
           </View>

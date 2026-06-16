@@ -24,7 +24,12 @@ import {
 import { HomeQuickActionsContainer } from "@/components/Containers/HomeQuickActionsContainer";
 import ServicesContainer from "@/components/Containers/ServicesContainer";
 import HomeSliderContainer from "@/components/Containers/HomeSliderContainer";
-import { router, useFocusEffect, useLocalSearchParams, usePathname } from "expo-router";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  usePathname,
+} from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
 import CreatePinContainer from "@/components/Containers/CreatePinContainer";
 import { StatusBar } from "expo-status-bar";
@@ -53,7 +58,7 @@ export default function Index() {
   const [fetchingInfo, setFetchingInfo] = useState(false);
   const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
-  const pathname = usePathname()
+  const pathname = usePathname();
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
@@ -120,10 +125,11 @@ export default function Index() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-    console.log("Fetching...", pathname);
-  }, [refreshKey]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, []),
+  );
 
   useFocusEffect(
     useCallback(() => {

@@ -48,8 +48,8 @@ const BuyDataPreviewComponent = ({
               <Text className="font-bold">Network</Text>
             </DataTable.Cell>
             <DataTable.Cell numeric>
-              <View className="flex-row items-center space-x-2">
-                <Text>{networkData?.name.toUpperCase()}</Text>
+              <View className="flex-row items-center gap-x-2">
+                <Text className="">{networkData?.name.toUpperCase()}</Text>
                 <Image
                   className="h-7 w-7 rounded-full"
                   source={{ uri: networkData?.icon }}
@@ -77,7 +77,7 @@ const BuyDataPreviewComponent = ({
               <Text className="font-bold">Amount</Text>
             </DataTable.Cell>
             <DataTable.Cell numeric>
-              {formatNumber(pack?.price == undefined ? 0.0 : pack?.price)}
+              ₦{formatNumber(pack?.price == undefined ? 0.0 : pack?.price)}
             </DataTable.Cell>
           </DataTable.Row>
 

@@ -1,4 +1,4 @@
-import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
+import { View, FlatList, TouchableOpacity, RefreshControl, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   Chip,
@@ -153,12 +153,12 @@ const DataPackComponent = ({
   const handlePress = async () => {
     onPress();
     setClied(true);
-    await new Timer().postDelayedAsync({ sec: 300 });
+    await new Timer().postDelayedAsync({ sec: 100 });
     setClied(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   };
   return (
-    <View className="p-1 mt-2">
+    <Pressable className="p-1 mt-2">
       <EaseView
         animate={{ scale: clied ? 0.5 : 1 }}
         transition={{ type: "timing", duration: 700 }}
@@ -170,7 +170,7 @@ const DataPackComponent = ({
             borderColor: selected ? theme.colors.primary : "transparent",
             borderWidth: 1.5,
             borderStyle: "dotted",
-            boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.13)",
+            boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.10)",
           }}
           className="h-[120px] py-5 w-[100px]  rounded-lg items-center justify-center"
         >
@@ -186,7 +186,7 @@ const DataPackComponent = ({
           </Text>
         </TouchableOpacity>
       </EaseView>
-    </View>
+    </Pressable>
   );
 };
 
@@ -271,7 +271,7 @@ const DataListContainer = ({
           )}
         />
       </View>
-      <View className="px-3 space-x-1 mt-1 h-[290px]">
+      <Pressable className="px-3 space-x-1 mt-1 h-[290px]">
         <FlatList
           keyExtractor={(item) => `${item.id}`}
           numColumns={3}
@@ -351,7 +351,7 @@ const DataListContainer = ({
             </View>
           </View>
         )}
-      </View>
+      </Pressable>
     </View>
   );
 };

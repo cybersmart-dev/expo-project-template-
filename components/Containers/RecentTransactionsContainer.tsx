@@ -92,13 +92,23 @@ const RecentTransactionsContainer = ({
   const [networkRequestFailed, setNetworkRequestFailed] = useState(false);
   const theme = useTheme();
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [refreshKey]);
+  const [loaded, setLoaded] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions();
+      setLoaded(true);
+
+      return () => {
+        setLoaded(false);
+      };
+    }, []),
+  );
+
 
   const fetchTransactions = useCallback(async () => {
     console.log("Fetching Recents...");
-    setFetching(true);
+     setFetching(true);
     setNetworkRequestFailed(false);
     const response = await requests.get({
       url: `/user/transactions/?service_type=RECENTS`,
@@ -167,19 +177,19 @@ const RecentTransactionsContainer = ({
           />
         ))}
         {transactions.length == 0 && !fetching && !networkRequestFailed && (
-          <View className="w-full mt-2">
-            <Text className="text-center font-[ArchivoBlackRegular] text-[11px]">
+          <View className="w-full py-2">
+            <Text style={{textAlign:"center"}} className="text-center font-[ArchivoBlackRegular] text-[11px]">
               NO DATA
             </Text>
           </View>
         )}
         {fetching && transactions.length == 0 && (
-          <View className="">
+          <View className="py-2">
             <ActivityIndicator />
           </View>
         )}
         {networkRequestFailed && transactions.length == 0 && (
-          <View className="w-full">
+          <View className="w-full py-2">
             <Text className="text-center">
               {"Failed to load transactions".toUpperCase()}
             </Text>
