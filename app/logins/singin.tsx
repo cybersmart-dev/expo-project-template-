@@ -10,7 +10,7 @@ import {
 import {
   Text,
   useTheme,
-  Button,
+  Button as RNFButton,
   Appbar,
   TextInput,
   ActivityIndicator,
@@ -38,6 +38,10 @@ import BottomLayout from "@/components/Containers/BottomLayout";
 import CustomAppbar from "@/components/CustomAppbar";
 import { useNotification } from "@/contexts/NotificationContext";
 import { ErrorStatusCode } from "@/constants/StatusCodes";
+import AlertDialog from "@/components/models/AlertDialog";
+import Button from "@/components/Buttons/Button";
+import ExitAppAlertDialog from "@/components/models/ExitAppAlertDialog";
+import LogoutAlertDialog from "@/components/models/LogoutAlertDialog";
 
 const PhoneLoginComponent = () => {
   const theme = useTheme<typeof LightTheme>();
@@ -59,6 +63,7 @@ const PhoneLoginComponent = () => {
   const { notification, expoPushToken, error } = useNotification();
   const [loaded, setLoaded] = useState(false);
   const [fingerPrintIconColor, setFingerPrintIconColor] = useState("");
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
 
   useEffect(() => {
     savePushToken();
@@ -409,84 +414,51 @@ const PhoneLoginComponent = () => {
           </View>
 
           <View className="">
-            {showProcessing && (
-              <Button
-                disabled
-                onPress={() => validateInput()}
-                className="text-lg py-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{ fontSize: 16 }}
-                mode="contained"
-              >
-                <View className="flex-row">
-                  <Text> </Text>
-                  <ActivityIndicator size={25} />
-                </View>
-              </Button>
-            )}
-
-            {!showProcessing && (
-              <Button
-                onPress={() => validateInput()}
-                mode={"contained"}
-                className="py-1"
-                style={{ borderRadius: 15 }}
-                labelStyle={{
-                  fontSize: 16,
-                }}
-              >
-                Login
-              </Button>
-            )}
+            <Button loading={showProcessing} onPress={() => validateInput()}>
+              Login
+            </Button>
 
             <View className="flex-row items-center justify-center pt-0 pb-2">
-              <Text>Not my account?</Text>
-              <Button disabled={showProcessing} onPress={() => removeAccount()}>
-                Logout
-              </Button>
+              <RNFButton
+                disabled={showProcessing}
+                onPress={() =>
+                  router.push({
+                    pathname: "/passwordreset/PasswordReset",
+                    params: { autoFillEmail: userInfo?.email },
+                  })
+                }
+              >
+                Forgot Password
+              </RNFButton>
+              <Text>|</Text>
+              <RNFButton
+                disabled={showProcessing}
+                onPress={() => setLogoutDialogVisible(true)}
+              >
+                Switch Account
+              </RNFButton>
             </View>
           </View>
         </View>
       </BottomLayout>
 
-      <Portal>
-        <Dialog
-          visible={exitDialogVisible}
-          onDismiss={() => setExitDialogVisible(false)}
-        >
-          <Dialog.Title>Exit</Dialog.Title>
-          <Dialog.Content>
-            <Text>Are you sure do you want exit</Text>
-          </Dialog.Content>
-          <Dialog.Actions className="">
-            <Button
-              buttonColor="#f41c1c6b"
-              textColor={theme.colors.onBackground}
-              className="w-20"
-              onPress={() => {
-                setExitDialogVisible(false);
-                BackHandler.exitApp();
-              }}
-              mode={"contained-tonal"}
-            >
-              Yes
-            </Button>
-            <Button
-              textColor="black"
-              buttonColor="lightgreen"
-              className="w-20"
-              onPress={() => setExitDialogVisible(false)}
-              mode={"contained-tonal"}
-            >
-              No
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
       <NetworkRequestErrorSheet
         visible={networkErrorSheetVisible}
         onDismiss={setNetworkErrorSheetVisible}
+      />
+
+      <LogoutAlertDialog
+        visible={logoutDialogVisible}
+        onDismiss={setLogoutDialogVisible}
+        onLogout={() => removeAccount()}
+        username={userInfo?.username}
+      />
+
+      {/* Exit dialog */}
+
+      <ExitAppAlertDialog
+        visible={exitDialogVisible}
+        onDismiss={setExitDialogVisible}
       />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />

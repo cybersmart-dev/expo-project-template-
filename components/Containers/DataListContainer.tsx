@@ -166,7 +166,7 @@ const DataPackComponent = ({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   };
   return (
-    <Pressable className="p-1 mt-2">
+    <Pressable style={{height: 100, width: "31%"}} className="p-1 mt-2 mb-8">
       <EaseView
         animate={{ scale: clied ? 0.7 : 1 }}
         transition={{ type: "timing", duration: 700 }}
@@ -178,7 +178,7 @@ const DataPackComponent = ({
             borderColor: selected ? theme.colors.primary : "transparent",
             borderWidth: 1.5,
             borderStyle: "dotted",
-            boxShadow: "0 3px 2px 2px rgba(0, 0, 0, 0.10)",
+            boxShadow: "0 1px 1px 1px rgba(0, 0, 0, 0.10)",
             borderRadius: 12,
           }}
           className="h-[120px] py-5 w-[100px]   items-center justify-center"
@@ -189,7 +189,6 @@ const DataPackComponent = ({
               borderColor: selected ? theme.colors.primary : "transparent",
             }}
             className="h-[120px] py-5 w-[100px]  items-center justify-center"
-           
           >
             <View className="bg-green-300 hidden w-full items-center p-1 absolute top-0 rounded-t-2xl">
               <Text numberOfLines={1} className="text-[10px]">
@@ -270,41 +269,40 @@ const DataListContainer = ({
   return (
     <View className="w-full h-auto">
       <View className="flex-row items-center justify-around mt-5 px-2">
-        {dataBundles.map((item) => (
-          <View className="p-1 mr-3 pr-1">
-            <Chip
-              selected={true ? item.name == selectedBundleName : false}
-              onPress={() => {
-                setSelectedBundleName(item.name);
-                setDataPlans(item.plans);
-              }}
-            >
-              {item.name}
-            </Chip>
-          </View>
-        ))}
+        <ScrollView className="flex-row w-full" horizontal>
+          {dataBundles.map((item) => (
+            <View key={item?.name} className="p-1 mr-3 pr-1">
+              <Chip
+                selected={true ? item.name == selectedBundleName : false}
+                onPress={() => {
+                  setSelectedBundleName(item.name);
+                  setDataPlans(item.plans);
+                }}
+              >
+                {item.name}
+              </Chip>
+            </View>
+          ))}
+        </ScrollView>
       </View>
       <Pressable className="px-3 gap-x-1 px-3 mt-1 h-[290px]">
-        <ScrollView
-          style={{
-           // backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white",
-          }}
-          className="px-0 rounded-lg mt-0 px-2"
-        >
-          {dataPlans.map((item) => (
-            <DataPackComponent
-              key={item.id}
-              selected={
-                `${item.id}|${item.benefits}` ==
-                `${selectedPack?.id}|${selectedPack?.benefits}`
-              }
-              onPress={() => {
-                setSelectedPack(item);
-                onPackSelect(item);
-              }}
-              item={item}
-            />
-          ))}
+        <ScrollView>
+          <View className="flex-row flex-wrap justify-between p-2">
+            {dataPlans.map((item) => (
+              <DataPackComponent
+                key={item.id}
+                selected={
+                  `${item.id}|${item.benefits}` ==
+                  `${selectedPack?.id}|${selectedPack?.benefits}`
+                }
+                onPress={() => {
+                  setSelectedPack(item);
+                  onPackSelect(item);
+                }}
+                item={item}
+              />
+            ))}
+          </View>
         </ScrollView>
         {networkId &&
           dataPlans.length == 0 &&

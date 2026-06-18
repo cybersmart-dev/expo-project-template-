@@ -23,6 +23,7 @@ interface TransactionsListComponentProps {
   amount: number;
   status: string;
   onPress?: () => void;
+   index?: number
 }
 
 type RecentTransactionsType = {
@@ -34,6 +35,7 @@ type RecentTransactionsType = {
   date: string;
   amount: number;
   status: string;
+ 
 };
 
 const RecentTransactionsListComponent = ({
@@ -45,6 +47,7 @@ const RecentTransactionsListComponent = ({
   description,
   onPress,
   status,
+  index
 }: TransactionsListComponentProps) => {
   return (
     <View key={id}>
@@ -76,7 +79,7 @@ const RecentTransactionsListComponent = ({
           </View>
         )}
       />
-      <Divider />
+     {index == 0 ?  <Divider /> : ""}
     </View>
   );
 };
@@ -158,11 +161,12 @@ const RecentTransactionsContainer = ({
         }}
         className="px-0 rounded-lg mt-0"
       >
-        {transactions.map((item: any) => (
+        {transactions.map((item: any, index) => (
           <RecentTransactionsListComponent
             key={item?.id}
             type={item.type}
             status={item.status}
+            index={index}
             title={item.service_type}
             description={item.description}
             side={item?.side}

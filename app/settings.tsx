@@ -20,11 +20,14 @@ import BottomSheet from "@/components/models/BottomSheet";
 import Octicons from "@expo/vector-icons/Octicons";
 import CustomAppbar from "@/components/CustomAppbar";
 import { StatusBar } from "expo-status-bar";
+import ExitAppAlertDialog from "@/components/models/ExitAppAlertDialog";
+import LogoutAlertDialog from "@/components/models/LogoutAlertDialog";
 
 const settings = () => {
   const theme = useTheme();
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
   const [checked, setChecked] = useState(false);
+  const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [changeAvatarDialogVisible, setChangeAvatarDialogVisible] =
     useState(false);
   const [pinManagementSheetVisible, setPinManagementSheetVisible] =
@@ -35,6 +38,8 @@ const settings = () => {
     useState(false);
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   const [activeTab, setActiveTab] = useState(1);
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+
   return (
     <PaperSafeView>
       <View>
@@ -158,7 +163,7 @@ const settings = () => {
                 description="Exit from app"
                 titleStyle={{ fontFamily: "ArchivoBlackRegular" }}
                 descriptionStyle={{ opacity: 0.6 }}
-                onPress={() => BackHandler.exitApp()}
+                onPress={() => setExitDialogVisible(true)}
                 left={({ color }) => (
                   <View className="w-8 h-8 rounded-full items-center justify-center bg-[#ba141427]">
                     <MaterialIcons
@@ -172,7 +177,7 @@ const settings = () => {
 
               <List.Item
                 title="Logout"
-                onPress={() => router.navigate("/logins/singin")}
+                onPress={() => setLogoutDialogVisible(true)}
                 titleStyle={{ color: "red" }}
                 descriptionStyle={{ opacity: 0.6 }}
                 left={({ color }) => (
@@ -320,6 +325,15 @@ const settings = () => {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      <LogoutAlertDialog
+        visible={logoutDialogVisible}
+        onDismiss={setLogoutDialogVisible}
+        onLogout={() =>  router.navigate("/logins/singin")}
+        username="your account"
+      />
+
+      <ExitAppAlertDialog visible={exitDialogVisible} onDismiss={setExitDialogVisible} />
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>
   );

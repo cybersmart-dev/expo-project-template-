@@ -181,7 +181,7 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
           <View>
             <View className="bg-green-500 w-18 rounded-full items-center py-px border-green-700 border">
               <Text style={{ alignItems: "center", color: "white" }}>
-                ACTIVE
+                Level 0
               </Text>
             </View>
           </View>

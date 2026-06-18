@@ -3,11 +3,11 @@ import { View, Image, BackHandler, Alert } from "react-native";
 import {
   Text,
   useTheme,
-  Button,
   Appbar,
   ActivityIndicator,
   Dialog,
   Portal,
+  Button as RNFButton,
 } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -23,6 +23,8 @@ import * as WebBrowser from "expo-web-browser";
 import * as Notifications from "expo-notifications";
 import { useNotification } from "@/contexts/NotificationContext";
 import { Storage } from "@/constants/Storage";
+import ExitAppAlertDialog from "@/components/models/ExitAppAlertDialog";
+import Button from "@/components/Buttons/Button";
 
 const Index = () => {
   const theme = useTheme<typeof DarkTheme>();
@@ -32,7 +34,6 @@ const Index = () => {
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [loginCheckFinished, setLoginCheckFinished] = useState(false);
-  const [visible, setVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -47,16 +48,7 @@ const Index = () => {
   useFocusEffect(
     useCallback(() => {
       const back = BackHandler.addEventListener("hardwareBackPress", () => {
-        Alert.alert(
-          "Go Back",
-          "Are you sure do you want to go back?",
-          [
-            { text: "Yes", onPress: () => BackHandler.exitApp() },
-            { text: "No", onPress: () => null },
-          ],
-          { cancelable: true },
-        );
-
+        setExitDialogVisible(true);
         return true;
       });
       return () => {
@@ -90,7 +82,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-      savePushToken();
+    savePushToken();
   }, [expoPushToken]);
 
   const savePushToken = async () => {
@@ -100,10 +92,10 @@ const Index = () => {
       }
     } catch (error) {}
   };
-  
+
   const showTestNotification = () => {
     alert(expoPushToken);
-    savePushToken()
+    savePushToken();
 
     Notifications.scheduleNotificationAsync({
       content: {
@@ -158,13 +150,13 @@ const Index = () => {
               animate={{ translateX: loaded ? 0 : 200 }}
               transition={{ type: "timing", duration: 1000 }}
             >
-              <Button
+              <RNFButton
                 onPress={showTestNotification}
                 mode={"contained-tonal"}
                 className="mr-2"
               >
                 Skip
-              </Button>
+              </RNFButton>
             </EaseView>
           </Appbar>
           <View className="absolute top-[80px] space-y-1 w-full items-center justify-center">
@@ -244,33 +236,11 @@ const Index = () => {
           </View>
 
           <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-15">
-            <Button
-              onPress={() => router.push("/logins/emailLogin")}
-              // icon={({ color }) => (
-              //   <Fontisto name="email" size={24} color={color} />
-              // )}
-              className="p-1 py-1 flex-[0.5] bg-[#8181f166]"
-              style={{
-                borderRadius: 15,
-              }}
-              labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-              mode="outlined"
-            >
+            <Button onPress={() => router.push("/logins/emailLogin")} mode={"outlined"}>
               Login
             </Button>
 
-            <Button
-              onPress={() => router.push("/singup")}
-              // icon={({ color }) => (
-              //   <AntDesign name="mobile" size={24} color={color} />
-              // )}
-              mode={"outlined"}
-              className="p-1 flex-[0.5] py-1 bg-[#ffa60042]"
-              style={{
-                borderRadius: 15,
-              }}
-              labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
-            >
+            <Button onPress={() => router.push("/singup")} mode={"outlined"}>
               SingUp
             </Button>
 
@@ -282,13 +252,8 @@ const Index = () => {
                     "https://wa.me/+2347026426748",
                   );
                 }}
-                // icon={() => <IconButton icon={"face-agent"} />}
                 mode={"outlined"}
-                className="p-1 py-0"
-                style={{
-                  borderRadius: 15,
-                }}
-                labelStyle={{ fontSize: 16, color: theme.colors.onBackground }}
+                backgroundColor={theme.colors.outline}
               >
                 Contact Support
               </Button>
@@ -302,6 +267,11 @@ const Index = () => {
           <ActivityIndicator size={50} />
         </View>
       )}
+
+      <ExitAppAlertDialog
+        visible={exitDialogVisible}
+        onDismiss={setExitDialogVisible}
+      />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

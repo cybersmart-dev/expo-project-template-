@@ -1,6 +1,7 @@
 import { LightTheme } from "@/app/_layout";
 import { formatNumber } from "@/constants/Formats";
 import { Timer } from "@/constants/Utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
@@ -21,6 +22,8 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import * as Clipboard from "expo-clipboard";
+import { Toast } from "@/constants/Toast";
 
 const AnimatedButton = createAnimatedComponent(Button);
 
@@ -45,6 +48,11 @@ const BalanceContainer = ({
   const colorScheme = useColorScheme();
   const theme = useTheme<typeof LightTheme>();
   const bounce = useSharedValue(0);
+  const [virtualAccounts, setVirtualAccounts] = useState<{
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+  }>();
 
   let addMoneyWidthTimer = useRef(0);
   const addMoneyWidthX = useSharedValue(0);
@@ -95,32 +103,64 @@ const BalanceContainer = ({
     return [theme.colors.primary, theme.colors.primary, theme.colors.accent];
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      getVirtualAccounts();
+      return () => {};
+    }, []),
+  );
+
+  const getVirtualAccounts = async () => {
+    try {
+      const userInfoString = await AsyncStorage.getItem("userInfo");
+      if (userInfoString) {
+        const userInfo = JSON.parse(userInfoString);
+        const virtualAccounts: Array<any> = userInfo.virtual_accounts || [];
+
+        setVirtualAccounts(virtualAccounts[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching virtual accounts:", error);
+    }
+  };
+
+  const copyAccountNumner = useCallback(async () => {
+    console.log("account: ", virtualAccounts?.accountNumber);
+
+    if (virtualAccounts?.accountNumber) {
+      await Clipboard.setStringAsync(virtualAccounts?.accountNumber);
+      Toast.success({ title: "Copied" });
+      return;
+    }
+    Toast.dangerHapticsAsync({ title: "Failed to copy account number" });
+  }, [virtualAccounts]);
+
   return (
     <LinearGradient
       colors={getColors()}
       start={{ x: 1, y: 0.5 }}
       end={{ x: -0.2, y: 1.2 }}
-      style={{ borderRadius: 12 }}
-      className="relative h-[130px] w-full rounded-lg py-5 mt-0  p-4 "
+      style={{ borderRadius: 12, height: "auto", minHeight: 150 }}
+      className="relative w-full rounded-lg pb-5 mt-0  p-4 "
     >
       <View>
-        <View className="flex-row items-center">
-          <Text
-            style={{ color: "white" }}
-            className="opacity-75 text-[15px] mr-0 text-white"
+        {virtualAccounts ? (
+          <Pressable
+            onPress={copyAccountNumner}
+            className="items-center flex-row"
           >
-            Total Assets
-          </Text>
-          <IconButton
-            className="opacity-75"
-            size={17}
-            iconColor="white"
-            icon={hideBalance ? "eye-off-outline" : "eye-outline"}
-            onPress={onHideBalanceToggle}
-          />
-        </View>
+            <Text style={{ color: "white" }}>
+              {virtualAccounts?.bankName} | {virtualAccounts?.accountNumber}
+            </Text>
+            <Pressable className="ml-2">
+              <Icon color="white" source={"content-copy"} size={15} />
+            </Pressable>
+          </Pressable>
+        ) : (
+          ""
+        )}
 
-        <View className="-mt-2 flex-row items-center">
+        <View className="flex-row items-center mt-3">
           {hideBalance ? (
             <Text
               style={{ color: "white" }}
@@ -130,40 +170,37 @@ const BalanceContainer = ({
             </Text>
           ) : (
             <Text
-              style={{ color: "white" }}
-              className="text-3xl font-[ArchivoBlackRegular]"
+              style={{ color: "white", fontWeight: "bold" }}
+              className="text-4xl font-[ArchivoBlackRegular]"
             >
               ₦{formatNumber(userInfo?.wallet?.balance) || "0.00"}{" "}
             </Text>
           )}
+          <Pressable onPress={onHideBalanceToggle}>
+            <Icon
+              size={17}
+              color="white"
+              source={hideBalance ? "eye-outline" : "eye-off-outline"}
+            />
+          </Pressable>
         </View>
       </View>
 
-      <View className="absolute p-3 flex bottom-0 right-0 gap-y-3 items-center">
-        <EaseView
-          animate={{ rotate: fetchingInfo ? 360 : 0 }}
-          transition={{ duration: 2000, type: "timing" }}
-          style={{ alignSelf: "flex-end" }}
-          className="mr-3 right-0"
-        >
-          <Pressable onPress={fetchInfo}>
-            <Icon size={24} color="white" source={"sync"} />
-          </Pressable>
-        </EaseView>
+     
+        <View className="flex-row justify-around mt-5 w-full">
+          <Button onPress={() => router.push("/widthdraw")} icon={"bank"} mode={"contained-tonal"}>
+            Withdraw
+          </Button>
 
-        <Animated.View>
-          <Pressable
-          onPress={() => router.push("/add_money")}
-            style={{ backgroundColor: theme.colors.primaryContainer }}
-            className="h-[33px] w-[130px] rounded-full items-center justify-center px-2"
+          <Button
+            icon={"plus"}
+            onPress={() => router.push("/add_money")}
+            mode={"contained-tonal"}
           >
-            <View className="w-full flex-row items-center justify-around">
-              <Icon size={20} source={"plus"} />
-              <Text numberOfLines={1} className="uppercase">Add Money</Text>
-            </View>
-          </Pressable>
-        </Animated.View>
-      </View>
+            Add Money
+          </Button>
+        </View>
+      
     </LinearGradient>
   );
 };

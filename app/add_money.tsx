@@ -46,7 +46,6 @@ const add_money = () => {
       if (userInfoString) {
         const userInfo = JSON.parse(userInfoString);
         const virtualAccounts = userInfo.virtual_accounts || [];
-        console.log("Virtual Accounts:", virtualAccounts);
         setVirtualAccounts(virtualAccounts);
       }
     } catch (error) {

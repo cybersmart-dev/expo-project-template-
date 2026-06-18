@@ -145,6 +145,7 @@ const buyairtime = () => {
   const [isSwitchOn, setIsSwitchOn] = React.useState(true);
   const [numberError, setNumberError] = useState(false);
   const [networkError, setNetworkError] = useState(false);
+  const [cashbashEneble, setCashbashEneble] = useState(false)
   const [beneficiaries, setBeneficiaries] = useState<Array<BeneficiaryType>>(
     [],
   );
@@ -196,6 +197,7 @@ const buyairtime = () => {
         network_id: selectedNetwork?.id,
         number: mobileNumber,
         pin: pin,
+        use_cashback: cashbashEneble
       },
     });
 
@@ -425,12 +427,13 @@ const buyairtime = () => {
 
       <BottomSheet
         visible={buyAirtimePreviewVisible}
-        height={"50%"}
+        height={"auto"}
         onDismiss={setbuyAirtimePreviewVisible}
       >
         <View>
           <BuyAirtimePreviewContainer
             networkData={selectedNetwork}
+            onCashBack={setCashbashEneble}
             amount={toNumber(amount)}
             onConfirm={handleConfirm}
             mobileNumber={mobileNumber}

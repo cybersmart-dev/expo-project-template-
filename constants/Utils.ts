@@ -1,8 +1,6 @@
 import { NetworksType } from "./Types";
 import { parse } from "phoneng";
 
-
-
 export function isValidMobileNumber(mobileNumber: string) {
   if (!mobileNumber) {
     return false;
@@ -113,4 +111,12 @@ export const getNetworkImageByNumber = (
     }
   }
   return "";
+};
+
+export const isValidEmail = (email: any) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) {
+    return false;
+  }
+  return true;
 };

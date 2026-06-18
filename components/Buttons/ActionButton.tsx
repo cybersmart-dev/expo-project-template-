@@ -70,7 +70,7 @@ const ActionButton = ({ icon, label, width=60, onPress }: ActionButtonProps) => 
       <TouchableOpacity onPress={onPress}>
         <Avatar.Icon
           size={45}
-          style={{ backgroundColor: getColor() }}
+          style={{ backgroundColor: theme.colors.secondaryContainer }}
           color={getIconColor()}
           icon={icon}
         />

@@ -107,8 +107,8 @@ export default class requests {
     if (__DEV__) {
       // return "http://10.211.171.71:8000/api".concat(path)
       //return "http://10.34.222.29:8000/api" + path;
-      //return "http://192.168.43.243:8000/api".concat(path);
-      return "http://172.17.128.1:8000/api".concat(path);
+      return "http://192.168.43.243:8000/api".concat(path);
+      //return "http://172.17.128.1:8000/api".concat(path);
     }
     return "https://zaffy-ng.vercel.app/api" + path;
   }

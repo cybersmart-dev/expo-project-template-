@@ -18,7 +18,7 @@ import {
   Portal,
   Dialog,
 } from "react-native-paper";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { EaseView } from "react-native-ease";
 import BottomLayout from "@/components/Containers/BottomLayout";
@@ -31,6 +31,9 @@ import Processing from "@/components/models/Processing";
 import { useCounter } from "@/constants/Hooks";
 import CustomAppbar from "@/components/CustomAppbar";
 import AnimatedTransLogo from "@/components/Animations/AnimatedTransLogo";
+import { isValidEmail } from "@/constants/Utils";
+import AlertDialog from "@/components/models/AlertDialog";
+import GoBackAlertDialog from "@/components/models/GoBackAlertDialog";
 
 const PasswordReset = () => {
   const theme = useTheme();
@@ -39,7 +42,8 @@ const PasswordReset = () => {
     useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
   const [otpSended, setOtpSended] = useState(false);
-  const [emailError, setEmailError] = useState(false)
+  const [emailError, setEmailError] = useState(false);
+  const { autoFillEmail } = useLocalSearchParams();
   const [resendOtpProcessing, setResendOtpProcessing] = useState(false);
   const { resendCount, startCounter } = useCounter({ count: 30 });
 
@@ -86,7 +90,7 @@ const PasswordReset = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email.trim())) {
-      setEmailError(true)
+      setEmailError(true);
       Toast.danger({
         title: "Email Error",
         body: "Please Enter valid email Address",
@@ -94,14 +98,21 @@ const PasswordReset = () => {
       return;
     }
 
-    setEmailError(false)
+    setEmailError(false);
     reset();
   };
 
   useEffect(() => {
-    setEmailError(false)
-  }, [email])
-  
+    setEmailError(false);
+  }, [email]);
+
+  useEffect(() => {
+    if (isValidEmail(autoFillEmail)) {
+      if (typeof autoFillEmail == "string") {
+        setEmail(autoFillEmail);
+      }
+    }
+  }, [autoFillEmail]);
 
   const reset = async () => {
     Keyboard.dismiss();
@@ -277,7 +288,7 @@ const PasswordReset = () => {
                   fontSize: 13,
                   marginBottom: 30,
                   opacity: 0.5,
-                  textAlign:"center"
+                  textAlign: "center",
                 }}
                 className="text-center place-items-center grid"
               >
@@ -356,6 +367,7 @@ const PasswordReset = () => {
                   error={emailError}
                   style={{ backgroundColor: "transparent" }}
                   mode="outlined"
+                  value={email}
                   outlineStyle={{ borderRadius: 15 }}
                   onChangeText={setEmail}
                   autoFocus={true}
@@ -519,40 +531,12 @@ const PasswordReset = () => {
       />
 
       <Processing visible={resendOtpProcessing} />
-      <Portal>
-        <Dialog
-          visible={exitDialogVisible}
-          onDismiss={() => setExitDialogVisible(false)}
-        >
-          <Dialog.Title>Go Back</Dialog.Title>
-          <Dialog.Content>
-            <Text>Are you sure do you want to leave this screen</Text>
-          </Dialog.Content>
-          <Dialog.Actions className="">
-            <Button
-              buttonColor="#f41c1c6b"
-              textColor={theme.colors.onBackground}
-              className="w-20"
-              onPress={() => {
-                setExitDialogVisible(false);
-                router.back();
-              }}
-              mode={"contained-tonal"}
-            >
-              Yes
-            </Button>
-            <Button
-              textColor="black"
-              buttonColor="lightgreen"
-              className="w-20"
-              onPress={() => setExitDialogVisible(false)}
-              mode={"contained-tonal"}
-            >
-              No
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+
+      <GoBackAlertDialog
+        visible={exitDialogVisible}
+        onDismiss={setExitDialogVisible}
+        onBack={() => router.back()}
+      />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

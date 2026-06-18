@@ -46,6 +46,7 @@ import { PaperSafeView } from "@/components/PaperView";
 import CustomAppbar from "@/components/CustomAppbar";
 import { useNotification } from "@/contexts/NotificationContext";
 import { Storage } from "@/constants/Storage";
+import ExitAppAlertDialog from "@/components/models/ExitAppAlertDialog";
 
 export default function Index() {
   const theme = useTheme();
@@ -279,40 +280,7 @@ export default function Index() {
         />
         <StatusBar style={theme.dark ? "light" : "dark"} />
       </EaseView>
-      <Portal>
-        <Dialog
-          visible={exitDialogVisible}
-          onDismiss={() => setExitDialogVisible(false)}
-        >
-          <Dialog.Title>Exit</Dialog.Title>
-          <Dialog.Content>
-            <Text>Are you sure do you want exit</Text>
-          </Dialog.Content>
-          <Dialog.Actions className="">
-            <Button
-              buttonColor="#f41c1c6b"
-              textColor={theme.colors.onBackground}
-              className="w-20"
-              onPress={() => {
-                setExitDialogVisible(false);
-                BackHandler.exitApp();
-              }}
-              mode={"contained-tonal"}
-            >
-              Yes
-            </Button>
-            <Button
-              textColor="black"
-              buttonColor="lightgreen"
-              className="w-20"
-              onPress={() => setExitDialogVisible(false)}
-              mode={"contained-tonal"}
-            >
-              No
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
+     <ExitAppAlertDialog visible={exitDialogVisible} onDismiss={setExitDialogVisible} />
     </PaperSafeView>
   );
 }
