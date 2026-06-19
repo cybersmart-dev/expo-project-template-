@@ -140,8 +140,8 @@ const BalanceContainer = ({
       colors={getColors()}
       start={{ x: 1, y: 0.5 }}
       end={{ x: -0.2, y: 1.2 }}
-      style={{ borderRadius: 12, height: "auto", minHeight: 150 }}
-      className="relative w-full rounded-lg pb-5 mt-0  p-4 "
+      style={{ borderTopLeftRadius: 15, borderTopRightRadius: 15, height: "auto", minHeight: 150 }}
+      className="relative w-full rounded-t-2xl pb-5 mt-0  p-4 "
     >
       <View>
         {virtualAccounts ? (
@@ -187,7 +187,7 @@ const BalanceContainer = ({
       </View>
 
      
-        <View className="flex-row justify-around mt-5 w-full">
+        <View className="flex-row justify-around mt-7 w-full gap-x-5">
           <Button onPress={() => router.push("/widthdraw")} icon={"bank"} mode={"contained-tonal"}>
             Withdraw
           </Button>

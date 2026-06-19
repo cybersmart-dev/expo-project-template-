@@ -1,41 +1,24 @@
 import BalanceContainer from "@/components/Containers/BalanceContainer";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
   TouchableOpacity,
   View,
   Image,
-  StatusBar as RNStatusBar,
   useColorScheme,
   BackHandler,
-  GestureResponderEvent,
   Pressable,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  useTheme,
-  Text,
-  Appbar,
-  Button,
-  Dialog,
-  Portal,
-} from "react-native-paper";
+import { useTheme, Text, Appbar, Icon } from "react-native-paper";
 import { HomeQuickActionsContainer } from "@/components/Containers/HomeQuickActionsContainer";
 import ServicesContainer from "@/components/Containers/ServicesContainer";
-import HomeSliderContainer from "@/components/Containers/HomeSliderContainer";
-import {
-  router,
-  useFocusEffect,
-  useLocalSearchParams,
-  usePathname,
-} from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import BottomSheet from "@/components/models/BottomSheet";
 import CreatePinContainer from "@/components/Containers/CreatePinContainer";
 import { StatusBar } from "expo-status-bar";
 import {} from "expo-image";
 import { EaseView } from "react-native-ease";
-import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as WebBrowser from "expo-web-browser";
 import requests from "@/Network/HttpRequest";
@@ -47,19 +30,28 @@ import CustomAppbar from "@/components/CustomAppbar";
 import { useNotification } from "@/contexts/NotificationContext";
 import { Storage } from "@/constants/Storage";
 import ExitAppAlertDialog from "@/components/models/ExitAppAlertDialog";
+import { formatNumber } from "@/constants/Formats";
+import AlertDialog from "@/components/models/AlertDialog";
+import Button from "@/components/Buttons/Button";
+import ActionButton from "@/components/Buttons/ActionButton";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import LargeActionButton from "@/components/Buttons/LargeActionButton";
 
 export default function Index() {
   const theme = useTheme();
   const colorScheme = useColorScheme();
   const { notification, expoPushToken, error } = useNotification();
-  const { backFrom } = useLocalSearchParams();
   const [hideBalance, setHideBalance] = useState(false);
   const [showPinSheet, setShowPinSheet] = useState(false);
+  const [
+    airtime2CashTransferOptionDialogVisible,
+    setAirtime2CashTransferOptionDialogVisible,
+  ] = useState(false);
   const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [fetchingInfo, setFetchingInfo] = useState(false);
   const [userInfo, setUserInfo] = useState<any | undefined>(undefined);
   const [refreshKey, setRefreshKey] = useState(0);
-  const pathname = usePathname();
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
 
@@ -129,7 +121,7 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-    }, []),
+    }, [refreshKey]),
   );
 
   useFocusEffect(
@@ -186,7 +178,6 @@ export default function Index() {
           scale: loaded ? 1 : 1.2,
         }}
         transition={{ type: "timing", duration: 500, easing: "linear" }}
-        // style={{ backgroundColor: theme.colors.background }}
         style={{ flex: 1 }}
       >
         <CustomAppbar>
@@ -228,8 +219,8 @@ export default function Index() {
           }
           className="pb-5 flex-1"
         >
-          <Pressable onPress={() => null}>
-            <View className="px-5 rounded-lg mt-3">
+          <Pressable>
+            <View className="px-5 rounded-t-2xl mt-3">
               <BalanceContainer
                 theme={theme}
                 fetchingInfo={fetchingInfo}
@@ -238,6 +229,28 @@ export default function Index() {
                 hideBalance={hideBalance}
                 onHideBalanceToggle={() => setHideBalance(!hideBalance)}
               />
+              <Pressable
+                onPress={() => setAirtime2CashTransferOptionDialogVisible(true)}
+                style={{ backgroundColor: theme.colors.primaryContainer }}
+                className="mt-2 rounded-b-2xl w-full px-3 flex-row items-center p-2 justify-between"
+              >
+                <View className="flex-row items-center gap-x-5">
+                  <Text className="opacity-75">Airtime2Cash</Text>
+
+                  <Text style={{ fontWeight: "bold" }}>
+                    ₦{formatNumber(userInfo?.wallet?.airtime2cash) || "0.00"}
+                  </Text>
+                </View>
+                <EaseView
+                  animate={{
+                    translateX: loaded ? 0 : -50,
+                    opacity: loaded ? 1 : 0,
+                  }}
+                  transition={{ duration: 1500, type: "timing" }}
+                >
+                  <Icon source={"arrow-right"} size={17} />
+                </EaseView>
+              </Pressable>
             </View>
 
             <View className="px-3 mt-3">
@@ -280,7 +293,64 @@ export default function Index() {
         />
         <StatusBar style={theme.dark ? "light" : "dark"} />
       </EaseView>
-     <ExitAppAlertDialog visible={exitDialogVisible} onDismiss={setExitDialogVisible} />
+      <ExitAppAlertDialog
+        visible={exitDialogVisible}
+        onDismiss={setExitDialogVisible}
+      />
+      <AlertDialog
+        visible={airtime2CashTransferOptionDialogVisible}
+        onDismiss={setAirtime2CashTransferOptionDialogVisible}
+        backgroundColor={theme.colors.surfaceVariant}
+        height={300}
+      >
+        <View className="h-full flex-1 justify-between">
+          <View className="items-center w-full mt-2">
+            <Text
+              style={{ fontFamily: "ArchivoBlackRegular" }}
+              className="font-bold  text-2xl uppercase"
+            >
+              Airtime2Cash
+            </Text>
+          </View>
+
+          <View className="px-3 w-full">
+            <Text
+              style={{ textAlign: "center", fontWeight: "bold" }}
+              className="opacity-75 text-2xl"
+            >
+              ₦{formatNumber(userInfo?.wallet?.airtime2cash) || "0.00"}
+            </Text>
+          </View>
+
+          <View className="flex-row px-2 gap-x-3 w-full items-center justify-center mb-3">
+            <LargeActionButton
+              onPress={() => {
+                setAirtime2CashTransferOptionDialogVisible(false);
+                router.push("/widthdraw");
+              }}
+              icon={"bank"}
+              label="Withdraw"
+              description="Transfer to your bank account"
+            />
+
+            <LargeActionButton
+              onPress={() => {
+                setAirtime2CashTransferOptionDialogVisible(false);
+                router.push("/transfer");
+              }}
+              icon={({ color }) => (
+                <FontAwesome6
+                  name="money-bill-transfer"
+                  size={24}
+                  color={color}
+                />
+              )}
+              description="Transfer to your zaffy wallet"
+              label="Transfer"
+            />
+          </View>
+        </View>
+      </AlertDialog>
     </PaperSafeView>
   );
 }

@@ -14,7 +14,6 @@ import FlashMessage from "react-native-flash-message";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import * as Notifications from "expo-notifications";
 
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldPlaySound: true,
@@ -180,6 +179,14 @@ function RootLayoutNav() {
               }}
             />
 
+            <Stack.Screen
+              name="transfer"
+              options={{
+                presentation: "containedModal",
+                title: "Transfer",
+                headerShown: false,
+              }}
+            />
 
             <Stack.Screen
               name="changePassword"
@@ -189,8 +196,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
-            
 
             <Stack.Screen
               name="settings"
@@ -342,7 +347,7 @@ function RootLayoutNav() {
               }}
             />
 
-             <Stack.Screen
+            <Stack.Screen
               name="login_settings"
               options={{
                 presentation: "containedModal",

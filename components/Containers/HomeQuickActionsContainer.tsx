@@ -12,6 +12,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Timer } from "@/constants/Utils";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 export const HomeQuickActionsContainer = () => {
   const theme = useTheme();
@@ -68,9 +69,18 @@ export const HomeQuickActionsContainer = () => {
     <Ionicons name="cash-outline" size={24} color={color} />
   ));
 
+  const TransferIcon = React.memo(({ color }) => (
+    <FontAwesome6 name="money-bill-transfer" size={24} color={color} />
+  ));
+
   return (
-    <View  className="px-3">
-      <View style={{backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white"}} className="flex-row items-center justify-between rounded-lg p-2">
+    <View className="px-3">
+      <View
+        style={{
+          backgroundColor: theme.dark ? theme.colors.surfaceVariant : "white",
+        }}
+        className="flex-row flex-wrap justify-between p-2 gap-y-2 rounded-3xl"
+      >
         <ActionButton
           label="Data"
           onPress={goToBuyData}
@@ -81,6 +91,12 @@ export const HomeQuickActionsContainer = () => {
           label="Airtime"
           onPress={goToBuyAirtime}
           icon={({ color }) => <MobileIcon color={color} />}
+        />
+
+        <ActionButton
+          label="Trasnfer"
+          onPress={goToSellAirtime}
+          icon={({ color }) => <TransferIcon color={color} />}
         />
 
         <ActionButton

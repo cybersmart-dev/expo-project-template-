@@ -1,4 +1,4 @@
-import { View, Text, StatusBar as RNStatusBar, DimensionValue } from "react-native";
+import { View, Text, StatusBar as RNStatusBar, DimensionValue, ColorValue } from "react-native";
 import React, { useCallback } from "react";
 import { Modal, Portal, useTheme } from "react-native-paper";
 
@@ -7,8 +7,9 @@ interface AlertDialogProps {
   visible: boolean;
   onDismiss?: (value: boolean) => void;
   height?: DimensionValue | undefined
+  backgroundColor?: ColorValue | undefined
 }
-const AlertDialog = ({ visible, children, onDismiss, height = "auto" }: AlertDialogProps) => {
+const AlertDialog = ({ visible, children, onDismiss, height = "auto", backgroundColor }: AlertDialogProps) => {
   const theme = useTheme();
   const handleDismiss = useCallback(() => {
     if (onDismiss) {
@@ -24,7 +25,7 @@ const AlertDialog = ({ visible, children, onDismiss, height = "auto" }: AlertDia
             style={{
               height: height,
               minHeight:200,
-              backgroundColor: theme.colors.background,
+              backgroundColor: backgroundColor ? backgroundColor :  theme.colors.background,
             }}
             className="w-full rounded-2xl p-2"
           >
