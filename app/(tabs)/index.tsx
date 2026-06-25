@@ -300,7 +300,7 @@ export default function Index() {
       <AlertDialog
         visible={airtime2CashTransferOptionDialogVisible}
         onDismiss={setAirtime2CashTransferOptionDialogVisible}
-        backgroundColor={theme.colors.surfaceVariant}
+       
         height={300}
       >
         <View className="h-full flex-1 justify-between">

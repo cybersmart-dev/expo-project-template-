@@ -37,7 +37,7 @@ import GoBackAlertDialog from "@/components/models/GoBackAlertDialog";
 
 const PasswordReset = () => {
   const theme = useTheme();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState<any>("");
   const [networkErrorSheetVisible, setNetworkErrorSheetVisible] =
     useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
@@ -107,12 +107,18 @@ const PasswordReset = () => {
   }, [email]);
 
   useEffect(() => {
-    if (isValidEmail(autoFillEmail)) {
-      if (typeof autoFillEmail == "string") {
-        setEmail(autoFillEmail);
-      }
-    }
+    loadAutoFillEmail()
   }, [autoFillEmail]);
+
+  const loadAutoFillEmail = () => {
+    if (!autoFillEmail) {
+      return
+    }
+    if (!isValidEmail(autoFillEmail)) {
+      return
+    }
+    setEmail(autoFillEmail)
+  }
 
   const reset = async () => {
     Keyboard.dismiss();

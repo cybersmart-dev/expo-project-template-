@@ -1,4 +1,4 @@
-import { View, Text, TextInputSubmitEditingEvent } from "react-native";
+import { View, Text, TextInputSubmitEditingEvent, KeyboardTypeOptions } from "react-native";
 import React from "react";
 import { HelperText, TextInput as RNFTextInput } from "react-native-paper";
 import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
@@ -13,6 +13,7 @@ interface TextInputProps {
   right?: IconSource;
   placeholder?: string | undefined;
   errorMessage?: string;
+  keyboardType?: KeyboardTypeOptions | undefined
 }
 const TextInput = ({
   secureTextEntry,
@@ -24,6 +25,7 @@ const TextInput = ({
   right,
   placeholder,
   errorMessage,
+  keyboardType
 }: TextInputProps) => {
   return (
     <View>
@@ -31,6 +33,7 @@ const TextInput = ({
         placeholder={placeholder}
         style={{ backgroundColor: "transparent" }}
         secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
         error={error}
         left={
           left ? (

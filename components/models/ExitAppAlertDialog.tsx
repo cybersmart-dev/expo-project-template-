@@ -7,14 +7,23 @@ import { Text } from "react-native-paper";
 interface ExitAppAlertDialogProps {
   visible: boolean;
   onDismiss?: ((value: boolean) => void) | undefined;
+  onExit?: () => void
 }
 const ExitAppAlertDialog = ({
   visible,
   onDismiss,
+  onExit
 }: ExitAppAlertDialogProps) => {
   const handleDismiss = useCallback(() => {
     if (onDismiss) {
       onDismiss(false);
+    }
+  }, []);
+
+  const handleExit = useCallback(() => {
+    BackHandler.exitApp()
+    if (onExit) {
+      onExit();
     }
   }, []);
 
@@ -40,7 +49,7 @@ const ExitAppAlertDialog = ({
           <Button
             backgroundColor={"red"}
             textColor={"white"}
-            onPress={() => BackHandler.exitApp()}
+            onPress={handleExit}
           >
             YES
           </Button>

@@ -30,7 +30,7 @@ const LargeActionButton = ({
     <Pressable
       onPress={onPress}
       style={{
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.secondaryContainer,
         width: width,
         maxWidth: 120,
       }}
@@ -49,7 +49,7 @@ const LargeActionButton = ({
           {description}
         </Text>
       )}
-      <Text className="text-lg">{label}</Text>
+      <Text numberOfLines={1} lineBreakMode={"middle"} style={{fontWeight: "bold"}} className="text-lg mt-1 uppercase">{label}</Text>
     </Pressable>
   );
 };

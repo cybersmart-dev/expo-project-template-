@@ -187,7 +187,7 @@ const BalanceContainer = ({
       </View>
 
      
-        <View className="flex-row justify-around mt-7 w-full gap-x-5">
+        <View className="flex-row justify-around mt-7 w-full gap-x-2">
           <Button onPress={() => router.push("/widthdraw")} icon={"bank"} mode={"contained-tonal"}>
             Withdraw
           </Button>

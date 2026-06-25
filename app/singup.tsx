@@ -20,6 +20,7 @@ import {
   LayoutChangeEvent,
   Pressable,
   FlatList,
+  BackHandler,
 } from "react-native";
 import { EaseView } from "react-native-ease";
 import FlashMessage, { showMessage } from "react-native-flash-message";
@@ -35,6 +36,7 @@ import {
 import { isValid } from "phoneng";
 import BottomSheet from "@/components/models/BottomSheet";
 import * as Haptics from "expo-haptics";
+import GoBackAlertDialog from "@/components/models/GoBackAlertDialog";
 
 const Singup = () => {
   const theme = useTheme();
@@ -50,6 +52,7 @@ const Singup = () => {
   const [stateErrorShow, setStateErrorShow] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState();
   const [step, setStep] = useState<"first" | "second">("first");
+  const [exitDialogVisible, setExitDialogVisible] = useState(false);
   const [refCode, setRefCode] = useState("");
   const [countrySelectBottomSheetVisible, setCountrySelectBottomSheetVisible] =
     useState(false);
@@ -106,6 +109,24 @@ const Singup = () => {
         setLoaded(false);
       };
     }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      const back = BackHandler.addEventListener("hardwareBackPress", () => {
+        if (fullName.length <= 0) {
+          router.back()
+          return true;
+        }
+        if (step == "second") {
+          setStep("first");
+          return true;
+        }
+        setExitDialogVisible(true);
+        return true;
+      });
+      return () => back.remove();
+    }, [step, fullName]),
   );
 
   const singupNext = () => {
@@ -616,6 +637,13 @@ const Singup = () => {
           </View>
         </View>
       </BottomSheet>
+
+      <GoBackAlertDialog
+        description="You have unfinished action are you sure do you want to go back?"
+        visible={exitDialogVisible}
+        onDismiss={setExitDialogVisible}
+        onBack={() => router.back()}
+      />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />
     </PaperSafeView>

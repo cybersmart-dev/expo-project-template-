@@ -450,7 +450,10 @@ const PhoneLoginComponent = () => {
       <LogoutAlertDialog
         visible={logoutDialogVisible}
         onDismiss={setLogoutDialogVisible}
-        onLogout={() => removeAccount()}
+        onLogout={() => {
+          removeAccount()
+          setLogoutDialogVisible(false)
+        }}
         username={userInfo?.username}
       />
 
@@ -459,6 +462,7 @@ const PhoneLoginComponent = () => {
       <ExitAppAlertDialog
         visible={exitDialogVisible}
         onDismiss={setExitDialogVisible}
+        onExit={() => setExitDialogVisible(false)}
       />
 
       <StatusBar style={theme.dark ? "light" : "dark"} />

@@ -236,24 +236,25 @@ const Index = () => {
           </View>
 
           <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-15">
-            <Button onPress={() => router.push("/logins/emailLogin")} mode={"outlined"}>
+            <Button backgroundColor={theme.colors.accent} onPress={() => router.push("/logins/emailLogin")} >
               Login
             </Button>
 
-            <Button onPress={() => router.push("/singup")} mode={"outlined"}>
+            <Button  onPress={() => router.push("/singup")} mode={"outlined"}>
               SingUp
             </Button>
 
             <View>
               <Button
+                
                 onPress={async (e) => {
                   e.preventDefault();
                   await WebBrowser.openBrowserAsync(
                     "https://wa.me/+2347026426748",
                   );
                 }}
-                mode={"outlined"}
-                backgroundColor={theme.colors.outline}
+               mode={"outlined"}
+                
               >
                 Contact Support
               </Button>
