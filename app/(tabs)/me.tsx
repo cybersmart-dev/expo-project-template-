@@ -294,14 +294,14 @@ const Me = () => {
           >
             <View className="gap-y-1">
               <Text style={{ color: "white", fontSize: 15 }}>
-                Bunus Balance
+                Bonus Balance
               </Text>
               <View className="flex-row items-center gap-x-1">
                 <Text
                   style={{ color: "white", fontSize: 20, textAlign: "center" }}
                   className=" font-[ArchivoBlackRegular]"
                 >
-                  ₦{formatNumber(userInfo?.wallet?.bunus) || "0.00"}{" "}
+                  ₦{formatNumber(userInfo?.wallet?.bonus) || "0.00"}{" "}
                 </Text>
                 <MaterialIcons
                   name="keyboard-arrow-right"

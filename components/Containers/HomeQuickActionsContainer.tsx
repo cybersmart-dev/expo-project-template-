@@ -53,6 +53,10 @@ export const HomeQuickActionsContainer = () => {
     router.push("/buy-airtime");
   }, []);
 
+  const goToTransfer = useCallback(() => {
+    router.push("/transfer");
+  }, []);
+
   const goToSellAirtime = useCallback(() => {
     router.push("/airtime2cash/airtime2cash");
   }, []);
@@ -95,7 +99,7 @@ export const HomeQuickActionsContainer = () => {
 
         <ActionButton
           label="Trasnfer"
-          onPress={goToSellAirtime}
+          onPress={goToTransfer}
           icon={({ color }) => <TransferIcon color={color} />}
         />
 

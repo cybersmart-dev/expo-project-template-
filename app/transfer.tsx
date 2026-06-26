@@ -6,7 +6,7 @@ import {
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
-import { Appbar, Icon, Text, useTheme } from "react-native-paper";
+import { Appbar, DataTable, Icon, Text, useTheme } from "react-native-paper";
 import CustomAppbar from "@/components/CustomAppbar";
 import { router, useFocusEffect } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -23,6 +23,7 @@ import { toNumber } from "@/constants/Utils";
 import requests from "@/Network/HttpRequest";
 import Processing from "@/components/models/Processing";
 import { ResponseStatusCode } from "@/constants/StatusCodes";
+import { Keyboard } from "react-native";
 
 interface Airtime2CashWalletCompProps {
   onPress?: ((event: GestureResponderEvent) => void) | null | undefined;
@@ -78,7 +79,7 @@ const BunusWalletComp = ({ onPress, userInfo }: BunusWalletCompProps) => {
         <View>
           <Text>Bunus</Text>
           <Text style={{ fontWeight: "bold" }} className="">
-            ₦{formatNumber(userInfo?.wallet?.bunus ?? 0)}
+            ₦{formatNumber(userInfo?.wallet?.bonus ?? 0)}
           </Text>
         </View>
       </View>
@@ -93,14 +94,15 @@ const BunusWalletComp = ({ onPress, userInfo }: BunusWalletCompProps) => {
 
 const MainWalletTransferComponent = () => {
   const theme = useTheme();
-  const [selectedWallet, setSelectedWallet] = useState<"a2c" | "bunus">("a2c");
+  const [selectedWallet, setSelectedWallet] = useState<"a2c" | "bonus">("a2c");
   const [walletSelectBottomSheetVisible, setWalletSelectBottomSheetVisible] =
     useState(false);
   const [userInfo, setUserInfo] = useState<UserInfoType>();
   const [amount, setAmount] = useState("");
   const [amountError, setAmountError] = useState(false);
   const [amountErrorMessage, setAmountErrorMessage] = useState("");
-  const [processingTransfer, setProcessingTransfer] = useState(false)
+  const [processingTransfer, setProcessingTransfer] = useState(false);
+  const [transferPreviewVisible, setTransferPreviewVisible] = useState(false)
 
   const loadUserInfo = async () => {
     const userInfo = await getUserInfo();
@@ -123,50 +125,67 @@ const MainWalletTransferComponent = () => {
   );
 
   const validateInputs = async () => {
-
     if (toNumber(amount) < 100) {
-      setAmountError(true)
-      setAmountErrorMessage("Please Enter valid amount 100 > 100,000")
-      return
+      setAmountError(true);
+      setAmountErrorMessage("Please Enter valid amount 100 > 100,000");
+      return;
     }
-    if (selectedWallet == "a2c" && toNumber(amount) > toNumber(userInfo?.wallet?.airtime2cash ?? 0)) {
-      setAmountError(true)
-      setAmountErrorMessage("Insufficient Balance")
-      return
-    }
-
-    if (selectedWallet == "bunus" && toNumber(amount) > toNumber(userInfo?.wallet?.bunus ?? 0)) {
-      setAmountError(true)
-      setAmountErrorMessage("Insufficient Balance")
-      return
+    if (
+      selectedWallet == "a2c" &&
+      toNumber(amount) > toNumber(userInfo?.wallet?.airtime2cash ?? 0)
+    ) {
+      setAmountError(true);
+      setAmountErrorMessage("Insufficient Balance");
+      return;
     }
 
-    setAmountError(false)
-    setAmountErrorMessage("")
-   mainWalletTransfer()
+    if (
+      selectedWallet == "bonus" &&
+      toNumber(amount) > toNumber(userInfo?.wallet?.bonus ?? 0)
+    ) {
+      setAmountError(true);
+      setAmountErrorMessage("Insufficient Balance");
+      return;
+    }
+
+    setAmountError(false);
+    setAmountErrorMessage("");
+    setTransferPreviewVisible(true)
   };
 
   const mainWalletTransfer = async () => {
-    setProcessingTransfer(true)
-    const response = await requests.post({url: "/main/transfer/", data: {
-      from: selectedWallet,
-      amount: amount
-    }})
+    setTransferPreviewVisible(false)
 
-    setProcessingTransfer(false)
+    setProcessingTransfer(true);
+    const response = await requests.post({
+      url: "/main/transfer/",
+      data: {
+        from: selectedWallet,
+        amount: amount,
+      },
+    });
+
+    setProcessingTransfer(false);
 
     if (response.status == ResponseStatusCode.SUCCESS) {
-      Toast.success({title: response.message})
+      Toast.success({ title: response.message });
+      router.push({
+        pathname: "/modals/transfer_response",
+        params: {
+          type: "Transfer",
+          amount: amount,
+          data: JSON.stringify(response.data),
+        },
+      });
     }
     if (response.status == ResponseStatusCode.FAILED) {
-      await Toast.dangerHapticsAsync({title: response.message})
+      await Toast.dangerHapticsAsync({ title: response.message });
     }
 
     if (response.status == undefined) {
-      await Toast.dangerHapticsAsync({title: response.message})
+      await Toast.dangerHapticsAsync({ title: response.message });
     }
-    
-  }
+  };
 
   return (
     <View className="px-5">
@@ -179,7 +198,7 @@ const MainWalletTransferComponent = () => {
           userInfo={userInfo}
         />
       )}
-      {selectedWallet == "bunus" && (
+      {selectedWallet == "bonus" && (
         <BunusWalletComp
           onPress={() => setWalletSelectBottomSheetVisible(true)}
           userInfo={userInfo}
@@ -211,13 +230,50 @@ const MainWalletTransferComponent = () => {
             userInfo={userInfo}
           />
           <BunusWalletComp
-            onPress={() => handleSelectWallet("bunus")}
+            onPress={() => handleSelectWallet("bonus")}
             userInfo={userInfo}
           />
         </View>
       </BottomSheet>
 
-      <Processing visible={processingTransfer} description="Processing Transfer Please Wait" />
+      <Processing
+        visible={processingTransfer}
+        description="Processing Transfer Please Wait"
+      />
+
+      <BottomSheet onDismiss={setTransferPreviewVisible} visible={transferPreviewVisible}>
+        <View className="pl-5">
+          <Text className="text-lg" style={{fontWeight: "bold"}}>Transfer</Text>
+        </View>
+        <View className="px-3">
+          <DataTable>
+
+            <DataTable.Row>
+              <DataTable.Cell>
+                <Text className="font-bold">From </Text>
+              </DataTable.Cell>
+              <DataTable.Cell numeric>{selectedWallet}</DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>
+                <Text className="font-bold">To </Text>
+              </DataTable.Cell>
+              <DataTable.Cell numeric>Wallet</DataTable.Cell>
+            </DataTable.Row>
+
+            <DataTable.Row>
+              <DataTable.Cell>
+                <Text className="font-bold">Amount</Text>
+              </DataTable.Cell>
+              <DataTable.Cell numeric>₦{formatNumber(toNumber(amount))}</DataTable.Cell>
+            </DataTable.Row>
+          </DataTable>
+        </View>
+        <View className="px-5 mt-3 mb-3">
+          <Button onPress={mainWalletTransfer}>Transfer</Button>
+        </View>
+      </BottomSheet>
     </View>
   );
 };
@@ -255,7 +311,7 @@ const transfer = () => {
   );
 
   return (
-    <PaperSafeView>
+    <PaperSafeView onPress={() => Keyboard.dismiss()}>
       <CustomAppbar>
         <Appbar.Action
           onPress={() => router.back()}

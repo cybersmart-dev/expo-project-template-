@@ -90,6 +90,23 @@ const TransactionDetailsTypeData = ({
           </DataTable.Row>
         </View>
       )}
+       {type?.toLowerCase() == "transfer" && (
+        <View>
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text className="font-bold">From</Text>
+            </DataTable.Cell>
+            <DataTable.Cell numeric>{data?.from}</DataTable.Cell>
+          </DataTable.Row>
+
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text className="font-bold">To</Text>
+            </DataTable.Cell>
+            <DataTable.Cell numeric>{data?.to}</DataTable.Cell>
+          </DataTable.Row>
+        </View>
+      )}
     </View>
   );
 };

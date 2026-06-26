@@ -26,6 +26,6 @@ export type UserInfoType = {
     balance: number
     airtime2cash: number
     cashback: number
-    bunus: number
+    bonus: number
   }
 }

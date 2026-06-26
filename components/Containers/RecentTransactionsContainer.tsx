@@ -110,7 +110,6 @@ const RecentTransactionsContainer = ({
 
 
   const fetchTransactions = useCallback(async () => {
-    console.log("Fetching Recents...");
      setFetching(true);
     setNetworkRequestFailed(false);
     const response = await requests.get({

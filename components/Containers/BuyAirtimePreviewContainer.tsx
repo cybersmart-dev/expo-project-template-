@@ -70,7 +70,7 @@ const BuyAirtimePreviewContainer = ({
   return (
     <View className="p-2 h-full flex relative">
       <View className="px-5 items-center justify-between flex-row">
-        <Text className="text-lg font-bold">Buy Data</Text>
+        <Text className="text-lg font-bold">Buy Airtime</Text>
         <View className="flex-row items-center">
           <Text>Pay: </Text>
           <Text style={{ fontWeight: "bold" }} className="text-lg">
