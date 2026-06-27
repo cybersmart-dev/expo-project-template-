@@ -89,7 +89,7 @@ const Button = ({
           className="py-1"
           style={{
             borderRadius: 15,
-            backgroundColor: getBackgroundColor(),
+            backgroundColor: !disabled ? getBackgroundColor() : theme.colors.surfaceDisabled,
           }}
           labelStyle={{
             fontSize: 16,

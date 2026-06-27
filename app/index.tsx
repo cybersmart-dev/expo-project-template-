@@ -154,8 +154,9 @@ const Index = () => {
                 onPress={showTestNotification}
                 mode={"contained-tonal"}
                 className="mr-2"
+                icon={"face-agent"}
               >
-                Skip
+                Contact Us
               </RNFButton>
             </EaseView>
           </Appbar>
@@ -236,28 +237,41 @@ const Index = () => {
           </View>
 
           <View className="px-5 gap-y-3 w-screen  absolute bottom-0 mb-15">
-            <Button backgroundColor={theme.colors.accent} onPress={() => router.push("/logins/emailLogin")} >
+            <Button
+              backgroundColor={theme.colors.accent}
+              onPress={() => router.push("/logins/emailLogin")}
+            >
               Login
             </Button>
 
-            <Button  onPress={() => router.push("/singup")} mode={"outlined"}>
-              SingUp
+            <Button onPress={() => router.push("/singup")} mode={"outlined"}>
+              Register
             </Button>
 
-            <View>
-              <Button
-                
-                onPress={async (e) => {
-                  e.preventDefault();
-                  await WebBrowser.openBrowserAsync(
-                    "https://wa.me/+2347026426748",
-                  );
+            <View className="mt-2">
+              <Text style={{ textAlign: "center" }}>
+                By proceeding, you agree to our{" "}
+                <Text style={{ fontWeight: "bold" }} className="underline">
+                  Terms & Conditions
+                </Text>{" "}
+                and{" "}
+                <Text style={{ fontWeight: "bold" }} className="underline">
+                  {" "}
+                  Privacy Policy
+                </Text>
+              </Text>
+            </View>
+
+            <View className="pt-10">
+              <Text
+                style={{
+                  alignItems: "center",
+                  alignSelf: "center",
+                  fontWeight: "bold",
                 }}
-               mode={"outlined"}
-                
               >
-                Contact Support
-              </Button>
+                Version 1.0.0
+              </Text>
             </View>
           </View>
         </View>

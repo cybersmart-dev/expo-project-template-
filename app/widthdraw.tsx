@@ -4,8 +4,9 @@ import {
   Image,
   GestureResponderEvent,
   FlatList,
+  ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -20,6 +21,7 @@ import {
   TextInput,
   useTheme,
   Text,
+  HelperText,
 } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
 import { showMessage } from "react-native-flash-message";
@@ -27,6 +29,9 @@ import { Timer, toNumber } from "@/constants/Utils";
 import BottomSheet from "@/components/models/BottomSheet";
 import TransactionPinSheet from "@/components/models/TransactionPinSheet";
 import CustomAppbar from "@/components/CustomAppbar";
+import requests from "@/Network/HttpRequest";
+import { ResponseStatusCode } from "@/constants/StatusCodes";
+import { Toast } from "@/constants/Toast";
 
 const banks = [
   {
@@ -36,12 +41,19 @@ const banks = [
   },
 ];
 
+type BanksType = Array<{
+  bank_name: string;
+  bank_code: number;
+  slug: string;
+  logo: string;
+}>;
+
 const widthdraw = () => {
   const theme = useTheme();
   const [verifyingID, setVerifyingID] = useState(false);
   const [acountNumber, setAcountNumber] = useState("");
   const [idVerified, setIdVerified] = useState(false);
-  const [selectedBank, setSelectedBank] = useState("");
+  const [selectedBank, setSelectedBank] = useState<BanksType[0]>();
   const [amount, setAmount] = useState("");
   const [bankSelectSheetVisible, setBankSelectSheetVisible] = useState(false);
   const [transactionProcessing, setTransactionProcessing] = useState(false);
@@ -50,10 +62,23 @@ const widthdraw = () => {
     useState(false);
 
   const [bankSelectError, setBankSelectError] = useState(false);
+  const [banks, setBanks] = useState<BanksType>([]);
   const [accountNumberError, setAccountNumberError] = useState(false);
+  const [accountNumberErrorMessage, setAccountNumberErrorMessage] =
+    useState<any>("");
   const [amountError, setAmountError] = useState(false);
+  const [loadingBanks, setLoadingBanks] = useState(false);
+  const [banksLoadFailed, setBanksLoadFailed] = useState(false);
+  const [usersearchInputText, setUsersearchInputText] = useState("");
+  const [banksLoadFailedErrorMessage, setBanksLoadFailedErrorMessage] =
+    useState<any>("");
+
+  const [accountData, setAccountData] = useState<{ AccountName: string }>();
+  const [searchBanks, setSearchBanks] = useState<BanksType>([]);
 
   const handleVerifyID = async () => {
+    setAccountNumberError(false)
+    setAccountNumberErrorMessage("")
     if (acountNumber.length < 10) {
       showMessage({
         message: "Please Enter Valid Account Number",
@@ -65,16 +90,61 @@ const widthdraw = () => {
 
     setVerifyingID(true);
 
-    const finished = await new Timer().postDelayedAsync({ sec: 3000 });
-    if (finished) {
-      setVerifyingID(false);
+    const response = await requests.post({
+      url: "/verify/bank/",
+      data: {
+        accountNumber: acountNumber,
+        bank: selectedBank?.bank_code,
+      },
+    });
+
+    setVerifyingID(false);
+
+    if (response.status == ResponseStatusCode.SUCCESS) {
+      setAccountData(response.data);
       setIdVerified(true);
     }
-    return finished;
+
+    if (response.status == ResponseStatusCode.FAILED) {
+      setAccountNumberError(true);
+      setAccountNumberErrorMessage(response?.message);
+      await Toast.dangerHapticsAsync({ title: response.message });
+    }
+
+    if (response.status == undefined) {
+      await Toast.dangerHapticsAsync({ title: response.message });
+    }
   };
   function handleShowProviders(event: GestureResponderEvent): void {
     setBankSelectSheetVisible(true);
   }
+
+  useEffect(() => {
+    loadBanks();
+  }, []);
+
+  const loadBanks = async () => {
+    setLoadingBanks(true);
+
+    const response = await requests.get({ url: "/get/banks/" });
+    setLoadingBanks(false);
+
+    if (response.status == ResponseStatusCode.SUCCESS) {
+      setBanksLoadFailed(false);
+      setSearchBanks(response.data);
+      setBanks(response.data);
+    }
+    if (response.status == ResponseStatusCode.FAILED) {
+      setBanksLoadFailed(true);
+      setBanksLoadFailedErrorMessage(response?.message);
+      await Toast.dangerHapticsAsync({ title: response.message });
+    }
+    if (response.status == undefined) {
+      setBanksLoadFailed(true);
+      setBanksLoadFailedErrorMessage(response?.message);
+      await Toast.dangerHapticsAsync({ title: response.message });
+    }
+  };
 
   const handleNext = async () => {
     if (!selectedBank) {
@@ -112,11 +182,49 @@ const widthdraw = () => {
     setBankSelectError(false);
     if (acountNumber.length >= 10 && !idVerified) {
       await handleVerifyID();
-      await new Timer().postDelayedAsync({ sec: 500 });
-      setPreviewSheetVisible(true);
+      if (idVerified) {
+        setPreviewSheetVisible(true);
+      }
     } else {
       setPreviewSheetVisible(true);
     }
+  };
+
+  useEffect(() => {
+    setIdVerified(false);
+
+    const check = async () => {
+      if (acountNumber.length >= 10) {
+        await handleVerifyID();
+      }
+    };
+
+    check();
+  }, [acountNumber]);
+
+  useEffect(() => {
+    const handleSearch = () => {
+      if (usersearchInputText.trim() != "") {
+        handleSearchBank();
+        return;
+      }
+      setSearchBanks(banks);
+    };
+    handleSearch();
+  }, [usersearchInputText]);
+
+  const handleSearchBank = () => {
+    const result: any = [];
+
+    banks?.map((bank) => {
+      if (
+        bank.bank_name?.toLowerCase().match(usersearchInputText.toLowerCase())
+      ) {
+        result.push(bank);
+      }
+
+      setSearchBanks(result);
+    });
   };
 
   const handlePinComplate = async (pin: string) => {
@@ -125,27 +233,29 @@ const widthdraw = () => {
     setTransactionPinSheetVisible(false);
     setTransactionProcessing(false);
 
-    router.push({
-      pathname: "/modals/transfer_response",
-      params: {
-        status: "Success",
-        type: "Betting",
-        amount: amount,
-        data: JSON.stringify({
-          statusCode: 1,
-          type: "betting",
-          id: 1,
-          charge: 0.0,
-          cashback: 0.4,
-          message: `You have successfuly send ${amount} to id ${acountNumber}`,
-        }),
-      },
-    });
+    Toast.dangerHapticsAsync({ title: "Withdraw not available currently" });
+
+    // router.push({
+    //   pathname: "/modals/transfer_response",
+    //   params: {
+    //     status: "Success",
+    //     type: "Betting",
+    //     amount: amount,
+    //     data: JSON.stringify({
+    //       statusCode: 1,
+    //       type: "betting",
+    //       id: 1,
+    //       charge: 0.0,
+    //       cashback: 0.4,
+    //       message: `You have successfuly send ${amount} to id ${acountNumber}`,
+    //     }),
+    //   },
+    // });
   };
   return (
     <PaperSafeView>
       <View>
-        <CustomAppbar >
+        <CustomAppbar>
           <Appbar.Action
             isLeading
             icon={({ color, size }) => (
@@ -173,20 +283,20 @@ const widthdraw = () => {
                 mode="outlined"
                 error={bankSelectError}
                 className="rounded-lg bg-transparent"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 left={
                   <TextInput.Icon
                     icon={() => (
                       <Image
                         className="h-10 w-10 rounded-full"
                         source={{
-                          uri: "",
+                          uri: selectedBank?.logo,
                         }}
                       />
                     )}
                   />
                 }
-                value={selectedBank}
+                value={selectedBank?.bank_name}
                 placeholder="Select Bank"
                 outlineStyle={{ borderRadius: 15 }}
                 editable={false}
@@ -213,10 +323,9 @@ const widthdraw = () => {
               <TextInput
                 mode="outlined"
                 className="rounded-lg"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 error={accountNumberError}
                 keyboardType="numeric"
-                editable={!idVerified}
                 placeholder={"Account Number"}
                 onChangeText={setAcountNumber}
                 maxLength={10}
@@ -237,11 +346,16 @@ const widthdraw = () => {
             </Pressable>
 
             <View className="flex-row items-center justify-between">
+              {accountNumberError && (
+                <HelperText visible={accountNumberError} type={"error"}>
+                  {accountNumberErrorMessage}
+                </HelperText>
+              )}
               <View>
                 {idVerified && (
                   <View className="items-center flex-row gap-x-1">
                     <Icon source={"check-circle"} color="green" size={20} />
-                    <Text>{"Mustapha Aminu"}</Text>
+                    <Text>{accountData?.AccountName}</Text>
                   </View>
                 )}
               </View>
@@ -273,7 +387,7 @@ const widthdraw = () => {
                 className="rounded-lg bg-transparent"
                 keyboardType="numeric"
                 placeholder="Amount"
-                style={{backgroundColor: "transparent"}}
+                style={{ backgroundColor: "transparent" }}
                 value={amount}
                 onChangeText={(text) => setAmount(text)}
                 outlineStyle={{ borderRadius: 15 }}
@@ -307,27 +421,31 @@ const widthdraw = () => {
             <Text className="text-[17px] font-bold text-center">
               Select Bank
             </Text>
-            <Searchbar value="" placeholder="Search Bank" />
+            <Searchbar
+              value={usersearchInputText}
+              onChangeText={setUsersearchInputText}
+              placeholder="Search Bank"
+            />
           </View>
           <View className="px-6">
             <FlatList
-              keyExtractor={(item) => `${item.id}`}
-              data={banks}
+              keyExtractor={(item) => `${item.bank_code}!${item.bank_name}`}
+              data={searchBanks}
               renderItem={({ item }) => (
                 <View className="mt-2">
                   <List.Item
                     onPress={() => {
-                      setSelectedBank(item.name);
+                      setSelectedBank(item);
                       setBankSelectSheetVisible(false);
                     }}
-                    title={item.name}
+                    title={item.bank_name}
                     titleStyle={{ fontWeight: "bold" }}
                     left={() => (
                       <List.Icon
                         icon={() => (
                           <Image
                             className="h-10 w-10 rounded-full"
-                            source={{ uri: item.icon }}
+                            source={{ uri: item.logo }}
                           />
                         )}
                       />
@@ -335,6 +453,29 @@ const widthdraw = () => {
                   />
                 </View>
               )}
+              ListEmptyComponent={
+                <View>
+                  {loadingBanks && (
+                    <View className="items-center justify-center flex-1 mt-5">
+                      <View className="gap-y-4">
+                        <ActivityIndicator />
+                        <Text>Loading Banks...</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {banksLoadFailed && !loadingBanks && (
+                    <View className="items-center justify-center flex-1 mt-5">
+                      <View className="gap-y-4">
+                        <Text>{banksLoadFailedErrorMessage}</Text>
+                        <Button onPress={loadBanks} mode={"contained-tonal"}>
+                          Reload
+                        </Button>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              }
             />
           </View>
         </View>
@@ -355,7 +496,7 @@ const widthdraw = () => {
               <DataTable.Cell>
                 <Text className="font-bold">Bank</Text>
               </DataTable.Cell>
-              <DataTable.Cell numeric>{selectedBank}</DataTable.Cell>
+              <DataTable.Cell numeric>{selectedBank?.bank_name}</DataTable.Cell>
             </DataTable.Row>
 
             <DataTable.Row>
@@ -369,7 +510,9 @@ const widthdraw = () => {
               <DataTable.Cell>
                 <Text className="font-bold">Account Name</Text>
               </DataTable.Cell>
-              <DataTable.Cell numeric>{"Mustapha Aminu"}</DataTable.Cell>
+              <DataTable.Cell numeric>
+                {accountData?.AccountName}
+              </DataTable.Cell>
             </DataTable.Row>
 
             <DataTable.Row>
@@ -383,9 +526,8 @@ const widthdraw = () => {
             <Button
               disabled={!idVerified}
               onPress={async () => {
-                setPreviewSheetVisible(false)
-                await new Timer().postDelayedAsync({sec: 1000})
-                setTransactionPinSheetVisible(true)
+                setPreviewSheetVisible(false);
+                setTransactionPinSheetVisible(true);
               }}
               mode="contained"
             >
