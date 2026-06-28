@@ -6,7 +6,7 @@ import {
   FlatList,
   ScrollView,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { PaperSafeView } from "@/components/PaperView";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -76,9 +76,9 @@ const widthdraw = () => {
   const [accountData, setAccountData] = useState<{ AccountName: string }>();
   const [searchBanks, setSearchBanks] = useState<BanksType>([]);
 
-  const handleVerifyID = async () => {
-    setAccountNumberError(false)
-    setAccountNumberErrorMessage("")
+  const handleVerifyID = async (bank_code: number) => {
+    setAccountNumberError(false);
+    setAccountNumberErrorMessage("");
     if (acountNumber.length < 10) {
       showMessage({
         message: "Please Enter Valid Account Number",
@@ -94,7 +94,7 @@ const widthdraw = () => {
       url: "/verify/bank/",
       data: {
         accountNumber: acountNumber,
-        bank: selectedBank?.bank_code,
+        bank: bank_code,
       },
     });
 
@@ -126,7 +126,7 @@ const widthdraw = () => {
   const loadBanks = async () => {
     setLoadingBanks(true);
 
-    const response = await requests.get({ url: "/get/banks/" });
+    const response = await requests.get({ url: "/banks/" });
     setLoadingBanks(false);
 
     if (response.status == ResponseStatusCode.SUCCESS) {
@@ -180,8 +180,11 @@ const widthdraw = () => {
     setAmountError(false);
     setAccountNumberError(false);
     setBankSelectError(false);
+
+    setPreviewSheetVisible(true);
+
     if (acountNumber.length >= 10 && !idVerified) {
-      await handleVerifyID();
+      await handleVerifyID(selectedBank?.bank_code);
       if (idVerified) {
         setPreviewSheetVisible(true);
       }
@@ -195,7 +198,11 @@ const widthdraw = () => {
 
     const check = async () => {
       if (acountNumber.length >= 10) {
-        await handleVerifyID();
+        if (!selectedBank?.bank_name) {
+          setBankSelectSheetVisible(true);
+        } else {
+          await handleVerifyID(selectedBank?.bank_code);
+        }
       }
     };
 
@@ -229,29 +236,56 @@ const widthdraw = () => {
 
   const handlePinComplate = async (pin: string) => {
     setTransactionProcessing(true);
-    const finished = await new Timer().postDelayedAsync({ sec: 3000 });
+    const response = await requests.post({
+      url: "/request/withdraw/",
+      data: {
+        bank: selectedBank?.bank_code,
+        amount: amount,
+        accountNumber: acountNumber,
+        pin:pin
+      },
+    });
     setTransactionPinSheetVisible(false);
     setTransactionProcessing(false);
 
-    Toast.dangerHapticsAsync({ title: "Withdraw not available currently" });
+    if (response.status == ResponseStatusCode.SUCCESS) {
+      
+      console.debug("Response: ", response)
+      router.push({
+        pathname: "/modals/transfer_response",
+        params: {
+          status: "Success",
+          type: "Withdraw",
+          amount: amount,
+          data: JSON.stringify(response.data),
+        },
+      });
+    }
 
-    // router.push({
-    //   pathname: "/modals/transfer_response",
-    //   params: {
-    //     status: "Success",
-    //     type: "Betting",
-    //     amount: amount,
-    //     data: JSON.stringify({
-    //       statusCode: 1,
-    //       type: "betting",
-    //       id: 1,
-    //       charge: 0.0,
-    //       cashback: 0.4,
-    //       message: `You have successfuly send ${amount} to id ${acountNumber}`,
-    //     }),
-    //   },
-    // });
+    if (response.status == ResponseStatusCode.FAILED) {
+      Toast.dangerHapticsAsync({ title: response.message });
+      
+    }
+
+    if (response.status == undefined) {
+      Toast.dangerHapticsAsync({ title: response.message });
+    }
   };
+
+  const handleBankSelect = useCallback(
+    async (item: BanksType[0]) => {
+      setSelectedBank(item);
+      setBankSelectSheetVisible(false);
+
+      console.log(item);
+
+      if (acountNumber.length >= 10) {
+        await handleVerifyID(item.bank_code);
+      }
+    },
+    [acountNumber],
+  );
+
   return (
     <PaperSafeView>
       <View>
@@ -359,21 +393,8 @@ const widthdraw = () => {
                   </View>
                 )}
               </View>
-              <View className="self-end">
-                {!verifyingID && (
-                  <Button onPress={handleVerifyID} mode="contained-tonal">
-                    Validate ID
-                  </Button>
-                )}
-                {verifyingID && (
-                  <Button
-                    disabled
-                    onPress={handleVerifyID}
-                    mode="contained-tonal"
-                  >
-                    <ActivityIndicator />
-                  </Button>
-                )}
+              <View className="self-end mr-3">
+                {verifyingID && <ActivityIndicator size={15} />}
               </View>
             </View>
           </View>
@@ -434,10 +455,7 @@ const widthdraw = () => {
               renderItem={({ item }) => (
                 <View className="mt-2">
                   <List.Item
-                    onPress={() => {
-                      setSelectedBank(item);
-                      setBankSelectSheetVisible(false);
-                    }}
+                    onPress={() => handleBankSelect(item)}
                     title={item.bank_name}
                     titleStyle={{ fontWeight: "bold" }}
                     left={() => (
@@ -524,7 +542,7 @@ const widthdraw = () => {
           </View>
           <View className="absolute bottom-10 w-full mb-5 px-5 mt-5">
             <Button
-              disabled={!idVerified}
+              // disabled={!idVerified}
               onPress={async () => {
                 setPreviewSheetVisible(false);
                 setTransactionPinSheetVisible(true);

@@ -125,6 +125,33 @@ const TransactionDetailsTypeData = ({
           </DataTable.Row>
         </View>
       )}
+
+       {type?.toLowerCase() == "withdraw" && (
+        <View>
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text className="font-bold">AccountName</Text>
+            </DataTable.Cell>
+            <DataTable.Cell numeric>{data?.AccountName}</DataTable.Cell>
+          </DataTable.Row>
+
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text className="font-bold">BankName</Text>
+            </DataTable.Cell>
+            <DataTable.Cell numeric>{data?.BankName}</DataTable.Cell>
+          </DataTable.Row>
+
+          <DataTable.Row>
+            <DataTable.Cell>
+              <Text className="font-bold">AccountNumber</Text>
+            </DataTable.Cell>
+            <DataTable.Cell numeric>{data?.AccountNumber}</DataTable.Cell>
+          </DataTable.Row>
+
+        </View>
+      )}
+
     </View>
   );
 };
