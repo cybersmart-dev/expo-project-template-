@@ -12,11 +12,14 @@ import {
   Button as RNFButton,
   useTheme,
 } from "react-native-paper";
+import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 
 interface ButtonProps {
   children?: React.ReactNode;
   loading?: boolean;
+  icon?: IconSource | undefined
   onPress?: ((e: GestureResponderEvent) => void) | undefined;
+  fontSize?: number | undefined
   backgroundColor?:
     | string
     | Animated.Value
@@ -40,6 +43,8 @@ const Button = ({
   textColor,
   backgroundColor,
   disabled,
+  fontSize = 16,
+  icon,
   mode = "contained",
 }: ButtonProps) => {
   const theme = useTheme();
@@ -87,12 +92,13 @@ const Button = ({
           disabled={disabled}
           mode={mode}
           className="py-1"
+          icon={icon}
           style={{
             borderRadius: 15,
             backgroundColor: !disabled ? getBackgroundColor() : theme.colors.surfaceDisabled,
           }}
           labelStyle={{
-            fontSize: 16,
+            fontSize: fontSize,
             color:getTextColor()
           }}
         >

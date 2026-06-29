@@ -107,7 +107,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             {/** logins */}
             <Stack.Screen
               name="logins/emailLogin"
@@ -148,7 +147,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="logins/singin"
               options={{
@@ -157,7 +155,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="passwordreset/PasswordReset"
               options={{
@@ -167,9 +164,7 @@ function RootLayoutNav() {
               }}
             />
             {/** end logins */}
-
             {/** protected screens */}
-
             <Stack.Screen
               name="profile"
               options={{
@@ -178,7 +173,38 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
+            <Stack.Screen
+              name="AccountUpgrade/Tiers"
+              options={{
+                presentation: "containedModal",
+                title: "Tiers",
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="AccountUpgrade/Tier1Upgrade"
+              options={{
+                presentation: "containedModal",
+                title: "Tier1Upgrade",
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="AccountUpgrade/Tier2Upgrade"
+              options={{
+                presentation: "containedModal",
+                title: "Tier2Upgrade",
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="AccountUpgrade/Tier3Upgrade"
+              options={{
+                presentation: "containedModal",
+                title: "Tier3Upgrade",
+                headerShown: false,
+              }}
+            />
             <Stack.Screen
               name="transfer"
               options={{
@@ -187,7 +213,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="changePassword"
               options={{
@@ -196,7 +221,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="settings"
               options={{
@@ -205,7 +229,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="PinManagement/CreateTransactionPin"
               options={{
@@ -214,7 +237,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="buy-data"
               options={{
@@ -223,7 +245,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="buy-airtime"
               options={{
@@ -232,7 +253,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="airtime2cash/airtime2cash"
               options={{
@@ -249,7 +269,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="add_money"
               options={{
@@ -258,7 +277,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="notifications"
               options={{
@@ -267,7 +285,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="betting"
               options={{
@@ -276,7 +293,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="electricity"
               options={{
@@ -285,7 +301,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="cabletv"
               options={{
@@ -294,7 +309,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="result-chacker"
               options={{
@@ -303,7 +317,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="earning"
               options={{
@@ -328,7 +341,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="PinManagement/change-pin"
               options={{
@@ -337,7 +349,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="PinManagement/reset-pin"
               options={{
@@ -346,7 +357,6 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             <Stack.Screen
               name="login_settings"
               options={{
@@ -355,9 +365,7 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             {/** end protected screens */}
-
             <Stack.Screen
               name="modals/pin_sheet"
               options={{
@@ -374,9 +382,7 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
-
             {/** end modal */}
-
             <Stack.Screen
               name="TransactionDetails/[id]"
               options={{

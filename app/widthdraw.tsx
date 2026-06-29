@@ -181,8 +181,6 @@ const widthdraw = () => {
     setAccountNumberError(false);
     setBankSelectError(false);
 
-    setPreviewSheetVisible(true);
-
     if (acountNumber.length >= 10 && !idVerified) {
       await handleVerifyID(selectedBank?.bank_code);
       if (idVerified) {

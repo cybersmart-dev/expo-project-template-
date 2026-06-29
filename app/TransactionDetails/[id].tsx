@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Appbar,
-  Button,
   DataTable,
   Divider,
   Icon,
@@ -34,6 +33,7 @@ import NoConnectionModal from "@/components/models/NoConnectionModal";
 import * as Clipboard from "expo-clipboard";
 import { Toast } from "@/constants/Toast";
 import CustomAppbar from "@/components/CustomAppbar";
+import Button from "@/components/Buttons/Button";
 
 //type TransactionsType = Transactions
 
@@ -90,7 +90,7 @@ const TransactionDetailsTypeData = ({
           </DataTable.Row>
         </View>
       )}
-       {type?.toLowerCase() == "transfer" && (
+      {type?.toLowerCase() == "transfer" && (
         <View>
           <DataTable.Row>
             <DataTable.Cell>
@@ -126,7 +126,7 @@ const TransactionDetailsTypeData = ({
         </View>
       )}
 
-       {type?.toLowerCase() == "withdraw" && (
+      {type?.toLowerCase() == "withdraw" && (
         <View>
           <DataTable.Row>
             <DataTable.Cell>
@@ -148,10 +148,8 @@ const TransactionDetailsTypeData = ({
             </DataTable.Cell>
             <DataTable.Cell numeric>{data?.AccountNumber}</DataTable.Cell>
           </DataTable.Row>
-
         </View>
       )}
-
     </View>
   );
 };
@@ -165,6 +163,7 @@ const TransactionDetails = () => {
   const [fetching, setFetching] = useState(true);
   const [networkError, setNetworkError] = useState(false);
   const viewRef = useRef<any>(null);
+  const [viewMore, setViewMore] = useState(false);
   const [downloadOptionSheetVisible, setDownloadOptionSheetVisible] =
     useState(false);
 
@@ -330,97 +329,123 @@ const TransactionDetails = () => {
       )}
 
       {!fetching && (
-        <ViewShot
-          style={{
-            backgroundColor: "transparent",
-            paddingVertical: 10,
-            borderRadius: 12,
-          }}
-          ref={viewRef}
-          options={{ format: "png", quality: 1 }}
-        >
-          <View className="items-center mt-5 w-screen justify-around">
-            <View className="items-center justify-center gap-y-2">
-              {getTransactionStatusIcon()}
+        <View>
+          <ViewShot
+            style={{
+              backgroundColor: "transparent",
+              paddingVertical: 10,
+              borderRadius: 12,
+            }}
+            ref={viewRef}
+            options={{ format: "png", quality: 1 }}
+          >
+            <View className="items-center mt-5 w-screen justify-around">
+              <View className="items-center justify-center gap-y-2">
+                {getTransactionStatusIcon()}
 
-              <Text className="text font-bold">{transaction?.status}</Text>
+                <Text className="text font-bold">{transaction?.status}</Text>
+              </View>
+              <View className="w-full px-5 mt-2 items-center">
+                <Text style={{ textAlign: "center" }} className="text-center">
+                  {transaction?.description}
+                </Text>
+              </View>
             </View>
-            <View className="w-full px-5 mt-2 items-center">
-              <Text style={{ textAlign: "center" }} className="text-center">
-                {transaction?.description}
-              </Text>
-            </View>
-          </View>
 
-          <View className="px-5 mt-10">
-            <View
-              style={{ backgroundColor: theme.colors.primaryContainer }}
-              className="rounded-lg"
-            >
-              <DataTable.Row>
-                <DataTable.Cell>
-                  <Text className="font-bold">Transaction ID</Text>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>
-                  <Tooltip title={transaction?.id}>
-                    <Pressable
-                      onPress={() => handleCopy(transaction?.id)}
-                      className="flex-row items-center space-x-0 mr-2"
-                    >
-                      <Text ellipsizeMode={"middle"} numberOfLines={1}>
-                        {transaction?.id}
-                      </Text>
+            <View className="px-5 mt-10">
+              <View
+                style={{ backgroundColor: theme.colors.primaryContainer }}
+                className="rounded-lg"
+              >
+                <DataTable.Row>
+                  <DataTable.Cell>
+                    <Text className="font-bold">Transaction ID</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    <Tooltip title={transaction?.id}>
+                      <Pressable
+                        onPress={() => handleCopy(transaction?.id)}
+                        className="flex-row items-center space-x-0 mr-2"
+                      >
+                        <Text ellipsizeMode={"middle"} numberOfLines={1}>
+                          {transaction?.id}
+                        </Text>
 
-                      <Pressable onPress={() => handleCopy(transaction?.id)}>
-                        <Icon source={"content-copy"} size={17} />
+                        <Pressable onPress={() => handleCopy(transaction?.id)}>
+                          <Icon source={"content-copy"} size={17} />
+                        </Pressable>
                       </Pressable>
-                    </Pressable>
-                  </Tooltip>
-                </DataTable.Cell>
-              </DataTable.Row>
+                    </Tooltip>
+                  </DataTable.Cell>
+                </DataTable.Row>
 
-              <DataTable.Row>
-                <DataTable.Cell>
-                  <Text className="font-bold">Service</Text>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>
-                  {transaction?.service_type}
-                </DataTable.Cell>
-              </DataTable.Row>
+                <DataTable.Row>
+                  <DataTable.Cell>
+                    <Text className="font-bold">Service</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    {transaction?.service_type}
+                  </DataTable.Cell>
+                </DataTable.Row>
 
-              <DataTable.Row>
-                <DataTable.Cell>
-                  <Text className="font-bold">Status</Text>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>{transaction?.status}</DataTable.Cell>
-              </DataTable.Row>
+                <DataTable.Row>
+                  <DataTable.Cell>
+                    <Text className="font-bold">Status</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>{transaction?.status}</DataTable.Cell>
+                </DataTable.Row>
 
-              <TransactionDetailsTypeData
-                data={transaction?.service_data}
-                type={transaction?.service_type}
-                recipt={recipt}
-              />
+                <DataTable.Row>
+                  <DataTable.Cell>
+                    <Text className="font-bold">Amount</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    ₦{formatNumber(toNumber(`${transaction?.amount}`))}
+                  </DataTable.Cell>
+                </DataTable.Row>
 
-              <DataTable.Row>
-                <DataTable.Cell>
-                  <Text className="font-bold">Amount</Text>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>
-                  ₦{formatNumber(toNumber(`${transaction?.amount}`))}
-                </DataTable.Cell>
-              </DataTable.Row>
-
-              <DataTable.Row>
-                <DataTable.Cell>
-                  <Text className="font-bold">Date</Text>
-                </DataTable.Cell>
-                <DataTable.Cell numeric>
-                  {formatDate(transaction?.created_at)}
-                </DataTable.Cell>
-              </DataTable.Row>
+                <DataTable.Row>
+                  <DataTable.Cell>
+                    <Text className="font-bold">Date</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell numeric>
+                    {formatDate(transaction?.created_at)}
+                  </DataTable.Cell>
+                </DataTable.Row>
+                {viewMore && (
+                  <TransactionDetailsTypeData
+                    data={transaction?.service_data}
+                    type={transaction?.service_type}
+                    recipt={recipt}
+                  />
+                )}
+              </View>
             </View>
+          </ViewShot>
+
+          <View className="px-5">
+            {!viewMore && (
+              <Button
+                fontSize={12}
+                icon={"arrow-down"}
+                onPress={() => setViewMore(true)}
+                mode={"text"}
+              >
+                View More
+              </Button>
+            )}
+            {viewMore && (
+              <Button
+                fontSize={12}
+                icon={"arrow-up"}
+                onPress={() => setViewMore(false)}
+                mode={"text"}
+              >
+                View Less
+              </Button>
+            )}
           </View>
-        </ViewShot>
+        </View>
       )}
 
       <BottomSheet
@@ -477,20 +502,20 @@ const TransactionDetails = () => {
       </BottomSheet>
 
       {!fetching && (
-        <View className="absolute bottom-0 w-full mb-5 px-5 gap-y-2">
+        <View className="absolute flex-row bottom-0 w-full mb-5 px-5 items-center justify-around">
           <Button
+            icon={"share-variant"}
             onPress={handleShareTransactionRecipt}
             mode="outlined"
-            className="py-0"
           >
-            Share Recipt
+            Share
           </Button>
           <Button
+            icon={"download"}
             onPress={() => setDownloadOptionSheetVisible(true)}
             mode="contained"
-            className="py-0"
           >
-            Download Recipt
+            Download
           </Button>
         </View>
       )}

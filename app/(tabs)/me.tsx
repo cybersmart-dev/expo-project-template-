@@ -179,11 +179,11 @@ const ProfileTop = ({ loaded, userInfo, loadUserInfo }: ProfileTopProps) => {
             {userInfo?.full_name}
           </Text>
           <View>
-            <View className="bg-green-500 w-18 rounded-full items-center py-px border-green-700 border">
+            <Pressable onPress={() => router.push("/AccountUpgrade/Tiers")} className="bg-green-500 w-18 rounded-full items-center py-px border-green-700 border">
               <Text style={{ alignItems: "center", color: "white" }}>
                 Level 0
               </Text>
-            </View>
+            </Pressable>
           </View>
         </EaseView>
       </View>
