@@ -86,7 +86,7 @@ const AvailableTiers = ({ theme, currentLevel }: AvailableTiersProps) => {
 
 const Tiers = () => {
   const theme = useTheme();
-  const [userCurrentLevelId, setUserCurrentLevelId] = useState(3);
+  const [userCurrentLevelId, setUserCurrentLevelId] = useState(1);
 
   const handleTierUpgradePress = useCallback(() => {
     const tier = TiersList.find((tier) => tier.id == userCurrentLevelId);
